@@ -455,12 +455,9 @@ export default function ProductsPage() {
               onClick={() => {
                 window.scrollTo({ top: window.innerHeight, behavior: 'smooth' });
               }}
-              className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold rounded-xl hover:from-cyan-400 hover:to-blue-500 transition-all duration-300 shadow-lg hover:shadow-cyan-500/25 hover:scale-105"
+              className="px-8 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold rounded-xl hover:from-cyan-400 hover:to-blue-500 transition-all duration-300 shadow-lg hover:shadow-cyan-500/25 hover:scale-105"
             >
               Explore Testing Panels
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-              </svg>
             </button>
           </motion.div>
 
@@ -614,9 +611,30 @@ export default function ProductsPage() {
                           setSelectedCategory(category);
                           setCurrentStage('panels');
                         }}
-                        className={`cursor-pointer backdrop-blur-sm bg-slate-800/40 border border-slate-700/50 rounded-2xl p-8 hover:bg-slate-800/60 hover:border-slate-600/60 transition-all duration-300 shadow-xl shadow-slate-900/50 text-center group`}
+                        className={`cursor-pointer backdrop-blur-sm bg-slate-800/40 border border-slate-700/50 rounded-2xl p-8 hover:bg-slate-800/60 hover:border-slate-600/60 transition-all duration-300 shadow-xl shadow-slate-900/50 text-center group relative overflow-hidden`}
                       >
-                        <div className="text-5xl mb-6">{info.icon}</div>
+                        {/* Color accent border */}
+                        <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${
+                          info.color === 'emerald' ? 'from-emerald-400 to-green-500' :
+                          info.color === 'cyan' ? 'from-cyan-400 to-blue-500' :
+                          info.color === 'purple' ? 'from-purple-400 to-pink-500' :
+                          'from-blue-400 to-indigo-500'
+                        }`}></div>
+                        
+                        {/* Colored icon background */}
+                        <div className={`inline-flex items-center justify-center w-16 h-16 rounded-xl mb-6 ${
+                          info.color === 'emerald' ? 'bg-gradient-to-br from-emerald-400/20 to-green-500/20 border border-emerald-400/30' :
+                          info.color === 'cyan' ? 'bg-gradient-to-br from-cyan-400/20 to-blue-500/20 border border-cyan-400/30' :
+                          info.color === 'purple' ? 'bg-gradient-to-br from-purple-400/20 to-pink-500/20 border border-purple-400/30' :
+                          'bg-gradient-to-br from-blue-400/20 to-indigo-500/20 border border-blue-400/30'
+                        }`}>
+                          <div className={`text-3xl ${
+                            info.color === 'emerald' ? 'text-emerald-300' :
+                            info.color === 'cyan' ? 'text-cyan-300' :
+                            info.color === 'purple' ? 'text-purple-300' :
+                            'text-blue-300'
+                          }`}>{info.icon}</div>
+                        </div>
                         <h3 className="text-2xl font-semibold text-white mb-3">{info.title}</h3>
                         <p className="text-slate-300 text-sm mb-6 leading-relaxed">
                           {info.description}
@@ -625,12 +643,32 @@ export default function ProductsPage() {
                           <div className="text-slate-400 text-sm">
                             {info.count} panels available
                           </div>
-                          <div className="text-slate-400 text-sm">
+                          <div className={`text-sm font-medium ${
+                            info.color === 'emerald' ? 'text-emerald-300' :
+                            info.color === 'cyan' ? 'text-cyan-300' :
+                            info.color === 'purple' ? 'text-purple-300' :
+                            'text-blue-300'
+                          }`}>
                             Starting from ${info.minPrice}
                           </div>
                         </div>
-                        <div className="text-cyan-300 text-sm font-medium group-hover:text-cyan-200 transition-colors">
-                          Explore Panels →
+                        
+                        {/* Status indicator */}
+                        <div className="flex items-center justify-center gap-2">
+                          <div className={`w-2 h-2 rounded-full animate-pulse ${
+                            info.color === 'emerald' ? 'bg-emerald-400' :
+                            info.color === 'cyan' ? 'bg-cyan-400' :
+                            info.color === 'purple' ? 'bg-purple-400' :
+                            'bg-blue-400'
+                          }`}></div>
+                          <div className={`text-sm font-medium transition-colors ${
+                            info.color === 'emerald' ? 'text-emerald-300 group-hover:text-emerald-200' :
+                            info.color === 'cyan' ? 'text-cyan-300 group-hover:text-cyan-200' :
+                            info.color === 'purple' ? 'text-purple-300 group-hover:text-purple-200' :
+                            'text-blue-300 group-hover:text-blue-200'
+                          }`}>
+                            Explore Panels
+                          </div>
                         </div>
                       </motion.div>
                     );
@@ -665,12 +703,51 @@ export default function ProductsPage() {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.5, delay: index * 0.1 }}
                       whileHover={{ scale: 1.02 }}
-                      className="backdrop-blur-sm bg-slate-800/40 border border-slate-700/50 rounded-xl p-6 hover:bg-slate-800/60 hover:border-slate-600/60 transition-all duration-300 shadow-xl shadow-slate-900/50"
+                      className="backdrop-blur-sm bg-slate-800/40 border border-slate-700/50 rounded-xl p-6 hover:bg-slate-800/60 hover:border-slate-600/60 transition-all duration-300 shadow-xl shadow-slate-900/50 relative overflow-hidden group"
                     >
+                      {/* Color accent border */}
+                      <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${
+                        panel.color === 'emerald' ? 'from-emerald-400 to-green-500' :
+                        panel.color === 'cyan' ? 'from-cyan-400 to-blue-500' :
+                        panel.color === 'amber' ? 'from-amber-400 to-orange-500' :
+                        panel.color === 'blue' ? 'from-blue-400 to-indigo-500' :
+                        panel.color === 'rose' ? 'from-rose-400 to-pink-500' :
+                        panel.color === 'purple' ? 'from-purple-400 to-pink-500' :
+                        'from-teal-400 to-cyan-500'
+                      }`}></div>
+                      
                       <div className="flex items-start justify-between mb-4">
-                        <div className="text-2xl">{panel.icon}</div>
+                        {/* Colored icon background */}
+                        <div className={`inline-flex items-center justify-center w-12 h-12 rounded-lg ${
+                          panel.color === 'emerald' ? 'bg-gradient-to-br from-emerald-400/20 to-green-500/20 border border-emerald-400/30' :
+                          panel.color === 'cyan' ? 'bg-gradient-to-br from-cyan-400/20 to-blue-500/20 border border-cyan-400/30' :
+                          panel.color === 'amber' ? 'bg-gradient-to-br from-amber-400/20 to-orange-500/20 border border-amber-400/30' :
+                          panel.color === 'blue' ? 'bg-gradient-to-br from-blue-400/20 to-indigo-500/20 border border-blue-400/30' :
+                          panel.color === 'rose' ? 'bg-gradient-to-br from-rose-400/20 to-pink-500/20 border border-rose-400/30' :
+                          panel.color === 'purple' ? 'bg-gradient-to-br from-purple-400/20 to-pink-500/20 border border-purple-400/30' :
+                          'bg-gradient-to-br from-teal-400/20 to-cyan-500/20 border border-teal-400/30'
+                        }`}>
+                          <div className={`text-xl ${
+                            panel.color === 'emerald' ? 'text-emerald-300' :
+                            panel.color === 'cyan' ? 'text-cyan-300' :
+                            panel.color === 'amber' ? 'text-amber-300' :
+                            panel.color === 'blue' ? 'text-blue-300' :
+                            panel.color === 'rose' ? 'text-rose-300' :
+                            panel.color === 'purple' ? 'text-purple-300' :
+                            'text-teal-300'
+                          }`}>{panel.icon}</div>
+                        </div>
+                        
                         <div className="text-right">
-                          <div className="text-2xl font-bold text-white font-mono">{panel.price}</div>
+                          <div className={`text-2xl font-bold font-mono mb-1 ${
+                            panel.color === 'emerald' ? 'text-emerald-300' :
+                            panel.color === 'cyan' ? 'text-cyan-300' :
+                            panel.color === 'amber' ? 'text-amber-300' :
+                            panel.color === 'blue' ? 'text-blue-300' :
+                            panel.color === 'rose' ? 'text-rose-300' :
+                            panel.color === 'purple' ? 'text-purple-300' :
+                            'text-teal-300'
+                          }`}>{panel.price}</div>
                           <div className="text-xs text-slate-400">{panel.testCount} tests</div>
                         </div>
                       </div>
@@ -696,7 +773,15 @@ export default function ProductsPage() {
                       
                       <div className="space-y-3">
                         <button 
-                          className="w-full px-4 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold rounded-xl hover:from-cyan-400 hover:to-blue-500 transition-all duration-300 shadow-lg"
+                          className={`w-full px-4 py-3 font-semibold rounded-xl transition-all duration-300 shadow-lg text-white ${
+                            panel.color === 'emerald' ? 'bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-400 hover:to-green-500 hover:shadow-emerald-500/25' :
+                            panel.color === 'cyan' ? 'bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 hover:shadow-cyan-500/25' :
+                            panel.color === 'amber' ? 'bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 hover:shadow-amber-500/25' :
+                            panel.color === 'blue' ? 'bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-400 hover:to-indigo-500 hover:shadow-blue-500/25' :
+                            panel.color === 'rose' ? 'bg-gradient-to-r from-rose-500 to-pink-600 hover:from-rose-400 hover:to-pink-500 hover:shadow-rose-500/25' :
+                            panel.color === 'purple' ? 'bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-400 hover:to-pink-500 hover:shadow-purple-500/25' :
+                            'bg-gradient-to-r from-teal-500 to-cyan-600 hover:from-teal-400 hover:to-cyan-500 hover:shadow-teal-500/25'
+                          }`}
                         >
                           Order Panel
                         </button>
@@ -705,9 +790,26 @@ export default function ProductsPage() {
                             setSelectedPanel(panel);
                             setShowPanelDetail(true);
                           }}
-                          className="w-full px-4 py-2 text-slate-300 text-sm hover:text-slate-200 transition-colors"
+                          className={`w-full px-4 py-2 text-sm transition-colors flex items-center justify-center gap-2 ${
+                            panel.color === 'emerald' ? 'text-emerald-300 hover:text-emerald-200' :
+                            panel.color === 'cyan' ? 'text-cyan-300 hover:text-cyan-200' :
+                            panel.color === 'amber' ? 'text-amber-300 hover:text-amber-200' :
+                            panel.color === 'blue' ? 'text-blue-300 hover:text-blue-200' :
+                            panel.color === 'rose' ? 'text-rose-300 hover:text-rose-200' :
+                            panel.color === 'purple' ? 'text-purple-300 hover:text-purple-200' :
+                            'text-teal-300 hover:text-teal-200'
+                          }`}
                         >
-                          View Full Details →
+                          <div className={`w-2 h-2 rounded-full ${
+                            panel.color === 'emerald' ? 'bg-emerald-400' :
+                            panel.color === 'cyan' ? 'bg-cyan-400' :
+                            panel.color === 'amber' ? 'bg-amber-400' :
+                            panel.color === 'blue' ? 'bg-blue-400' :
+                            panel.color === 'rose' ? 'bg-rose-400' :
+                            panel.color === 'purple' ? 'bg-purple-400' :
+                            'bg-teal-400'
+                          }`}></div>
+                          View Full Details
                         </button>
                       </div>
                     </motion.div>
