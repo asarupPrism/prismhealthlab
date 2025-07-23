@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSearchParams } from 'next/navigation';
 
@@ -309,7 +309,7 @@ const panels: Panel[] = [
   }
 ];
 
-export default function ProductsPage() {
+function ProductsPageContent() {
   const searchParams = useSearchParams();
   const [currentStage, setCurrentStage] = useState<Stage>('categories');
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
@@ -984,5 +984,20 @@ export default function ProductsPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function ProductsPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <div className="text-slate-300">Loading diagnostic panels...</div>
+        </div>
+      </div>
+    }>
+      <ProductsPageContent />
+    </Suspense>
   );
 }
