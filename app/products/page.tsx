@@ -311,9 +311,8 @@ const panels: Panel[] = [
 export default function ProductsPage() {
   const [currentStage, setCurrentStage] = useState<Stage>('categories');
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
-  const [selectedPanel, setSelectedPanel] = useState<Panel | null>(null);
-  const [showPanelDetail, setShowPanelDetail] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
+  const [flippedCards, setFlippedCards] = useState<Set<string>>(new Set());
 
   // Scroll tracking for hero transition
   useEffect(() => {
@@ -332,22 +331,33 @@ export default function ProductsPage() {
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
-        if (showPanelDetail) {
-          setShowPanelDetail(false);
+        if (flippedCards.size > 0) {
+          setFlippedCards(new Set());
         } else if (currentStage === 'panels') {
           setCurrentStage('categories');
           setSelectedCategory(null);
-          setSelectedPanel(null);
         }
       }
     };
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [showPanelDetail, currentStage]);
+  }, [flippedCards, currentStage]);
 
   const getCategoryPanels = (category: Category) => {
     return panels.filter(panel => panel.category === category);
+  };
+
+  const toggleCardFlip = (cardId: string) => {
+    setFlippedCards(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(cardId)) {
+        newSet.delete(cardId);
+      } else {
+        newSet.add(cardId);
+      }
+      return newSet;
+    });
   };
 
   const getCategoryInfo = (category: Category) => {
@@ -696,15 +706,20 @@ export default function ProductsPage() {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  {getCategoryPanels(selectedCategory).map((panel, index) => (
-                    <motion.div
-                      key={panel.id}
-                      initial={{ opacity: 0, y: 30 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.5, delay: index * 0.1 }}
-                      whileHover={{ scale: 1.02 }}
-                      className="backdrop-blur-sm bg-slate-800/40 border border-slate-700/50 rounded-xl p-6 hover:bg-slate-800/60 hover:border-slate-600/60 transition-all duration-300 shadow-xl shadow-slate-900/50 relative overflow-hidden group"
-                    >
+                  {getCategoryPanels(selectedCategory).map((panel, index) => {
+                    const isFlipped = flippedCards.has(panel.id);
+                    return (
+                      <motion.div
+                        key={panel.id}
+                        initial={{ opacity: 0, y: 30 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5, delay: index * 0.1 }}
+                        whileHover={{ scale: 1.02 }}
+                        className="card-flip-container"
+                      >
+                        <div className={`card-flip-inner ${isFlipped ? 'flipped' : ''}`}>
+                          {/* Front of Card */}
+                          <div className="card-face card-face-front backdrop-blur-sm bg-slate-800/40 border border-slate-700/50 hover:bg-slate-800/60 hover:border-slate-600/60 transition-all duration-300 shadow-xl shadow-slate-900/50 relative overflow-hidden group p-6">
                       {/* Color accent border */}
                       <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${
                         panel.color === 'emerald' ? 'from-emerald-400 to-green-500' :
@@ -771,125 +786,160 @@ export default function ProductsPage() {
                         </div>
                       </div>
                       
-                      <div className="space-y-3">
-                        <button 
-                          className={`w-full px-4 py-3 font-semibold rounded-xl transition-all duration-300 shadow-lg text-white ${
-                            panel.color === 'emerald' ? 'bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-400 hover:to-green-500 hover:shadow-emerald-500/25' :
-                            panel.color === 'cyan' ? 'bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 hover:shadow-cyan-500/25' :
-                            panel.color === 'amber' ? 'bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 hover:shadow-amber-500/25' :
-                            panel.color === 'blue' ? 'bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-400 hover:to-indigo-500 hover:shadow-blue-500/25' :
-                            panel.color === 'rose' ? 'bg-gradient-to-r from-rose-500 to-pink-600 hover:from-rose-400 hover:to-pink-500 hover:shadow-rose-500/25' :
-                            panel.color === 'purple' ? 'bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-400 hover:to-pink-500 hover:shadow-purple-500/25' :
-                            'bg-gradient-to-r from-teal-500 to-cyan-600 hover:from-teal-400 hover:to-cyan-500 hover:shadow-teal-500/25'
-                          }`}
-                        >
-                          Order Panel
-                        </button>
-                        <button 
-                          onClick={() => {
-                            setSelectedPanel(panel);
-                            setShowPanelDetail(true);
-                          }}
-                          className={`w-full px-4 py-2 text-sm transition-colors flex items-center justify-center gap-2 ${
-                            panel.color === 'emerald' ? 'text-emerald-300 hover:text-emerald-200' :
-                            panel.color === 'cyan' ? 'text-cyan-300 hover:text-cyan-200' :
-                            panel.color === 'amber' ? 'text-amber-300 hover:text-amber-200' :
-                            panel.color === 'blue' ? 'text-blue-300 hover:text-blue-200' :
-                            panel.color === 'rose' ? 'text-rose-300 hover:text-rose-200' :
-                            panel.color === 'purple' ? 'text-purple-300 hover:text-purple-200' :
-                            'text-teal-300 hover:text-teal-200'
-                          }`}
-                        >
-                          <div className={`w-2 h-2 rounded-full ${
-                            panel.color === 'emerald' ? 'bg-emerald-400' :
-                            panel.color === 'cyan' ? 'bg-cyan-400' :
-                            panel.color === 'amber' ? 'bg-amber-400' :
-                            panel.color === 'blue' ? 'bg-blue-400' :
-                            panel.color === 'rose' ? 'bg-rose-400' :
-                            panel.color === 'purple' ? 'bg-purple-400' :
-                            'bg-teal-400'
-                          }`}></div>
-                          View Full Details
-                        </button>
-                      </div>
-                    </motion.div>
-                  ))}
+                            <div className="space-y-3">
+                              <button 
+                                className={`w-full px-4 py-3 font-semibold rounded-xl transition-all duration-300 shadow-lg text-white ${
+                                  panel.color === 'emerald' ? 'bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-400 hover:to-green-500 hover:shadow-emerald-500/25' :
+                                  panel.color === 'cyan' ? 'bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 hover:shadow-cyan-500/25' :
+                                  panel.color === 'amber' ? 'bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 hover:shadow-amber-500/25' :
+                                  panel.color === 'blue' ? 'bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-400 hover:to-indigo-500 hover:shadow-blue-500/25' :
+                                  panel.color === 'rose' ? 'bg-gradient-to-r from-rose-500 to-pink-600 hover:from-rose-400 hover:to-pink-500 hover:shadow-rose-500/25' :
+                                  panel.color === 'purple' ? 'bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-400 hover:to-pink-500 hover:shadow-purple-500/25' :
+                                  'bg-gradient-to-r from-teal-500 to-cyan-600 hover:from-teal-400 hover:to-cyan-500 hover:shadow-teal-500/25'
+                                }`}
+                              >
+                                Order Panel
+                              </button>
+                              <button 
+                                onClick={() => toggleCardFlip(panel.id)}
+                                className={`w-full px-4 py-2 text-sm transition-colors flex items-center justify-center gap-2 ${
+                                  panel.color === 'emerald' ? 'text-emerald-300 hover:text-emerald-200' :
+                                  panel.color === 'cyan' ? 'text-cyan-300 hover:text-cyan-200' :
+                                  panel.color === 'amber' ? 'text-amber-300 hover:text-amber-200' :
+                                  panel.color === 'blue' ? 'text-blue-300 hover:text-blue-200' :
+                                  panel.color === 'rose' ? 'text-rose-300 hover:text-rose-200' :
+                                  panel.color === 'purple' ? 'text-purple-300 hover:text-purple-200' :
+                                  'text-teal-300 hover:text-teal-200'
+                                }`}
+                              >
+                                <div className={`w-2 h-2 rounded-full ${
+                                  panel.color === 'emerald' ? 'bg-emerald-400' :
+                                  panel.color === 'cyan' ? 'bg-cyan-400' :
+                                  panel.color === 'amber' ? 'bg-amber-400' :
+                                  panel.color === 'blue' ? 'bg-blue-400' :
+                                  panel.color === 'rose' ? 'bg-rose-400' :
+                                  panel.color === 'purple' ? 'bg-purple-400' :
+                                  'bg-teal-400'
+                                }`}></div>
+                                {isFlipped ? 'Back to Summary' : 'View Full Details'}
+                              </button>
+                            </div>
+                          </div>
+
+                          {/* Back of Card */}
+                          <div className="card-face card-face-back backdrop-blur-sm bg-slate-800/40 border border-slate-700/50 hover:bg-slate-800/60 hover:border-slate-600/60 transition-all duration-300 shadow-xl shadow-slate-900/50 relative overflow-hidden group p-6">
+                            {/* Color accent border */}
+                            <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${
+                              panel.color === 'emerald' ? 'from-emerald-400 to-green-500' :
+                              panel.color === 'cyan' ? 'from-cyan-400 to-blue-500' :
+                              panel.color === 'amber' ? 'from-amber-400 to-orange-500' :
+                              panel.color === 'blue' ? 'from-blue-400 to-indigo-500' :
+                              panel.color === 'rose' ? 'from-rose-400 to-pink-500' :
+                              panel.color === 'purple' ? 'from-purple-400 to-pink-500' :
+                              'from-teal-400 to-cyan-500'
+                            }`}></div>
+                            
+                            {/* Header */}
+                            <div className="flex items-center justify-between mb-6">
+                              <div className="flex items-center gap-3">
+                                <div className={`inline-flex items-center justify-center w-10 h-10 rounded-lg ${
+                                  panel.color === 'emerald' ? 'bg-gradient-to-br from-emerald-400/20 to-green-500/20 border border-emerald-400/30' :
+                                  panel.color === 'cyan' ? 'bg-gradient-to-br from-cyan-400/20 to-blue-500/20 border border-cyan-400/30' :
+                                  panel.color === 'amber' ? 'bg-gradient-to-br from-amber-400/20 to-orange-500/20 border border-amber-400/30' :
+                                  panel.color === 'blue' ? 'bg-gradient-to-br from-blue-400/20 to-indigo-500/20 border border-blue-400/30' :
+                                  panel.color === 'rose' ? 'bg-gradient-to-br from-rose-400/20 to-pink-500/20 border border-rose-400/30' :
+                                  panel.color === 'purple' ? 'bg-gradient-to-br from-purple-400/20 to-pink-500/20 border border-purple-400/30' :
+                                  'bg-gradient-to-br from-teal-400/20 to-cyan-500/20 border border-teal-400/30'
+                                }`}>
+                                  <div className={`text-lg ${
+                                    panel.color === 'emerald' ? 'text-emerald-300' :
+                                    panel.color === 'cyan' ? 'text-cyan-300' :
+                                    panel.color === 'amber' ? 'text-amber-300' :
+                                    panel.color === 'blue' ? 'text-blue-300' :
+                                    panel.color === 'rose' ? 'text-rose-300' :
+                                    panel.color === 'purple' ? 'text-purple-300' :
+                                    'text-teal-300'
+                                  }`}>{panel.icon}</div>
+                                </div>
+                                <div>
+                                  <h3 className="text-lg font-semibold text-white">{panel.name}</h3>
+                                  <div className="text-slate-400 text-xs">Complete Test Breakdown</div>
+                                </div>
+                              </div>
+                              <div className={`text-xl font-bold font-mono ${
+                                panel.color === 'emerald' ? 'text-emerald-300' :
+                                panel.color === 'cyan' ? 'text-cyan-300' :
+                                panel.color === 'amber' ? 'text-amber-300' :
+                                panel.color === 'blue' ? 'text-blue-300' :
+                                panel.color === 'rose' ? 'text-rose-300' :
+                                panel.color === 'purple' ? 'text-purple-300' :
+                                'text-teal-300'
+                              }`}>{panel.price}</div>
+                            </div>
+                            
+                            {/* Detailed Tests */}
+                            <div className="space-y-4 mb-6 max-h-64 overflow-y-auto">
+                              {panel.detailedTests.map((testGroup, index) => (
+                                <div key={index}>
+                                  <h4 className={`text-sm font-semibold mb-2 flex items-center gap-2 ${
+                                    panel.color === 'emerald' ? 'text-emerald-300' :
+                                    panel.color === 'cyan' ? 'text-cyan-300' :
+                                    panel.color === 'amber' ? 'text-amber-300' :
+                                    panel.color === 'blue' ? 'text-blue-300' :
+                                    panel.color === 'rose' ? 'text-rose-300' :
+                                    panel.color === 'purple' ? 'text-purple-300' :
+                                    'text-teal-300'
+                                  }`}>
+                                    <div className={`w-2 h-2 rounded-full ${
+                                      panel.color === 'emerald' ? 'bg-emerald-400' :
+                                      panel.color === 'cyan' ? 'bg-cyan-400' :
+                                      panel.color === 'amber' ? 'bg-amber-400' :
+                                      panel.color === 'blue' ? 'bg-blue-400' :
+                                      panel.color === 'rose' ? 'bg-rose-400' :
+                                      panel.color === 'purple' ? 'bg-purple-400' :
+                                      'bg-teal-400'
+                                    }`}></div>
+                                    {testGroup.category}
+                                  </h4>
+                                  <div className="space-y-1 ml-4">
+                                    {testGroup.tests.map((test, i) => (
+                                      <div key={i} className="flex justify-between text-xs">
+                                        <span className="text-slate-300">{test.name}</span>
+                                        <span className="text-slate-400">{test.purpose}</span>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                            
+                            {/* Bottom Action */}
+                            <div className="mt-auto">
+                              <button 
+                                className={`w-full px-4 py-3 font-semibold rounded-xl transition-all duration-300 shadow-lg text-white ${
+                                  panel.color === 'emerald' ? 'bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-400 hover:to-green-500 hover:shadow-emerald-500/25' :
+                                  panel.color === 'cyan' ? 'bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 hover:shadow-cyan-500/25' :
+                                  panel.color === 'amber' ? 'bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 hover:shadow-amber-500/25' :
+                                  panel.color === 'blue' ? 'bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-400 hover:to-indigo-500 hover:shadow-blue-500/25' :
+                                  panel.color === 'rose' ? 'bg-gradient-to-r from-rose-500 to-pink-600 hover:from-rose-400 hover:to-pink-500 hover:shadow-rose-500/25' :
+                                  panel.color === 'purple' ? 'bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-400 hover:to-pink-500 hover:shadow-purple-500/25' :
+                                  'bg-gradient-to-r from-teal-500 to-cyan-600 hover:from-teal-400 hover:to-cyan-500 hover:shadow-teal-500/25'
+                                }`}
+                              >
+                                Order {panel.name}
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </motion.div>
+                    );
+                  })}
                 </div>
               </motion.div>
             )}
           </AnimatePresence>
         </div>
 
-        {/* Panel Detail Modal - Separate overlay */}
-        <AnimatePresence>
-          {showPanelDetail && selectedPanel && (
-            <motion.div
-              key="detail-overlay"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.3 }}
-              className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 z-50"
-              onClick={() => setShowPanelDetail(false)}
-            >
-              <motion.div
-                initial={{ opacity: 0, y: 50, scale: 0.95 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: 50, scale: 0.95 }}
-                transition={{ duration: 0.4 }}
-                onClick={(e) => e.stopPropagation()}
-                className="backdrop-blur-lg bg-slate-800/40 border border-slate-700/50 rounded-2xl p-8 max-w-2xl w-full max-h-[80vh] overflow-y-auto shadow-2xl"
-              >
-                <div className="flex items-center justify-between mb-6">
-                  <div className="flex items-center gap-3">
-                    <div className="text-3xl">{selectedPanel.icon}</div>
-                    <div>
-                      <h3 className="text-2xl font-semibold text-white">{selectedPanel.name}</h3>
-                      <div className="text-slate-400">Complete Test Breakdown</div>
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => setShowPanelDetail(false)}
-                    className="text-slate-400 hover:text-white transition-colors text-2xl"
-                  >
-                    ×
-                  </button>
-                </div>
-                
-                <div className="space-y-6">
-                  {selectedPanel.detailedTests.map((testGroup, index) => (
-                    <div key={index}>
-                      <h4 className="text-sm font-semibold text-cyan-300 mb-3 flex items-center gap-2">
-                        <div className="w-2 h-2 bg-cyan-400 rounded-full"></div>
-                        {testGroup.category}
-                      </h4>
-                      <div className="space-y-2 ml-4">
-                        {testGroup.tests.map((test, i) => (
-                          <div key={i} className="flex justify-between text-sm">
-                            <span className="text-slate-300">{test.name}</span>
-                            <span className="text-slate-400">{test.purpose}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                
-                <div className="mt-8 pt-6 border-t border-slate-700/50">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="text-3xl font-bold text-white font-mono">{selectedPanel.price}</div>
-                    <div className="text-slate-400 text-sm">{selectedPanel.testCount} comprehensive tests</div>
-                  </div>
-                  <button 
-                    className="w-full px-6 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold rounded-xl hover:from-cyan-400 hover:to-blue-500 transition-all duration-300 shadow-lg text-lg"
-                  >
-                    Order {selectedPanel.name}
-                  </button>
-                </div>
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
         </div>
       </div>
     </div>
