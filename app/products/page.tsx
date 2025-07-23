@@ -699,7 +699,7 @@ export default function ProductsPage() {
                   </p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {getCategoryPanels(selectedCategory).map((panel, index) => {
                     const isFlipped = flippedCards.has(panel.id);
                     return (
@@ -771,7 +771,7 @@ export default function ProductsPage() {
                         <div className="text-sm text-slate-200 font-medium">{panel.bestFor}</div>
                       </div>
                       
-                      <div className="mb-6">
+                      <div className="mb-6 flex-grow">
                         <div className="text-xs text-slate-400 mb-2">Key areas tested:</div>
                         <div className="space-y-1">
                           {panel.keyTests.map((test, i) => (
@@ -780,7 +780,7 @@ export default function ProductsPage() {
                         </div>
                       </div>
                       
-                            <div className="space-y-3">
+                            <div className="space-y-3 mt-auto">
                               <button 
                                 className={`w-full px-4 py-3 font-semibold rounded-xl transition-all duration-300 shadow-lg text-white ${
                                   panel.color === 'emerald' ? 'bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-400 hover:to-green-500 hover:shadow-emerald-500/25' :
