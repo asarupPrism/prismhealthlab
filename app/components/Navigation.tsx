@@ -63,7 +63,7 @@ export default function Navigation() {
                   onMouseLeave={() => setIsDropdownOpen(null)}
                 >
                   <div className="backdrop-blur-lg bg-slate-800/90 border border-slate-700/50 rounded-xl shadow-xl shadow-slate-900/50 py-2">
-                    {diagnosticPanels.map((panel, index) => (
+                    {diagnosticPanels.map((panel) => (
                       <Link
                         key={panel.name}
                         href={panel.href}
