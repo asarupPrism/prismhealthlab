@@ -49,7 +49,7 @@ const panels: Panel[] = [
         tests: [
           { name: 'Creatine Kinase (CPK Total)', purpose: 'Muscle recovery' },
           { name: 'Vitamin D 25-OH', purpose: 'Bone health' },
-          { name: 'Comprehensive Metabolic Panel (CMP)', purpose: 'General health' },
+          { name: 'Comprehensive Metabolic Panel', purpose: 'General health' },
           { name: 'Lipid Panel', purpose: 'Heart health' }
         ]
       }
@@ -71,7 +71,7 @@ const panels: Panel[] = [
         category: 'Metabolic Health',
         tests: [
           { name: 'Hemoglobin A1C', purpose: 'Blood sugar control' },
-          { name: 'Comprehensive Metabolic Panel (CMP)', purpose: 'Kidney function' },
+          { name: 'Comprehensive Metabolic Panel', purpose: 'Kidney function' },
           { name: 'Lipid Panel', purpose: 'Heart health' }
         ]
       },
@@ -102,7 +102,7 @@ const panels: Panel[] = [
       {
         category: 'Blood Chemistry',
         tests: [
-          { name: 'Comprehensive Metabolic Panel (CMP)', purpose: 'Organ function' },
+          { name: 'Comprehensive Metabolic Panel', purpose: 'Organ function' },
           { name: 'CBC w/Diff', purpose: 'General health' },
           { name: 'Uric Acid', purpose: 'Metabolic function' },
           { name: 'Lipid Panel', purpose: 'Heart health' }
@@ -236,7 +236,7 @@ const panels: Panel[] = [
         category: 'Health & Nutrition',
         tests: [
           { name: 'CBC w/Diff', purpose: 'Blood health' },
-          { name: 'Comprehensive Metabolic Panel (CMP)', purpose: 'General health' },
+          { name: 'Comprehensive Metabolic Panel', purpose: 'General health' },
           { name: 'Ferritin / Iron / TIBC', purpose: 'Iron storage' },
           { name: 'Vitamin D 25-OH', purpose: 'Immune support' },
           { name: 'Vitamin B12/Folate Panel', purpose: 'Energy metabolism' }
@@ -267,7 +267,7 @@ const panels: Panel[] = [
       {
         category: 'Health & Cardiovascular',
         tests: [
-          { name: 'Comprehensive Metabolic Panel (CMP)', purpose: 'General health' },
+          { name: 'Comprehensive Metabolic Panel', purpose: 'General health' },
           { name: 'Lipid Panel', purpose: 'Heart health' },
           { name: 'CBC w/Diff', purpose: 'Blood health' },
           { name: 'C-Reactive Protein (hs-CRP)', purpose: 'Inflammation marker' },
