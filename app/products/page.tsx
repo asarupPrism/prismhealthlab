@@ -815,7 +815,7 @@ export default function ProductsPage() {
                                   panel.color === 'purple' ? 'bg-purple-400' :
                                   'bg-teal-400'
                                 }`}></div>
-                                {isFlipped ? 'Back to Summary' : 'View Full Details'}
+                                View Full Details
                               </button>
                             </div>
                           </div>
@@ -907,8 +907,8 @@ export default function ProductsPage() {
                               ))}
                             </div>
                             
-                            {/* Bottom Action */}
-                            <div className="mt-auto">
+                            {/* Bottom Actions */}
+                            <div className="mt-auto space-y-3">
                               <button 
                                 className={`w-full px-4 py-3 font-semibold rounded-xl transition-all duration-300 shadow-lg text-white ${
                                   panel.color === 'emerald' ? 'bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-400 hover:to-green-500 hover:shadow-emerald-500/25' :
@@ -921,6 +921,29 @@ export default function ProductsPage() {
                                 }`}
                               >
                                 Order {panel.name}
+                              </button>
+                              <button 
+                                onClick={() => toggleCardFlip(panel.id)}
+                                className={`w-full px-4 py-2 text-sm transition-colors flex items-center justify-center gap-2 ${
+                                  panel.color === 'emerald' ? 'text-emerald-300 hover:text-emerald-200' :
+                                  panel.color === 'cyan' ? 'text-cyan-300 hover:text-cyan-200' :
+                                  panel.color === 'amber' ? 'text-amber-300 hover:text-amber-200' :
+                                  panel.color === 'blue' ? 'text-blue-300 hover:text-blue-200' :
+                                  panel.color === 'rose' ? 'text-rose-300 hover:text-rose-200' :
+                                  panel.color === 'purple' ? 'text-purple-300 hover:text-purple-200' :
+                                  'text-teal-300 hover:text-teal-200'
+                                }`}
+                              >
+                                <div className={`w-2 h-2 rounded-full ${
+                                  panel.color === 'emerald' ? 'bg-emerald-400' :
+                                  panel.color === 'cyan' ? 'bg-cyan-400' :
+                                  panel.color === 'amber' ? 'bg-amber-400' :
+                                  panel.color === 'blue' ? 'bg-blue-400' :
+                                  panel.color === 'rose' ? 'bg-rose-400' :
+                                  panel.color === 'purple' ? 'bg-purple-400' :
+                                  'bg-teal-400'
+                                }`}></div>
+                                Back to Summary
                               </button>
                             </div>
                           </div>
