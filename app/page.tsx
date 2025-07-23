@@ -81,7 +81,7 @@ export default function HomePage() {
             className="mb-8"
           >
             {/* Trust indicators */}
-            <div className="flex items-center justify-center gap-6 mb-8">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 mb-8">
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
                 <span className="text-slate-300 text-sm font-medium">CLIA-certified labs</span>
@@ -96,31 +96,31 @@ export default function HomePage() {
               </div>
             </div>
 
-            <h1 className="text-5xl md:text-7xl font-bold bg-gradient-to-r from-white via-cyan-100 to-white bg-clip-text text-transparent mb-6 leading-tight">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold bg-gradient-to-r from-white via-cyan-100 to-white bg-clip-text text-transparent mb-6 leading-tight">
               Your Health, Your Data, Your Control.
             </h1>
             
-            <p className="text-xl md:text-2xl text-slate-300 font-light max-w-4xl mx-auto mb-12 leading-relaxed">
+            <p className="text-lg sm:text-xl md:text-2xl text-slate-300 font-light max-w-4xl mx-auto mb-8 sm:mb-12 leading-relaxed px-4">
               Lab-grade diagnostics, simplified. Get actionable health insights faster, easier, and more affordably than ever.
             </p>
 
             {/* Dual CTAs */}
-            <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
-              <Link href="/products">
-                <button className="group px-8 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold rounded-xl hover:from-cyan-400 hover:to-blue-500 transition-all duration-300 shadow-lg shadow-cyan-500/25 hover:shadow-cyan-500/40 hover:scale-105">
-                  <span className="flex items-center gap-3">
+            <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center items-center px-4">
+              <Link href="/products" className="w-full sm:w-auto">
+                <button className="group w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold rounded-xl hover:from-cyan-400 hover:to-blue-500 transition-all duration-300 shadow-lg shadow-cyan-500/25 hover:shadow-cyan-500/40 hover:scale-105 min-h-[48px]">
+                  <span className="flex items-center justify-center gap-3">
                     <div className="w-5 h-5 bg-white/20 rounded-full flex items-center justify-center">
                       <div className="w-2 h-2 bg-white rounded-full"></div>
                     </div>
-                    View Diagnostic Panels
+                    <span className="text-sm sm:text-base">View Diagnostic Panels</span>
                   </span>
                 </button>
               </Link>
               <button 
                 onClick={() => scrollToSection('how-it-works')}
-                className="group px-8 py-4 backdrop-blur-sm bg-slate-700/50 border border-slate-600/50 text-slate-100 font-semibold rounded-xl hover:bg-slate-600/60 hover:border-slate-500/60 transition-all duration-300 hover:scale-105"
+                className="group w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 backdrop-blur-sm bg-slate-700/50 border border-slate-600/50 text-slate-100 font-semibold rounded-xl hover:bg-slate-600/60 hover:border-slate-500/60 transition-all duration-300 hover:scale-105 min-h-[48px]"
               >
-                Learn How It Works
+                <span className="text-sm sm:text-base">Learn How It Works</span>
               </button>
             </div>
           </motion.div>
@@ -219,7 +219,7 @@ export default function HomePage() {
             </div>
 
             {/* Steps Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
               {[
                 {
                   step: "01",
@@ -256,10 +256,10 @@ export default function HomePage() {
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: index * 0.1 }}
                   viewport={{ once: true }}
-                  className="backdrop-blur-sm bg-slate-800/40 border border-slate-700/50 rounded-2xl p-6 hover:bg-slate-800/60 hover:border-slate-600/60 transition-all duration-300 shadow-xl shadow-slate-900/50 relative flex flex-col h-full"
+                  className="backdrop-blur-sm bg-slate-800/40 border border-slate-700/50 rounded-2xl p-4 sm:p-6 hover:bg-slate-800/60 hover:border-slate-600/60 transition-all duration-300 shadow-xl shadow-slate-900/50 relative flex flex-col h-full min-h-[280px] sm:min-h-[320px]"
                 >
                   {/* Step Number */}
-                  <div className={`absolute -top-4 -left-4 w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold text-slate-950 ${
+                  <div className={`absolute -top-3 -left-3 sm:-top-4 sm:-left-4 w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs sm:text-sm font-bold text-slate-950 ${
                     step.color === 'cyan' ? 'bg-cyan-400' :
                     step.color === 'emerald' ? 'bg-emerald-400' :
                     step.color === 'amber' ? 'bg-amber-400' :
@@ -269,13 +269,13 @@ export default function HomePage() {
                   </div>
 
                   {/* Icon */}
-                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-6 ${
+                  <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center mb-4 sm:mb-6 ${
                     step.color === 'cyan' ? 'bg-gradient-to-br from-cyan-400/20 to-blue-500/20 border border-cyan-400/30' :
                     step.color === 'emerald' ? 'bg-gradient-to-br from-emerald-400/20 to-green-500/20 border border-emerald-400/30' :
                     step.color === 'amber' ? 'bg-gradient-to-br from-amber-400/20 to-orange-500/20 border border-amber-400/30' :
                     'bg-gradient-to-br from-rose-400/20 to-pink-500/20 border border-rose-400/30'
                   }`}>
-                    <div className={`text-2xl ${
+                    <div className={`text-xl sm:text-2xl ${
                       step.color === 'cyan' ? 'text-cyan-300' :
                       step.color === 'emerald' ? 'text-emerald-300' :
                       step.color === 'amber' ? 'text-amber-300' :
@@ -287,12 +287,12 @@ export default function HomePage() {
 
                   {/* Content */}
                   <div className="flex-grow">
-                    <h3 className="text-xl font-semibold text-white mb-4 min-h-[3.5rem] flex items-center">{step.title}</h3>
-                    <p className="text-slate-300 text-sm leading-relaxed min-h-[5rem]">{step.description}</p>
+                    <h3 className="text-lg sm:text-xl font-semibold text-white mb-3 sm:mb-4 min-h-[2.5rem] sm:min-h-[3rem] flex items-center leading-tight">{step.title}</h3>
+                    <p className="text-slate-300 text-xs sm:text-sm leading-relaxed min-h-[4rem] sm:min-h-[4.5rem]">{step.description}</p>
                   </div>
 
                   {/* Status Indicator */}
-                  <div className="flex items-center gap-2 mt-6 pt-4 border-t border-slate-700/30">
+                  <div className="flex items-center gap-2 mt-4 sm:mt-6 pt-3 sm:pt-4 border-t border-slate-700/30">
                     <div className={`w-2 h-2 rounded-full animate-pulse ${
                       step.color === 'cyan' ? 'bg-cyan-400' :
                       step.color === 'emerald' ? 'bg-emerald-400' :
@@ -344,23 +344,23 @@ export default function HomePage() {
                 <table className="w-full">
                   <thead>
                     <tr className="border-b border-slate-700/50">
-                      <th className="text-left p-6 text-slate-300 font-medium">Feature</th>
-                      <th className="text-center p-6 text-emerald-300 font-semibold">
+                      <th className="text-left p-3 sm:p-6 text-slate-300 font-medium text-sm sm:text-base">Feature</th>
+                      <th className="text-center p-3 sm:p-6 text-emerald-300 font-semibold">
                         <div className="flex items-center justify-center gap-2">
                           <div className="w-2 h-2 bg-emerald-400 rounded-full"></div>
-                          Us
+                          <span className="text-xs sm:text-sm">Us</span>
                         </div>
                       </th>
-                      <th className="text-center p-6 text-amber-300 font-semibold">
+                      <th className="text-center p-3 sm:p-6 text-amber-300 font-semibold">
                         <div className="flex items-center justify-center gap-2">
                           <div className="w-2 h-2 bg-amber-400 rounded-full"></div>
-                          Competitors
+                          <span className="text-xs sm:text-sm">Competitors</span>
                         </div>
                       </th>
-                      <th className="text-center p-6 text-slate-300 font-semibold">
+                      <th className="text-center p-3 sm:p-6 text-slate-300 font-semibold">
                         <div className="flex items-center justify-center gap-2">
                           <div className="w-2 h-2 bg-slate-400 rounded-full"></div>
-                          Doctors
+                          <span className="text-xs sm:text-sm">Doctors</span>
                         </div>
                       </th>
                     </tr>
@@ -399,20 +399,20 @@ export default function HomePage() {
                       }
                     ].map((row, index) => (
                       <tr key={index} className="border-b border-slate-700/30 hover:bg-slate-800/30 transition-colors">
-                        <td className="p-6 text-slate-300 font-medium">{row.feature}</td>
-                        <td className="p-6 text-center text-emerald-300 text-sm">{row.us}</td>
-                        <td className="p-6 text-center text-amber-300 text-sm">{row.competitors}</td>
-                        <td className="p-6 text-center text-slate-400 text-sm">{row.doctors}</td>
+                        <td className="p-3 sm:p-6 text-slate-300 font-medium text-sm sm:text-base">{row.feature}</td>
+                        <td className="p-3 sm:p-6 text-center text-emerald-300 text-xs sm:text-sm">{row.us}</td>
+                        <td className="p-3 sm:p-6 text-center text-amber-300 text-xs sm:text-sm">{row.competitors}</td>
+                        <td className="p-3 sm:p-6 text-center text-slate-400 text-xs sm:text-sm">{row.doctors}</td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
               
-              <div className="p-6 border-t border-slate-700/50 text-center">
-                <Link href="/products">
-                  <button className="px-8 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold rounded-xl hover:from-cyan-400 hover:to-blue-500 transition-all duration-300 shadow-lg shadow-cyan-500/25 hover:shadow-cyan-500/40 hover:scale-105">
-                    Choose Your Panel Now
+              <div className="p-4 sm:p-6 border-t border-slate-700/50 text-center">
+                <Link href="/products" className="inline-block w-full sm:w-auto">
+                  <button className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold rounded-xl hover:from-cyan-400 hover:to-blue-500 transition-all duration-300 shadow-lg shadow-cyan-500/25 hover:shadow-cyan-500/40 hover:scale-105 min-h-[48px]">
+                    <span className="text-sm sm:text-base">Choose Your Panel Now</span>
                   </button>
                 </Link>
               </div>
@@ -438,8 +438,8 @@ export default function HomePage() {
 
             {/* Pricing carousel */}
             <div className="relative">
-              <div className="backdrop-blur-sm bg-slate-800/40 border border-slate-700/50 rounded-2xl p-8 shadow-xl shadow-slate-900/50">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+              <div className="backdrop-blur-sm bg-slate-800/40 border border-slate-700/50 rounded-2xl p-4 sm:p-6 lg:p-8 shadow-xl shadow-slate-900/50">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
                   {pricingPanels.map((panel, index) => (
                     <motion.div
                       key={panel.name}
@@ -447,29 +447,29 @@ export default function HomePage() {
                       whileInView={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.4, delay: index * 0.1 }}
                       viewport={{ once: true }}
-                      className="backdrop-blur-sm bg-slate-700/40 border border-slate-600/50 rounded-xl p-6 hover:bg-slate-700/60 hover:border-slate-500/60 transition-all duration-300 hover:scale-105"
+                      className="backdrop-blur-sm bg-slate-700/40 border border-slate-600/50 rounded-xl p-4 sm:p-6 hover:bg-slate-700/60 hover:border-slate-500/60 transition-all duration-300 hover:scale-105 min-h-[180px] sm:min-h-[200px]"
                     >
-                      <div className="flex items-start justify-between mb-4">
-                        <div className="w-12 h-12 bg-gradient-to-br from-cyan-400 to-blue-500 rounded-lg flex items-center justify-center shadow-lg shadow-cyan-500/25">
-                          <div className="w-6 h-6 bg-white/20 rounded flex items-center justify-center">
-                            <div className="w-3 h-3 bg-white rounded-full"></div>
+                      <div className="flex items-start justify-between mb-3 sm:mb-4">
+                        <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-cyan-400 to-blue-500 rounded-lg flex items-center justify-center shadow-lg shadow-cyan-500/25">
+                          <div className="w-5 h-5 sm:w-6 sm:h-6 bg-white/20 rounded flex items-center justify-center">
+                            <div className="w-2 h-2 sm:w-3 sm:h-3 bg-white rounded-full"></div>
                           </div>
                         </div>
                         <div className="text-right">
-                          <div className="text-2xl font-bold text-white font-mono">{panel.price}</div>
+                          <div className="text-xl sm:text-2xl font-bold text-white font-mono">{panel.price}</div>
                           <div className="text-xs text-slate-400">Per Panel</div>
                         </div>
                       </div>
-                      <h3 className="text-lg font-semibold text-white mb-2">{panel.name}</h3>
-                      <p className="text-slate-300 text-sm leading-relaxed">{panel.description}</p>
+                      <h3 className="text-base sm:text-lg font-semibold text-white mb-2 leading-tight">{panel.name}</h3>
+                      <p className="text-slate-300 text-xs sm:text-sm leading-relaxed">{panel.description}</p>
                     </motion.div>
                   ))}
                 </div>
 
                 <div className="text-center">
-                  <Link href="/products">
-                    <button className="px-8 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold rounded-xl hover:from-cyan-400 hover:to-blue-500 transition-all duration-300 shadow-lg shadow-cyan-500/25 hover:shadow-cyan-500/40 hover:scale-105">
-                      View All Panels & Pricing
+                  <Link href="/products" className="inline-block w-full sm:w-auto">
+                    <button className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold rounded-xl hover:from-cyan-400 hover:to-blue-500 transition-all duration-300 shadow-lg shadow-cyan-500/25 hover:shadow-cyan-500/40 hover:scale-105 min-h-[48px]">
+                      <span className="text-sm sm:text-base">View All Panels & Pricing</span>
                     </button>
                   </Link>
                 </div>
@@ -498,21 +498,21 @@ export default function HomePage() {
               </p>
             </div>
 
-            <div className="backdrop-blur-sm bg-slate-800/40 border border-slate-700/50 rounded-2xl p-8 shadow-xl shadow-slate-900/50">
-              <form onSubmit={handleEmailSubmit} className="flex flex-col sm:flex-row gap-4 max-w-lg mx-auto mb-6">
+            <div className="backdrop-blur-sm bg-slate-800/40 border border-slate-700/50 rounded-2xl p-4 sm:p-6 lg:p-8 shadow-xl shadow-slate-900/50">
+              <form onSubmit={handleEmailSubmit} className="flex flex-col sm:flex-row gap-3 sm:gap-4 max-w-lg mx-auto mb-6">
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="Enter your email address"
-                  className="flex-1 px-4 py-3 bg-slate-900/50 border border-slate-600/50 text-white placeholder-slate-400 rounded-xl focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400 transition-all duration-300 backdrop-blur-sm"
+                  className="flex-1 px-4 py-3 bg-slate-900/50 border border-slate-600/50 text-white placeholder-slate-400 rounded-xl focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400 transition-all duration-300 backdrop-blur-sm min-h-[48px] text-sm sm:text-base"
                   required
                 />
                 <button
                   type="submit"
-                  className="px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold rounded-xl hover:from-cyan-400 hover:to-blue-500 transition-all duration-300 shadow-lg shadow-cyan-500/25 hover:shadow-cyan-500/40 flex items-center justify-center gap-2"
+                  className="px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold rounded-xl hover:from-cyan-400 hover:to-blue-500 transition-all duration-300 shadow-lg shadow-cyan-500/25 hover:shadow-cyan-500/40 flex items-center justify-center gap-2 min-h-[48px] whitespace-nowrap"
                 >
-                  Join Now
+                  <span className="text-sm sm:text-base">Join Now</span>
                   <div className="w-4 h-4 bg-white/20 rounded flex items-center justify-center">
                     <div className="w-0 h-0 border-l-2 border-r-2 border-b-2 border-white border-l-transparent border-r-transparent transform rotate-[-90deg]"></div>
                   </div>
@@ -520,7 +520,7 @@ export default function HomePage() {
               </form>
 
               {/* Trust indicators */}
-              <div className="flex items-center justify-center gap-6 text-sm text-slate-400">
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 text-xs sm:text-sm text-slate-400">
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-emerald-400 rounded-full"></div>
                   <span>Privacy guaranteed</span>

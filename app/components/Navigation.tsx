@@ -130,7 +130,7 @@ export default function Navigation() {
               Log In
             </Link>
             <Link href="/get-started">
-              <button className="px-6 py-2.5 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold rounded-lg hover:from-cyan-400 hover:to-blue-500 transition-all duration-300 shadow-lg shadow-cyan-500/20 hover:shadow-cyan-500/30 flex items-center gap-2">
+              <button className="px-6 py-2.5 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold rounded-lg hover:from-cyan-400 hover:to-blue-500 transition-all duration-300 shadow-lg shadow-cyan-500/20 hover:shadow-cyan-500/30 flex items-center gap-2 min-h-[44px]">
                 <div className="w-4 h-4 bg-white/20 rounded flex items-center justify-center">
                   <div className="w-2 h-2 bg-white rounded-full"></div>
                 </div>
@@ -174,7 +174,7 @@ export default function Navigation() {
                       <Link
                         key={panel.name}
                         href={panel.href}
-                        className="block py-2 text-slate-300 hover:text-white transition-colors text-sm"
+                        className="block py-3 text-slate-300 hover:text-white transition-colors text-sm min-h-[44px] flex items-center"
                         onClick={() => setIsMobileMenuOpen(false)}
                       >
                         {panel.name}
@@ -186,14 +186,14 @@ export default function Navigation() {
                 {/* Mobile Primary Links */}
                 <Link
                   href="/how-it-works"
-                  className="block px-4 py-3 text-slate-300 hover:text-white transition-colors font-medium"
+                  className="block px-4 py-3 text-slate-300 hover:text-white transition-colors font-medium min-h-[48px] flex items-center"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   How It Works
                 </Link>
                 <Link
                   href="/pricing"
-                  className="block px-4 py-3 text-slate-300 hover:text-white transition-colors font-medium"
+                  className="block px-4 py-3 text-slate-300 hover:text-white transition-colors font-medium min-h-[48px] flex items-center"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   Pricing
@@ -210,7 +210,7 @@ export default function Navigation() {
                       <Link
                         key={resource.name}
                         href={resource.href}
-                        className="block py-2 text-slate-300 hover:text-white transition-colors text-sm"
+                        className="block py-3 text-slate-300 hover:text-white transition-colors text-sm min-h-[44px] flex items-center"
                         onClick={() => setIsMobileMenuOpen(false)}
                       >
                         {resource.name}
@@ -223,13 +223,13 @@ export default function Navigation() {
                 <div className="px-4 pt-4 pb-2 border-t border-slate-700/30 space-y-3">
                   <Link
                     href="/login"
-                    className="block py-2 text-slate-300 hover:text-white transition-colors font-medium"
+                    className="block py-3 text-slate-300 hover:text-white transition-colors font-medium min-h-[48px] flex items-center"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     Log In
                   </Link>
                   <Link href="/get-started" onClick={() => setIsMobileMenuOpen(false)}>
-                    <button className="w-full px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold rounded-lg hover:from-cyan-400 hover:to-blue-500 transition-all duration-300 shadow-lg shadow-cyan-500/20 flex items-center justify-center gap-2">
+                    <button className="w-full px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold rounded-lg hover:from-cyan-400 hover:to-blue-500 transition-all duration-300 shadow-lg shadow-cyan-500/20 flex items-center justify-center gap-2 min-h-[48px]">
                       <div className="w-4 h-4 bg-white/20 rounded flex items-center justify-center">
                         <div className="w-2 h-2 bg-white rounded-full"></div>
                       </div>

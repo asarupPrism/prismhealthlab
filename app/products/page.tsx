@@ -426,13 +426,13 @@ function ProductsPageContent() {
           transform: `translateY(${scrollProgress * -10}vh)` // Subtle parallax movement
         }}
       >
-        <div className="max-w-4xl mx-auto pt-24 pb-16">
-          <div className="text-center mb-12">
+        <div className="max-w-4xl mx-auto pt-20 sm:pt-24 pb-12 sm:pb-16 px-4">
+          <div className="text-center mb-8 sm:mb-12">
             <motion.h1 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
-              className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-white via-cyan-100 to-white bg-clip-text text-transparent mb-6 leading-tight"
+              className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-white via-cyan-100 to-white bg-clip-text text-transparent mb-4 sm:mb-6 leading-tight"
             >
               Diagnostic Testing Panels
             </motion.h1>
@@ -440,7 +440,7 @@ function ProductsPageContent() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="text-xl text-slate-300 font-light max-w-2xl mx-auto mb-8"
+              className="text-base sm:text-lg md:text-xl text-slate-300 font-light max-w-2xl mx-auto mb-6 sm:mb-8"
             >
               Get comprehensive health insights with our curated testing panels designed for modern healthcare needs.
             </motion.p>
@@ -448,7 +448,7 @@ function ProductsPageContent() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.4 }}
-              className="text-sm text-slate-400 mb-8"
+              className="text-xs sm:text-sm text-slate-400 mb-6 sm:mb-8"
             >
               CLIA-certified labs • 2-3 day results • Save 50-70% vs traditional labs
             </motion.div>
@@ -459,19 +459,19 @@ function ProductsPageContent() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.6 }}
-            className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12"
+            className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mb-8 sm:mb-12"
           >
             <div className="text-center">
-              <div className="text-3xl font-bold text-cyan-300 mb-2">9</div>
-              <div className="text-sm text-slate-400">Comprehensive Panels</div>
+              <div className="text-2xl sm:text-3xl font-bold text-cyan-300 mb-1 sm:mb-2">9</div>
+              <div className="text-xs sm:text-sm text-slate-400">Comprehensive Panels</div>
             </div>
             <div className="text-center">
-              <div className="text-3xl font-bold text-emerald-300 mb-2">4</div>
-              <div className="text-sm text-slate-400">Health Categories</div>
+              <div className="text-2xl sm:text-3xl font-bold text-emerald-300 mb-1 sm:mb-2">4</div>
+              <div className="text-xs sm:text-sm text-slate-400">Health Categories</div>
             </div>
             <div className="text-center">
-              <div className="text-3xl font-bold text-amber-300 mb-2">50-70%</div>
-              <div className="text-sm text-slate-400">Cost Savings</div>
+              <div className="text-2xl sm:text-3xl font-bold text-amber-300 mb-1 sm:mb-2">50-70%</div>
+              <div className="text-xs sm:text-sm text-slate-400">Cost Savings</div>
             </div>
           </motion.div>
 
@@ -480,13 +480,13 @@ function ProductsPageContent() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.8 }}
-            className="text-center mb-8"
+            className="text-center mb-6 sm:mb-8"
           >
             <button 
               onClick={() => {
                 window.scrollTo({ top: window.innerHeight, behavior: 'smooth' });
               }}
-              className="px-8 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold rounded-xl hover:from-cyan-400 hover:to-blue-500 transition-all duration-300 shadow-lg hover:shadow-cyan-500/25 hover:scale-105"
+              className="px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold rounded-xl hover:from-cyan-400 hover:to-blue-500 transition-all duration-300 shadow-lg hover:shadow-cyan-500/25 hover:scale-105 text-sm sm:text-base min-h-[48px]"
             >
               Explore Testing Panels
             </button>
@@ -573,7 +573,7 @@ function ProductsPageContent() {
             <motion.div 
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
-              className="flex flex-wrap gap-3 mb-8"
+              className="flex flex-wrap gap-2 sm:gap-3 mb-6 sm:mb-8"
             >
               {(['performance', 'wellness', 'hormones', 'comprehensive'] as Category[]).map((category) => {
                 const info = getCategoryInfo(category);
@@ -585,7 +585,7 @@ function ProductsPageContent() {
                       setCurrentStage('panels');
                       setFlippedCards(new Set());
                     }}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
+                    className={`flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all duration-300 ${
                       selectedCategory === category
                         ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30'
                         : 'bg-slate-800/40 text-slate-400 border border-slate-700/50 hover:bg-slate-800/60 hover:text-slate-300'
@@ -622,7 +622,7 @@ function ProductsPageContent() {
                   </p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 max-w-6xl mx-auto">
                   {(['performance', 'wellness', 'hormones', 'comprehensive'] as Category[]).map((category, index) => {
                     const info = getCategoryInfo(category);
                     return (
@@ -637,7 +637,7 @@ function ProductsPageContent() {
                           setSelectedCategory(category);
                           setCurrentStage('panels');
                         }}
-                        className={`cursor-pointer backdrop-blur-sm bg-slate-800/40 border border-slate-700/50 rounded-2xl p-8 hover:bg-slate-800/60 hover:border-slate-600/60 transition-all duration-300 shadow-xl shadow-slate-900/50 text-center group relative overflow-hidden`}
+                        className={`cursor-pointer backdrop-blur-sm bg-slate-800/40 border border-slate-700/50 rounded-2xl p-4 sm:p-6 lg:p-8 hover:bg-slate-800/60 hover:border-slate-600/60 transition-all duration-300 shadow-xl shadow-slate-900/50 text-center group relative overflow-hidden min-h-[280px] sm:min-h-[320px] lg:min-h-[360px]`}
                       >
                         {/* Color accent border */}
                         <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${
@@ -648,28 +648,28 @@ function ProductsPageContent() {
                         }`}></div>
                         
                         {/* Colored icon background */}
-                        <div className={`inline-flex items-center justify-center w-16 h-16 rounded-xl mb-6 ${
+                        <div className={`inline-flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 rounded-xl mb-4 sm:mb-6 ${
                           info.color === 'emerald' ? 'bg-gradient-to-br from-emerald-400/20 to-green-500/20 border border-emerald-400/30' :
                           info.color === 'cyan' ? 'bg-gradient-to-br from-cyan-400/20 to-blue-500/20 border border-cyan-400/30' :
                           info.color === 'purple' ? 'bg-gradient-to-br from-purple-400/20 to-pink-500/20 border border-purple-400/30' :
                           'bg-gradient-to-br from-blue-400/20 to-indigo-500/20 border border-blue-400/30'
                         }`}>
-                          <div className={`text-3xl ${
+                          <div className={`text-2xl sm:text-3xl ${
                             info.color === 'emerald' ? 'text-emerald-300' :
                             info.color === 'cyan' ? 'text-cyan-300' :
                             info.color === 'purple' ? 'text-purple-300' :
                             'text-blue-300'
                           }`}>{info.icon}</div>
                         </div>
-                        <h3 className="text-2xl font-semibold text-white mb-3">{info.title}</h3>
-                        <p className="text-slate-300 text-sm mb-6 leading-relaxed">
+                        <h3 className="text-lg sm:text-xl lg:text-2xl font-semibold text-white mb-2 sm:mb-3 leading-tight">{info.title}</h3>
+                        <p className="text-slate-300 text-xs sm:text-sm mb-4 sm:mb-6 leading-relaxed">
                           {info.description}
                         </p>
-                        <div className="space-y-2 mb-6">
-                          <div className="text-slate-400 text-sm">
+                        <div className="space-y-2 mb-4 sm:mb-6">
+                          <div className="text-slate-400 text-xs sm:text-sm">
                             {info.count} panels available
                           </div>
-                          <div className={`text-sm font-medium ${
+                          <div className={`text-xs sm:text-sm font-medium ${
                             info.color === 'emerald' ? 'text-emerald-300' :
                             info.color === 'cyan' ? 'text-cyan-300' :
                             info.color === 'purple' ? 'text-purple-300' :
@@ -721,7 +721,7 @@ function ProductsPageContent() {
                   </p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                   {getCategoryPanels(selectedCategory).map((panel, index) => {
                     const isFlipped = flippedCards.has(panel.id);
                     return (
@@ -735,7 +735,7 @@ function ProductsPageContent() {
                       >
                         <div className={`card-flip-inner ${isFlipped ? 'flipped' : ''}`}>
                           {/* Front of Card */}
-                          <div className="card-face card-face-front backdrop-blur-sm bg-slate-800/40 border border-slate-700/50 hover:bg-slate-800/60 hover:border-slate-600/60 transition-all duration-300 shadow-xl shadow-slate-900/50 relative overflow-hidden group p-6 flex flex-col">
+                          <div className="card-face card-face-front backdrop-blur-sm bg-slate-800/40 border border-slate-700/50 hover:bg-slate-800/60 hover:border-slate-600/60 transition-all duration-300 shadow-xl shadow-slate-900/50 relative overflow-hidden group p-4 sm:p-6 flex flex-col">
                       {/* Color accent border */}
                       <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${
                         panel.color === 'emerald' ? 'from-emerald-400 to-green-500' :
@@ -747,9 +747,9 @@ function ProductsPageContent() {
                         'from-teal-400 to-cyan-500'
                       }`}></div>
                       
-                      <div className="flex items-start justify-between mb-4">
+                      <div className="flex items-start justify-between mb-3 sm:mb-4">
                         {/* Colored icon background */}
-                        <div className={`inline-flex items-center justify-center w-12 h-12 rounded-lg ${
+                        <div className={`inline-flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-lg ${
                           panel.color === 'emerald' ? 'bg-gradient-to-br from-emerald-400/20 to-green-500/20 border border-emerald-400/30' :
                           panel.color === 'cyan' ? 'bg-gradient-to-br from-cyan-400/20 to-blue-500/20 border border-cyan-400/30' :
                           panel.color === 'amber' ? 'bg-gradient-to-br from-amber-400/20 to-orange-500/20 border border-amber-400/30' :
@@ -758,7 +758,7 @@ function ProductsPageContent() {
                           panel.color === 'purple' ? 'bg-gradient-to-br from-purple-400/20 to-pink-500/20 border border-purple-400/30' :
                           'bg-gradient-to-br from-teal-400/20 to-cyan-500/20 border border-teal-400/30'
                         }`}>
-                          <div className={`text-xl ${
+                          <div className={`text-lg sm:text-xl ${
                             panel.color === 'emerald' ? 'text-emerald-300' :
                             panel.color === 'cyan' ? 'text-cyan-300' :
                             panel.color === 'amber' ? 'text-amber-300' :
@@ -770,7 +770,7 @@ function ProductsPageContent() {
                         </div>
                         
                         <div className="text-right">
-                          <div className={`text-2xl font-bold font-mono mb-1 ${
+                          <div className={`text-xl sm:text-2xl font-bold font-mono mb-1 ${
                             panel.color === 'emerald' ? 'text-emerald-300' :
                             panel.color === 'cyan' ? 'text-cyan-300' :
                             panel.color === 'amber' ? 'text-amber-300' :
@@ -784,29 +784,32 @@ function ProductsPageContent() {
                       </div>
                       
                       <div className="flex-grow">
-                        <h3 className="text-xl font-semibold text-white mb-2">{panel.name}</h3>
-                        <p className="text-slate-300 text-sm mb-4 leading-relaxed">
+                        <h3 className="text-lg sm:text-xl font-semibold text-white mb-2 leading-tight">{panel.name}</h3>
+                        <p className="text-slate-300 text-xs sm:text-sm mb-3 sm:mb-4 leading-relaxed line-clamp-3">
                           {panel.description}
                         </p>
                         
-                        <div className="mb-3">
+                        <div className="mb-2 sm:mb-3">
                           <div className="text-xs text-slate-400 mb-1">Best for:</div>
-                          <div className="text-sm text-slate-200 font-medium">{panel.bestFor}</div>
+                          <div className="text-xs sm:text-sm text-slate-200 font-medium">{panel.bestFor}</div>
                         </div>
                         
-                        <div className="mb-4">
+                        <div className="mb-3 sm:mb-4">
                           <div className="text-xs text-slate-400 mb-1">Key areas tested:</div>
                           <div className="space-y-1">
-                            {panel.keyTests.map((test, i) => (
+                            {panel.keyTests.slice(0, 2).map((test, i) => (
                               <div key={i} className="text-xs text-slate-300">{test}</div>
                             ))}
+                            {panel.keyTests.length > 2 && (
+                              <div className="text-xs text-slate-400">+{panel.keyTests.length - 2} more</div>
+                            )}
                           </div>
                         </div>
                       </div>
                       
-                      <div className="space-y-3 mt-auto">
+                      <div className="space-y-2 sm:space-y-3 mt-auto">
                               <button 
-                                className={`w-full px-4 py-3 font-semibold rounded-xl transition-all duration-300 shadow-lg text-white ${
+                                className={`w-full px-4 py-2 sm:py-3 font-semibold rounded-xl transition-all duration-300 shadow-lg text-white text-sm sm:text-base min-h-[40px] sm:min-h-[48px] ${
                                   panel.color === 'emerald' ? 'bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-400 hover:to-green-500 hover:shadow-emerald-500/25' :
                                   panel.color === 'cyan' ? 'bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 hover:shadow-cyan-500/25' :
                                   panel.color === 'amber' ? 'bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 hover:shadow-amber-500/25' :
@@ -820,7 +823,7 @@ function ProductsPageContent() {
                               </button>
                               <button 
                                 onClick={() => toggleCardFlip(panel.id)}
-                                className={`w-full px-4 py-2 text-sm transition-colors flex items-center justify-center gap-2 ${
+                                className={`w-full px-4 py-2 text-xs sm:text-sm transition-colors flex items-center justify-center gap-2 min-h-[36px] ${
                                   panel.color === 'emerald' ? 'text-emerald-300 hover:text-emerald-200' :
                                   panel.color === 'cyan' ? 'text-cyan-300 hover:text-cyan-200' :
                                   panel.color === 'amber' ? 'text-amber-300 hover:text-amber-200' :
@@ -845,7 +848,7 @@ function ProductsPageContent() {
                           </div>
 
                           {/* Back of Card */}
-                          <div className="card-face card-face-back backdrop-blur-sm bg-slate-800/40 border border-slate-700/50 hover:bg-slate-800/60 hover:border-slate-600/60 transition-all duration-300 shadow-xl shadow-slate-900/50 relative overflow-hidden group p-6 flex flex-col">
+                          <div className="card-face card-face-back backdrop-blur-sm bg-slate-800/40 border border-slate-700/50 hover:bg-slate-800/60 hover:border-slate-600/60 transition-all duration-300 shadow-xl shadow-slate-900/50 relative overflow-hidden group p-4 sm:p-6 flex flex-col">
                             {/* Color accent border */}
                             <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${
                               panel.color === 'emerald' ? 'from-emerald-400 to-green-500' :
@@ -858,9 +861,9 @@ function ProductsPageContent() {
                             }`}></div>
                             
                             {/* Header */}
-                            <div className="flex items-center justify-between mb-6">
-                              <div className="flex items-center gap-3">
-                                <div className={`inline-flex items-center justify-center w-10 h-10 rounded-lg ${
+                            <div className="flex items-center justify-between mb-4 sm:mb-6">
+                              <div className="flex items-center gap-2 sm:gap-3">
+                                <div className={`inline-flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-lg ${
                                   panel.color === 'emerald' ? 'bg-gradient-to-br from-emerald-400/20 to-green-500/20 border border-emerald-400/30' :
                                   panel.color === 'cyan' ? 'bg-gradient-to-br from-cyan-400/20 to-blue-500/20 border border-cyan-400/30' :
                                   panel.color === 'amber' ? 'bg-gradient-to-br from-amber-400/20 to-orange-500/20 border border-amber-400/30' :
@@ -869,7 +872,7 @@ function ProductsPageContent() {
                                   panel.color === 'purple' ? 'bg-gradient-to-br from-purple-400/20 to-pink-500/20 border border-purple-400/30' :
                                   'bg-gradient-to-br from-teal-400/20 to-cyan-500/20 border border-teal-400/30'
                                 }`}>
-                                  <div className={`text-lg ${
+                                  <div className={`text-base sm:text-lg ${
                                     panel.color === 'emerald' ? 'text-emerald-300' :
                                     panel.color === 'cyan' ? 'text-cyan-300' :
                                     panel.color === 'amber' ? 'text-amber-300' :
@@ -880,11 +883,11 @@ function ProductsPageContent() {
                                   }`}>{panel.icon}</div>
                                 </div>
                                 <div>
-                                  <h3 className="text-lg font-semibold text-white">{panel.name}</h3>
+                                  <h3 className="text-base sm:text-lg font-semibold text-white leading-tight">{panel.name}</h3>
                                   <div className="text-slate-400 text-xs">Complete Test Breakdown</div>
                                 </div>
                               </div>
-                              <div className={`text-xl font-bold font-mono ${
+                              <div className={`text-lg sm:text-xl font-bold font-mono ${
                                 panel.color === 'emerald' ? 'text-emerald-300' :
                                 panel.color === 'cyan' ? 'text-cyan-300' :
                                 panel.color === 'amber' ? 'text-amber-300' :
@@ -896,10 +899,10 @@ function ProductsPageContent() {
                             </div>
                             
                             {/* Detailed Tests */}
-                            <div className="space-y-4 mb-6 max-h-64 overflow-y-auto">
+                            <div className="space-y-3 sm:space-y-4 mb-4 sm:mb-6 max-h-40 sm:max-h-52 overflow-y-auto">
                               {panel.detailedTests.map((testGroup, index) => (
                                 <div key={index}>
-                                  <h4 className={`text-sm font-semibold mb-2 flex items-center gap-2 ${
+                                  <h4 className={`text-xs sm:text-sm font-semibold mb-1 sm:mb-2 flex items-center gap-2 ${
                                     panel.color === 'emerald' ? 'text-emerald-300' :
                                     panel.color === 'cyan' ? 'text-cyan-300' :
                                     panel.color === 'amber' ? 'text-amber-300' :
@@ -919,22 +922,25 @@ function ProductsPageContent() {
                                     }`}></div>
                                     {testGroup.category}
                                   </h4>
-                                  <div className="space-y-1 ml-4">
-                                    {testGroup.tests.map((test, i) => (
+                                  <div className="space-y-1 ml-3 sm:ml-4">
+                                    {testGroup.tests.slice(0, 3).map((test, i) => (
                                       <div key={i} className="flex justify-between text-xs">
-                                        <span className="text-slate-300">{test.name}</span>
-                                        <span className="text-slate-400">{test.purpose}</span>
+                                        <span className="text-slate-300 truncate pr-2">{test.name}</span>
+                                        <span className="text-slate-400 text-xs flex-shrink-0">{test.purpose}</span>
                                       </div>
                                     ))}
+                                    {testGroup.tests.length > 3 && (
+                                      <div className="text-xs text-slate-400 italic">+{testGroup.tests.length - 3} more tests</div>
+                                    )}
                                   </div>
                                 </div>
                               ))}
                             </div>
                             
                             {/* Bottom Actions */}
-                            <div className="mt-auto space-y-3">
+                            <div className="mt-auto space-y-2 sm:space-y-3">
                               <button 
-                                className={`w-full px-4 py-3 font-semibold rounded-xl transition-all duration-300 shadow-lg text-white ${
+                                className={`w-full px-4 py-2 sm:py-3 font-semibold rounded-xl transition-all duration-300 shadow-lg text-white text-sm sm:text-base min-h-[40px] sm:min-h-[48px] ${
                                   panel.color === 'emerald' ? 'bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-400 hover:to-green-500 hover:shadow-emerald-500/25' :
                                   panel.color === 'cyan' ? 'bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 hover:shadow-cyan-500/25' :
                                   panel.color === 'amber' ? 'bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 hover:shadow-amber-500/25' :
@@ -948,7 +954,7 @@ function ProductsPageContent() {
                               </button>
                               <button 
                                 onClick={() => toggleCardFlip(panel.id)}
-                                className={`w-full px-4 py-2 text-sm transition-colors flex items-center justify-center gap-2 ${
+                                className={`w-full px-4 py-2 text-xs sm:text-sm transition-colors flex items-center justify-center gap-2 min-h-[36px] ${
                                   panel.color === 'emerald' ? 'text-emerald-300 hover:text-emerald-200' :
                                   panel.color === 'cyan' ? 'text-cyan-300 hover:text-cyan-200' :
                                   panel.color === 'amber' ? 'text-amber-300 hover:text-amber-200' :

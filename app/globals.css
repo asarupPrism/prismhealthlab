@@ -43,10 +43,114 @@ body {
   animation: slide-in-left 0.8s ease-out forwards;
 }
 
+/* Mobile-optimized animations */
+@media (max-width: 639px) {
+  .animate-slide-in-left {
+    animation: slide-in-left 0.5s ease-out forwards;
+  }
+}
+
+/* Respect reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .card-flip-inner {
+    transition: none;
+  }
+  
+  .animate-slide-in-left {
+    animation: none;
+    opacity: 1;
+    transform: translateX(0);
+  }
+  
+  /* Disable all transform-based animations */
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+  /* Remove hover effects on touch devices */
+  .hover\:scale-105:hover {
+    transform: none;
+  }
+  
+  /* Add active states for touch feedback */
+  .hover\:scale-105:active {
+    transform: scale(0.98);
+  }
+  
+  /* Optimize button transitions for touch */
+  button {
+    transition: all 0.2s ease-out;
+  }
+  
+  button:active {
+    transform: scale(0.98);
+  }
+}
+
+/* High refresh rate device optimizations */
+@media (prefers-reduced-motion: no-preference) {
+  @supports (backdrop-filter: blur(0)) {
+    /* Use GPU acceleration for better performance */
+    .backdrop-blur-sm,
+    .backdrop-blur-lg {
+      will-change: backdrop-filter;
+    }
+  }
+}
+
 /* Card flip animations */
 .card-flip-container {
   perspective: 1000px;
-  height: 520px;
+  height: 350px;
+}
+
+/* Responsive card heights */
+@media (min-width: 640px) {
+  .card-flip-container {
+    height: 420px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .card-flip-container {
+    height: 520px;
+  }
+}
+
+/* Mobile optimization */
+@media (max-width: 639px) {
+  .card-flip-container {
+    height: 320px;
+  }
+  
+  /* Reduce animation complexity on mobile */
+  .card-flip-inner {
+    transition: transform 0.4s ease-in-out;
+  }
+  
+  /* Optimize scroll performance */
+  * {
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Reduce motion on small screens */
+  .motion-safe\:animate-pulse {
+    animation-duration: 2.5s;
+  }
+  
+  /* Improve tap targets */
+  button,
+  [role="button"],
+  input[type="submit"],
+  input[type="button"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
 }
 
 .card-flip-inner {
