@@ -521,7 +521,7 @@ export default function ProductsPage() {
                 onClick={() => {
                   setCurrentStage('categories');
                   setSelectedCategory(null);
-                  setSelectedPanel(null);
+                  setFlippedCards(new Set());
                 }}
                 className="hover:text-slate-200 transition-colors"
               >
@@ -533,7 +533,7 @@ export default function ProductsPage() {
                   <button 
                     onClick={() => {
                       setCurrentStage('panels');
-                      setSelectedPanel(null);
+                      setFlippedCards(new Set());
                     }}
                     className={`hover:text-slate-200 transition-colors ${
                       currentStage === 'panels' ? 'text-cyan-300 font-medium' : ''
@@ -541,12 +541,6 @@ export default function ProductsPage() {
                   >
                     {getCategoryInfo(selectedCategory).title}
                   </button>
-                </>
-              )}
-              {selectedPanel && (
-                <>
-                  <span className="text-slate-600">→</span>
-                  <span className="text-cyan-300 font-medium">{selectedPanel.name}</span>
                 </>
               )}
             </nav>
@@ -567,7 +561,7 @@ export default function ProductsPage() {
                     onClick={() => {
                       setSelectedCategory(category);
                       setCurrentStage('panels');
-                      setSelectedPanel(null);
+                      setFlippedCards(new Set());
                     }}
                     className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
                       selectedCategory === category
