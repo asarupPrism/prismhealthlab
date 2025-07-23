@@ -313,6 +313,20 @@ export default function ProductsPage() {
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const [selectedPanel, setSelectedPanel] = useState<Panel | null>(null);
   const [showPanelDetail, setShowPanelDetail] = useState(false);
+  const [scrollProgress, setScrollProgress] = useState(0);
+
+  // Scroll tracking for hero transition
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollTop = window.scrollY;
+      const heroHeight = 400; // Approximate hero section height
+      const progress = Math.min(scrollTop / heroHeight, 1);
+      setScrollProgress(progress);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   // Keyboard navigation support
   useEffect(() => {
@@ -376,79 +390,160 @@ export default function ProductsPage() {
 
   return (
     <div className="min-h-screen bg-slate-950">
-      {/* Simplified Hero Section */}
-      <div className="bg-gradient-to-b from-slate-900 to-slate-950 px-6 py-20">
-        <div className="max-w-4xl mx-auto text-center">
-          <motion.h1 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-white via-cyan-100 to-white bg-clip-text text-transparent mb-6 leading-tight"
-          >
-            Diagnostic Testing Panels
-          </motion.h1>
-          <motion.p 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-xl text-slate-300 font-light max-w-2xl mx-auto mb-8"
-          >
-            Get comprehensive health insights with our curated testing panels designed for modern healthcare needs.
-          </motion.p>
+      {/* Fixed Hero Section */}
+      <div 
+        className="fixed inset-0 bg-gradient-to-b from-slate-900 to-slate-950 px-6"
+        style={{ opacity: 1 - scrollProgress }}
+      >
+        <div className="max-w-4xl mx-auto pt-24 pb-16">
+          <div className="text-center mb-12">
+            <motion.h1 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-white via-cyan-100 to-white bg-clip-text text-transparent mb-6 leading-tight"
+            >
+              Diagnostic Testing Panels
+            </motion.h1>
+            <motion.p 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="text-xl text-slate-300 font-light max-w-2xl mx-auto mb-8"
+            >
+              Get comprehensive health insights with our curated testing panels designed for modern healthcare needs.
+            </motion.p>
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.4 }}
+              className="text-sm text-slate-400 mb-8"
+            >
+              CLIA-certified labs • 2-3 day results • Save 50-70% vs traditional labs
+            </motion.div>
+          </div>
+
+          {/* Quick Stats */}
           <motion.div 
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-            className="text-sm text-slate-400 mb-12"
+            transition={{ duration: 0.6, delay: 0.6 }}
+            className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12"
           >
-            CLIA-certified labs • 2-3 day results • Save 50-70% vs traditional labs
+            <div className="text-center">
+              <div className="text-3xl font-bold text-cyan-300 mb-2">9</div>
+              <div className="text-sm text-slate-400">Comprehensive Panels</div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl font-bold text-emerald-300 mb-2">4</div>
+              <div className="text-sm text-slate-400">Health Categories</div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl font-bold text-amber-300 mb-2">50-70%</div>
+              <div className="text-sm text-slate-400">Cost Savings</div>
+            </div>
+          </motion.div>
+
+          {/* Primary CTA */}
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.8 }}
+            className="text-center mb-16"
+          >
+            <button 
+              onClick={() => {
+                window.scrollTo({ top: window.innerHeight, behavior: 'smooth' });
+              }}
+              className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold rounded-xl hover:from-cyan-400 hover:to-blue-500 transition-all duration-300 shadow-lg hover:shadow-cyan-500/25 hover:scale-105"
+            >
+              Explore Testing Panels
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+              </svg>
+            </button>
+          </motion.div>
+
+          {/* Scroll Indicator */}
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.6, delay: 1.0 }}
+            className="absolute bottom-8 left-1/2 transform -translate-x-1/2"
+          >
+            <div className="flex flex-col items-center gap-2">
+              <div className="text-xs text-slate-500 uppercase tracking-wide">Scroll to explore</div>
+              <motion.div
+                animate={{ y: [0, 8, 0] }}
+                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                className="w-6 h-10 border-2 border-slate-600 rounded-full flex justify-center"
+              >
+                <motion.div
+                  animate={{ y: [0, 12, 0] }}
+                  transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                  className="w-1 h-3 bg-cyan-400 rounded-full mt-2"
+                />
+              </motion.div>
+            </div>
           </motion.div>
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-6 py-16">
+      {/* Spacer to allow scrolling */}
+      <div className="h-screen"></div>
+
+      {/* Main Content - Slides up as user scrolls */}
+      <div 
+        className="relative bg-slate-950 min-h-screen"
+        style={{ 
+          transform: `translateY(${(1 - scrollProgress) * 100}vh)`,
+          opacity: scrollProgress 
+        }}
+      >
+        <div className="max-w-6xl mx-auto px-6 py-16">
         {/* Persistent Breadcrumb Navigation */}
         <motion.div 
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           className="mb-8"
         >
-          <nav className="flex items-center space-x-2 text-sm text-slate-400 mb-6">
-            <button 
-              onClick={() => {
-                setCurrentStage('categories');
-                setSelectedCategory(null);
-                setSelectedPanel(null);
-              }}
-              className={`hover:text-slate-200 transition-colors ${
-                currentStage === 'categories' ? 'text-cyan-300 font-medium' : ''
-              }`}
-            >
-              Diagnostic Panels
-            </button>
-            {selectedCategory && (
-              <>
-                <span className="text-slate-600">→</span>
-                <button 
-                  onClick={() => {
-                    setCurrentStage('panels');
-                    setSelectedPanel(null);
-                  }}
-                  className={`hover:text-slate-200 transition-colors ${
-                    currentStage === 'panels' ? 'text-cyan-300 font-medium' : ''
-                  }`}
-                >
-                  {getCategoryInfo(selectedCategory).title}
-                </button>
-              </>
-            )}
-            {selectedPanel && (
-              <>
-                <span className="text-slate-600">→</span>
-                <span className="text-cyan-300 font-medium">{selectedPanel.name}</span>
-              </>
-            )}
-          </nav>
+          {/* Only show breadcrumb navigation when not on categories stage */}
+          {currentStage !== 'categories' && (
+            <nav className="flex items-center space-x-2 text-sm text-slate-400 mb-6">
+              <button 
+                onClick={() => {
+                  setCurrentStage('categories');
+                  setSelectedCategory(null);
+                  setSelectedPanel(null);
+                }}
+                className="hover:text-slate-200 transition-colors"
+              >
+                Diagnostic Panels
+              </button>
+              {selectedCategory && (
+                <>
+                  <span className="text-slate-600">→</span>
+                  <button 
+                    onClick={() => {
+                      setCurrentStage('panels');
+                      setSelectedPanel(null);
+                    }}
+                    className={`hover:text-slate-200 transition-colors ${
+                      currentStage === 'panels' ? 'text-cyan-300 font-medium' : ''
+                    }`}
+                  >
+                    {getCategoryInfo(selectedCategory).title}
+                  </button>
+                </>
+              )}
+              {selectedPanel && (
+                <>
+                  <span className="text-slate-600">→</span>
+                  <span className="text-cyan-300 font-medium">{selectedPanel.name}</span>
+                </>
+              )}
+            </nav>
+          )}
           
           {/* Category Tabs - Persistent when category is selected */}
           {selectedCategory && (
@@ -693,6 +788,7 @@ export default function ProductsPage() {
             </motion.div>
           )}
         </AnimatePresence>
+        </div>
       </div>
     </div>
   );
