@@ -63,7 +63,7 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-slate-950">
       {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center justify-center px-6 py-20">
+      <section className="relative min-h-screen flex items-center justify-center px-6 py-20 -mt-16 pt-16">
         <div className="absolute inset-0 bg-gradient-to-b from-slate-900 via-slate-950 to-slate-950"></div>
         
         {/* Background medical indicators */}
@@ -117,7 +117,7 @@ export default function HomePage() {
                 </button>
               </Link>
               <button 
-                onClick={() => scrollToSection('why-choose-us')}
+                onClick={() => scrollToSection('how-it-works')}
                 className="group px-8 py-4 backdrop-blur-sm bg-slate-700/50 border border-slate-600/50 text-slate-100 font-semibold rounded-xl hover:bg-slate-600/60 hover:border-slate-500/60 transition-all duration-300 hover:scale-105"
               >
                 Learn How It Works
@@ -128,7 +128,7 @@ export default function HomePage() {
       </section>
 
       {/* Why Choose Us Section */}
-      <section id="why-choose-us" className="py-20 px-6">
+      <section id="why-choose-us" className="py-12 px-6">
         <div className="max-w-6xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -146,21 +146,179 @@ export default function HomePage() {
               </p>
             </div>
 
-            {/* Evidence card */}
-            <div className="backdrop-blur-sm bg-slate-800/40 border border-slate-700/50 rounded-2xl p-8 hover:bg-slate-800/60 hover:border-slate-600/60 transition-all duration-300 shadow-xl shadow-slate-900/50">
-              <div className="flex items-start gap-4 mb-6">
-                <div className="w-3 h-3 bg-emerald-400 rounded-full animate-pulse mt-2"></div>
-                <div>
-                  <h3 className="text-xl font-semibold text-white mb-4">Verifiable Evidence</h3>
-                  <p className="text-slate-300 leading-relaxed">
-                    According to a 2022 NIH-supported study, individuals engaging in regular preventive health monitoring showed a <span className="text-emerald-400 font-semibold">38% increase in early disease detection rates</span> and <span className="text-cyan-400 font-semibold">25% fewer hospital visits</span> compared to those who relied solely on standard annual physicals.
-                  </p>
-                  <p className="text-slate-400 text-sm mt-4 font-mono">
-                    Source: Journal of Preventive Medicine, 2022
-                  </p>
+            {/* Verifiable evidence cards grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* First evidence card */}
+              <div className="backdrop-blur-sm bg-slate-800/40 border border-slate-700/50 rounded-2xl p-6 hover:bg-slate-800/60 hover:border-slate-600/60 transition-all duration-300 shadow-xl shadow-slate-900/50">
+                <div className="flex items-start gap-3 mb-4">
+                  <div className="w-3 h-3 bg-emerald-400 rounded-full animate-pulse mt-1.5"></div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-white mb-3">Early Detection Impact</h3>
+                    <p className="text-slate-300 text-sm leading-relaxed">
+                      Regular preventive monitoring showed a <span className="text-emerald-400 font-semibold">38% increase in early disease detection</span> and <span className="text-cyan-400 font-semibold">25% fewer hospital visits</span> compared to annual physicals only.
+                    </p>
+                    <p className="text-slate-400 text-xs mt-3 font-mono">
+                      Journal of Preventive Medicine, 2022
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Second evidence card */}
+              <div className="backdrop-blur-sm bg-slate-800/40 border border-slate-700/50 rounded-2xl p-6 hover:bg-slate-800/60 hover:border-slate-600/60 transition-all duration-300 shadow-xl shadow-slate-900/50">
+                <div className="flex items-start gap-3 mb-4">
+                  <div className="w-3 h-3 bg-cyan-400 rounded-full animate-pulse mt-1.5"></div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-white mb-3">Blood Pressure Control</h3>
+                    <p className="text-slate-300 text-sm leading-relaxed">
+                      In the ADAMPA trial (219 patients), home self-monitoring with patient-led medication titration reduced systolic BP by <span className="text-cyan-400 font-semibold">3.4 mm Hg</span> with no increase in healthcare use.
+                    </p>
+                    <p className="text-slate-400 text-xs mt-3 font-mono">
+                      JAMA Network
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Third evidence card */}
+              <div className="backdrop-blur-sm bg-slate-800/40 border border-slate-700/50 rounded-2xl p-6 hover:bg-slate-800/60 hover:border-slate-600/60 transition-all duration-300 shadow-xl shadow-slate-900/50">
+                <div className="flex items-start gap-3 mb-4">
+                  <div className="w-3 h-3 bg-amber-400 rounded-full animate-pulse mt-1.5"></div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-white mb-3">Life-Saving Monitoring</h3>
+                    <p className="text-slate-300 text-sm leading-relaxed">
+                      A Cochrane review (28 trials, 8,950 participants) found patient self-monitoring of anticoagulation <span className="text-amber-400 font-semibold">halved thromboembolic events</span> and <span className="text-emerald-400 font-semibold">reduced mortality</span>.
+                    </p>
+                    <p className="text-slate-400 text-xs mt-3 font-mono">
+                      Cochrane Database
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* How It Works Section */}
+      <section id="how-it-works" className="py-20 px-6 bg-slate-900/30">
+        <div className="max-w-6xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+          >
+            <div className="border-l-2 border-blue-500/30 pl-6 mb-16">
+              <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
+                How It Works
+              </h2>
+              <p className="text-xl text-slate-300 leading-relaxed">
+                Get your health insights in four simple steps—no insurance hassles, no surprise costs.
+              </p>
+            </div>
+
+            {/* Steps Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+              {[
+                {
+                  step: "01",
+                  icon: "◆",
+                  title: "Order Your Test(s)",
+                  description: "Choose the diagnostic panel(s) that fit your goals and complete your secure purchase online in under two minutes.",
+                  color: "cyan"
+                },
+                {
+                  step: "02", 
+                  icon: "●",
+                  title: "Schedule Your Visit",
+                  description: "Pick a date and time that works for you at our Schaumburg, IL clinic—no insurance needed.",
+                  color: "emerald"
+                },
+                {
+                  step: "03",
+                  icon: "▲",
+                  title: "Get Your Sample Collected", 
+                  description: "A licensed phlebotomist will draw your blood quickly and professionally.",
+                  color: "amber"
+                },
+                {
+                  step: "04",
+                  icon: "■",
+                  title: "Receive Actionable Results",
+                  description: "Log in to your secure portal to view clear, personalized insights within 2–3 days.",
+                  color: "rose"
+                }
+              ].map((step, index) => (
+                <motion.div
+                  key={step.step}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                  viewport={{ once: true }}
+                  className="backdrop-blur-sm bg-slate-800/40 border border-slate-700/50 rounded-2xl p-6 hover:bg-slate-800/60 hover:border-slate-600/60 transition-all duration-300 shadow-xl shadow-slate-900/50 relative flex flex-col h-full"
+                >
+                  {/* Step Number */}
+                  <div className={`absolute -top-4 -left-4 w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold text-slate-950 ${
+                    step.color === 'cyan' ? 'bg-cyan-400' :
+                    step.color === 'emerald' ? 'bg-emerald-400' :
+                    step.color === 'amber' ? 'bg-amber-400' :
+                    'bg-rose-400'
+                  }`}>
+                    {step.step}
+                  </div>
+
+                  {/* Icon */}
+                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-6 ${
+                    step.color === 'cyan' ? 'bg-gradient-to-br from-cyan-400/20 to-blue-500/20 border border-cyan-400/30' :
+                    step.color === 'emerald' ? 'bg-gradient-to-br from-emerald-400/20 to-green-500/20 border border-emerald-400/30' :
+                    step.color === 'amber' ? 'bg-gradient-to-br from-amber-400/20 to-orange-500/20 border border-amber-400/30' :
+                    'bg-gradient-to-br from-rose-400/20 to-pink-500/20 border border-rose-400/30'
+                  }`}>
+                    <div className={`text-2xl ${
+                      step.color === 'cyan' ? 'text-cyan-300' :
+                      step.color === 'emerald' ? 'text-emerald-300' :
+                      step.color === 'amber' ? 'text-amber-300' :
+                      'text-rose-300'
+                    }`}>
+                      {step.icon}
+                    </div>
+                  </div>
+
+                  {/* Content */}
+                  <div className="flex-grow">
+                    <h3 className="text-xl font-semibold text-white mb-4 min-h-[3.5rem] flex items-center">{step.title}</h3>
+                    <p className="text-slate-300 text-sm leading-relaxed min-h-[5rem]">{step.description}</p>
+                  </div>
+
+                  {/* Status Indicator */}
+                  <div className="flex items-center gap-2 mt-6 pt-4 border-t border-slate-700/30">
+                    <div className={`w-2 h-2 rounded-full animate-pulse ${
+                      step.color === 'cyan' ? 'bg-cyan-400' :
+                      step.color === 'emerald' ? 'bg-emerald-400' :
+                      step.color === 'amber' ? 'bg-amber-400' :
+                      'bg-rose-400'
+                    }`}></div>
+                    <span className="text-xs text-slate-400">Step {step.step}</span>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+
+            {/* CTA */}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.5 }}
+              viewport={{ once: true }}
+              className="text-center mt-12"
+            >
+              <Link href="/products">
+                <button className="px-8 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold rounded-xl hover:from-cyan-400 hover:to-blue-500 transition-all duration-300 shadow-lg shadow-cyan-500/25 hover:shadow-cyan-500/40 hover:scale-105">
+                  Start Your Health Journey
+                </button>
+              </Link>
+            </motion.div>
           </motion.div>
         </div>
       </section>

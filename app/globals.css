@@ -46,7 +46,7 @@ body {
 /* Card flip animations */
 .card-flip-container {
   perspective: 1000px;
-  height: 600px;
+  height: 520px;
 }
 
 .card-flip-inner {

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useSearchParams } from 'next/navigation';
 
 type Stage = 'categories' | 'panels' | 'detail';
 type Category = 'performance' | 'wellness' | 'hormones' | 'comprehensive';
@@ -278,7 +279,7 @@ const panels: Panel[] = [
   },
   {
     id: 'sexual-health',
-    name: 'Sexual Health Panel (Standalone)',
+    name: 'Sexual Health Panel',
     price: '$99',
     testCount: 6,
     category: 'comprehensive',
@@ -309,17 +310,34 @@ const panels: Panel[] = [
 ];
 
 export default function ProductsPage() {
+  const searchParams = useSearchParams();
   const [currentStage, setCurrentStage] = useState<Stage>('categories');
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const [scrollProgress, setScrollProgress] = useState(0);
   const [flippedCards, setFlippedCards] = useState<Set<string>>(new Set());
 
+  // Handle URL parameters for direct category navigation
+  useEffect(() => {
+    const category = searchParams.get('category');
+    if (category && ['performance', 'wellness', 'hormones', 'comprehensive', 'sexual'].includes(category)) {
+      // Map 'sexual' to 'comprehensive' since sexual health is in comprehensive category
+      const mappedCategory = category === 'sexual' ? 'comprehensive' : category as Category;
+      setSelectedCategory(mappedCategory);
+      setCurrentStage('panels');
+      // Scroll to main content after a short delay to allow hero transition
+      setTimeout(() => {
+        window.scrollTo({ top: window.innerHeight, behavior: 'smooth' });
+      }, 100);
+    }
+  }, [searchParams]);
+
   // Scroll tracking for hero transition
   useEffect(() => {
     const handleScroll = () => {
       const scrollTop = window.scrollY;
-      const heroHeight = 400; // Approximate hero section height
-      const progress = Math.min(scrollTop / heroHeight, 1);
+      const viewportHeight = window.innerHeight;
+      const transitionRange = viewportHeight * 0.8; // 80% of viewport for smoother transition
+      const progress = Math.min(scrollTop / transitionRange, 1);
       setScrollProgress(progress);
     };
 
@@ -402,8 +420,11 @@ export default function ProductsPage() {
     <div className="min-h-screen bg-slate-950">
       {/* Fixed Hero Section */}
       <div 
-        className="fixed inset-0 bg-gradient-to-b from-slate-900 to-slate-950 px-6"
-        style={{ opacity: 1 - scrollProgress }}
+        className="fixed inset-0 bg-gradient-to-b from-slate-900 to-slate-950 px-6 transition-all duration-300 ease-out"
+        style={{ 
+          opacity: 1 - scrollProgress,
+          transform: `translateY(${scrollProgress * -10}vh)` // Subtle parallax movement
+        }}
       >
         <div className="max-w-4xl mx-auto pt-24 pb-16">
           <div className="text-center mb-12">
@@ -459,7 +480,7 @@ export default function ProductsPage() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.8 }}
-            className="text-center mb-16"
+            className="text-center mb-8"
           >
             <button 
               onClick={() => {
@@ -476,7 +497,7 @@ export default function ProductsPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.6, delay: 1.0 }}
-            className="absolute bottom-8 left-1/2 transform -translate-x-1/2"
+            className="absolute bottom-4 left-1/2 transform -translate-x-1/2"
           >
             <div className="flex flex-col items-center gap-2">
               <div className="text-xs text-slate-500 uppercase tracking-wide">Scroll to explore</div>
@@ -501,13 +522,14 @@ export default function ProductsPage() {
 
       {/* Main Content - Slides up as user scrolls */}
       <div 
-        className="relative bg-slate-950 min-h-screen"
+        className="relative bg-slate-950 min-h-screen transition-all duration-500 ease-out"
         style={{ 
-          transform: `translateY(${(1 - scrollProgress) * 100}vh)`,
-          opacity: scrollProgress 
+          transform: `translateY(${(1 - scrollProgress) * 20}vh) scale(${0.98 + (scrollProgress * 0.02)})`,
+          opacity: scrollProgress > 0.2 ? 1 : scrollProgress / 0.2,
+          backdropFilter: scrollProgress > 0.4 ? 'blur(0px)' : `blur(${(0.4 - scrollProgress) * 8}px)`
         }}
       >
-        <div className="max-w-6xl mx-auto px-6 py-16">
+        <div className="max-w-6xl mx-auto px-6 py-4">
         {/* Persistent Breadcrumb Navigation */}
         <motion.div 
           initial={{ opacity: 0, y: -20 }}
@@ -713,7 +735,7 @@ export default function ProductsPage() {
                       >
                         <div className={`card-flip-inner ${isFlipped ? 'flipped' : ''}`}>
                           {/* Front of Card */}
-                          <div className="card-face card-face-front backdrop-blur-sm bg-slate-800/40 border border-slate-700/50 hover:bg-slate-800/60 hover:border-slate-600/60 transition-all duration-300 shadow-xl shadow-slate-900/50 relative overflow-hidden group p-6">
+                          <div className="card-face card-face-front backdrop-blur-sm bg-slate-800/40 border border-slate-700/50 hover:bg-slate-800/60 hover:border-slate-600/60 transition-all duration-300 shadow-xl shadow-slate-900/50 relative overflow-hidden group p-6 flex flex-col">
                       {/* Color accent border */}
                       <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${
                         panel.color === 'emerald' ? 'from-emerald-400 to-green-500' :
@@ -761,26 +783,28 @@ export default function ProductsPage() {
                         </div>
                       </div>
                       
-                      <h3 className="text-xl font-semibold text-white mb-2">{panel.name}</h3>
-                      <p className="text-slate-300 text-sm mb-4 leading-relaxed">
-                        {panel.description}
-                      </p>
-                      
-                      <div className="mb-4">
-                        <div className="text-xs text-slate-400 mb-2">Best for:</div>
-                        <div className="text-sm text-slate-200 font-medium">{panel.bestFor}</div>
-                      </div>
-                      
-                      <div className="mb-6 flex-grow">
-                        <div className="text-xs text-slate-400 mb-2">Key areas tested:</div>
-                        <div className="space-y-1">
-                          {panel.keyTests.map((test, i) => (
-                            <div key={i} className="text-xs text-slate-300">{test}</div>
-                          ))}
+                      <div className="flex-grow">
+                        <h3 className="text-xl font-semibold text-white mb-2">{panel.name}</h3>
+                        <p className="text-slate-300 text-sm mb-4 leading-relaxed">
+                          {panel.description}
+                        </p>
+                        
+                        <div className="mb-3">
+                          <div className="text-xs text-slate-400 mb-1">Best for:</div>
+                          <div className="text-sm text-slate-200 font-medium">{panel.bestFor}</div>
+                        </div>
+                        
+                        <div className="mb-4">
+                          <div className="text-xs text-slate-400 mb-1">Key areas tested:</div>
+                          <div className="space-y-1">
+                            {panel.keyTests.map((test, i) => (
+                              <div key={i} className="text-xs text-slate-300">{test}</div>
+                            ))}
+                          </div>
                         </div>
                       </div>
                       
-                            <div className="space-y-3 mt-auto">
+                      <div className="space-y-3 mt-auto">
                               <button 
                                 className={`w-full px-4 py-3 font-semibold rounded-xl transition-all duration-300 shadow-lg text-white ${
                                   panel.color === 'emerald' ? 'bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-400 hover:to-green-500 hover:shadow-emerald-500/25' :
@@ -821,7 +845,7 @@ export default function ProductsPage() {
                           </div>
 
                           {/* Back of Card */}
-                          <div className="card-face card-face-back backdrop-blur-sm bg-slate-800/40 border border-slate-700/50 hover:bg-slate-800/60 hover:border-slate-600/60 transition-all duration-300 shadow-xl shadow-slate-900/50 relative overflow-hidden group p-6">
+                          <div className="card-face card-face-back backdrop-blur-sm bg-slate-800/40 border border-slate-700/50 hover:bg-slate-800/60 hover:border-slate-600/60 transition-all duration-300 shadow-xl shadow-slate-900/50 relative overflow-hidden group p-6 flex flex-col">
                             {/* Color accent border */}
                             <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${
                               panel.color === 'emerald' ? 'from-emerald-400 to-green-500' :
