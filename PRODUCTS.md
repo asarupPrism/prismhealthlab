@@ -54,8 +54,8 @@ Essential health monitoring panels for preventive care and baseline wellness tra
 
 **Pricing:**
 - Total Lab Cost: $23.95
-- Suggested Retail Price: $119
-- Profit Margin: 5.0x
+- Suggested Retail Price: $99
+- Profit Margin: 4.1x
 
 #### Routine Self-Care & Deficiency Panel
 
@@ -75,8 +75,8 @@ Essential health monitoring panels for preventive care and baseline wellness tra
 
 **Pricing:**
 - Total Lab Cost: $14.80
-- Suggested Retail Price: $89
-- Profit Margin: 6.0x
+- Suggested Retail Price: $59
+- Profit Margin: 4.0x
 
 ---
 
@@ -120,8 +120,8 @@ Specialized hormone panels tailored for different gender-specific health needs a
 
 **Pricing:**
 - Total Lab Cost: $11.55
-- Suggested Retail Price: $89
-- Profit Margin: 7.7x
+- Suggested Retail Price: $99
+- Profit Margin: 8.6x
 
 #### General Human Hormone Panel
 
@@ -139,8 +139,8 @@ Specialized hormone panels tailored for different gender-specific health needs a
 
 **Pricing:**
 - Total Lab Cost: $18.25
-- Suggested Retail Price: $99
-- Profit Margin: 5.4x
+- Suggested Retail Price: $89
+- Profit Margin: 4.9x
 
 ---
 
@@ -189,8 +189,8 @@ Complete health assessment panels combining multiple biomarkers for thorough hea
 
 **Pricing:**
 - Total Lab Cost: $33.55
-- Suggested Retail Price: $129
-- Profit Margin: 3.8x
+- Suggested Retail Price: $119
+- Profit Margin: 3.5x
 
 #### Sexual Health Screening Panel (Standalone)
 
@@ -208,8 +208,8 @@ Complete health assessment panels combining multiple biomarkers for thorough hea
 
 **Pricing:**
 - Total Lab Cost: $34.25
-- Suggested Retail Price: $119
-- Profit Margin: 3.5x
+- Suggested Retail Price: $99
+- Profit Margin: 2.9x
 
 ---
 
@@ -218,14 +218,14 @@ Complete health assessment panels combining multiple biomarkers for thorough hea
 | Panel Name | Lab Cost | Retail Price | Profit Margin |
 |------------|----------|--------------|---------------|
 | Muscle & Performance | $39.20 | $149 | 3.8x |
-| Longevity & Wellness | $23.95 | $119 | 5.0x |
-| Routine Self-care & Deficiency | $14.80 | $89 | 6.0x |
+| Longevity & Wellness | $23.95 | $99 | 4.1x |
+| Routine Self-care & Deficiency | $14.80 | $59 | 4.0x |
 | Male Hormone Optimization & Safety | $24.55 | $99 | 4.0x |
-| Female Hormone Optimization & Safety | $11.55 | $89 | 7.7x |
-| General Human Hormone | $18.25 | $99 | 5.4x |
+| Female Hormone Optimization & Safety | $11.55 | $99 | 8.6x |
+| General Human Hormone | $18.25 | $89 | 4.9x |
 | Female Comprehensive Health | $27.00 | $119 | 4.4x |
-| Male Comprehensive Health | $33.55 | $129 | 3.8x |
-| Sexual Health Panel (Standalone) | $34.25 | $119 | 3.5x |
+| Male Comprehensive Health | $33.55 | $119 | 3.5x |
+| Sexual Health Panel (Standalone) | $34.25 | $99 | 2.9x |
 
 ---
 
@@ -244,10 +244,10 @@ Complete health assessment panels combining multiple biomarkers for thorough hea
 - **Transparency:** Clear pricing with no hidden fees
 
 ### Market Segments
-1. **Premium Customers:** Performance and longevity panels ($125-175)
-2. **Value-Conscious:** Routine self-care panel ($75-99)
-3. **Specialized:** Gender-specific hormone panels ($75-125)
-4. **Add-On Services:** Sexual health screening ($75-99)
+1. **Premium Customers:** Performance panels ($149)
+2. **Value-Conscious:** Routine self-care panel ($59)
+3. **Standard:** Wellness and hormone panels ($89-119)
+4. **Add-On Services:** Sexual health screening ($99)
 
 ---
 

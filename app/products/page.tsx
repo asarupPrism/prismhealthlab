@@ -58,7 +58,7 @@ const panels: Panel[] = [
   {
     id: 'longevity-wellness',
     name: 'Longevity & Wellness',
-    price: '$119',
+    price: '$99',
     testCount: 8,
     category: 'wellness',
     description: 'Early detection of chronic disease markers, metabolic optimization, inflammation monitoring, and immune status assessment for proactive health management.',
@@ -90,7 +90,7 @@ const panels: Panel[] = [
   {
     id: 'routine-selfcare',
     name: 'Routine Self-Care & Deficiency',
-    price: '$89',
+    price: '$59',
     testCount: 8,
     category: 'wellness',
     description: 'General baseline health check-up focused on identifying nutritional and metabolic deficiencies early for routine wellness monitoring.',
@@ -152,7 +152,7 @@ const panels: Panel[] = [
   {
     id: 'female-hormone',
     name: 'Female Hormone Optimization & Safety',
-    price: '$89',
+    price: '$99',
     testCount: 7,
     category: 'hormones',
     description: 'Comprehensive female hormone assessment for reproductive health, cycle tracking, and hormonal balance monitoring.',
@@ -183,7 +183,7 @@ const panels: Panel[] = [
   {
     id: 'general-hormone',
     name: 'General Human Hormone',
-    price: '$99',
+    price: '$89',
     testCount: 6,
     category: 'hormones',
     description: 'Gender-neutral hormone tracking for individuals interested in comprehensive hormonal health monitoring.',
@@ -247,7 +247,7 @@ const panels: Panel[] = [
   {
     id: 'male-comprehensive',
     name: 'Male Comprehensive Health',
-    price: '$129',
+    price: '$119',
     testCount: 8,
     category: 'comprehensive',
     description: 'Comprehensive health assessment combining hormone evaluation, cardiovascular health, and general health markers specifically designed for male physiology.',
@@ -279,7 +279,7 @@ const panels: Panel[] = [
   {
     id: 'sexual-health',
     name: 'Sexual Health Panel (Standalone)',
-    price: '$119',
+    price: '$99',
     testCount: 6,
     category: 'comprehensive',
     description: 'Comprehensive sexual health screening for safety and preventive care with confidential results delivery.',
