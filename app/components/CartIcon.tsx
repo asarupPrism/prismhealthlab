@@ -2,12 +2,14 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useRouter } from 'next/navigation';
 import { useCart, useCartItemCount } from '@/context/CartContext';
 import { swellHelpers } from '@/lib/swell';
 
 export default function CartIcon() {
   const { cart, removeFromCart, updateCartItem } = useCart();
   const itemCount = useCartItemCount();
+  const router = useRouter();
   const [isCartOpen, setIsCartOpen] = useState(false);
 
   const handleQuantityChange = async (itemId: string, newQuantity: number) => {
@@ -16,6 +18,11 @@ export default function CartIcon() {
     } else {
       await updateCartItem(itemId, newQuantity);
     }
+  };
+
+  const handleCheckout = () => {
+    setIsCartOpen(false);
+    router.push('/checkout');
   };
 
   return (
@@ -156,7 +163,10 @@ export default function CartIcon() {
                       {swellHelpers.formatPrice(cart.total || 0)}
                     </span>
                   </div>
-                  <button className="w-full px-4 py-2.5 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold rounded-lg hover:from-cyan-400 hover:to-blue-500 transition-all duration-300 shadow-lg shadow-cyan-500/25 flex items-center justify-center gap-2">
+                  <button 
+                    onClick={handleCheckout}
+                    className="w-full px-4 py-2.5 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold rounded-lg hover:from-cyan-400 hover:to-blue-500 transition-all duration-300 shadow-lg shadow-cyan-500/25 flex items-center justify-center gap-2"
+                  >
                     <span>Proceed to Checkout</span>
                     <div className="w-4 h-4 bg-white/20 rounded flex items-center justify-center">
                       <div className="w-0 h-0 border-l-2 border-r-2 border-b-2 border-white border-l-transparent border-r-transparent transform rotate-[-90deg]"></div>

@@ -54,7 +54,7 @@ export default function ResultDetail({ result }: ResultDetailProps) {
 
   const statusColors = getStatusColor(result.status)
 
-  const getValueStatus = (value: number, normalRange: Record<string, unknown>) => {
+  const getValueStatus = (value: number, normalRange: { min: number; max: number; unit?: string; reference?: string }) => {
     if (!normalRange) return 'unknown'
     if (value < normalRange.min) return 'low'
     if (value > normalRange.max) return 'high'
@@ -173,9 +173,9 @@ export default function ResultDetail({ result }: ResultDetailProps) {
               
               {result.test_values ? (
                 <div className="space-y-4">
-                  {Object.entries(result.test_values).map(([key, value]: [string, Record<string, unknown>]) => {
+                  {Object.entries(result.test_values).map(([key, value]) => {
                     const normalRange = result.diagnostic_tests?.normal_ranges?.[key]
-                    const valueStatus = typeof value === 'object' && value.value !== undefined
+                    const valueStatus = typeof value === 'object' && value.value !== undefined && typeof value.value === 'number' && normalRange
                       ? getValueStatus(value.value, normalRange)
                       : 'unknown'
                     
@@ -244,7 +244,9 @@ export default function ResultDetail({ result }: ResultDetailProps) {
                                 className={`absolute w-1 h-full ${valueColors.dot} rounded-full shadow-lg`}
                                 style={{
                                   left: `${Math.min(Math.max(
-                                    ((value.value - normalRange.min) / (normalRange.max - normalRange.min)) * 50 + 25,
+                                    typeof value === 'object' && typeof value.value === 'number' && normalRange
+                                      ? ((value.value - normalRange.min) / (normalRange.max - normalRange.min)) * 50 + 25
+                                      : 50,
                                     2
                                   ), 98)}%`,
                                   transform: 'translateX(-50%)'
@@ -300,7 +302,7 @@ export default function ResultDetail({ result }: ResultDetailProps) {
             
             {result.result_files && result.result_files.length > 0 ? (
               <div className="space-y-4">
-                {result.result_files.map((file: Record<string, unknown>) => (
+                {result.result_files.map((file) => (
                   <div key={file.id} className="flex items-center justify-between p-4 bg-slate-900/30 rounded-lg">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 bg-gradient-to-br from-amber-400 to-yellow-500 rounded-lg flex items-center justify-center">

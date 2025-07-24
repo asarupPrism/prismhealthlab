@@ -14,13 +14,13 @@ import OrderReview from '@/components/checkout/OrderReview';
 import { CheckoutData, User, Cart } from '@/types/shared';
 
 export default function CheckoutPage() {
-  const { cart, clearCart, updateCart } = useCart();
-  const { user } = useAuth();
-  const router = useRouter();
-  
   const [checkoutData, setCheckoutData] = useState<CheckoutData>({});
   const [, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  
+  const { cart, clearCart, updateCart } = useCart();
+  const { user } = useAuth();
+  const router = useRouter();
 
   // Redirect if cart is empty
   useEffect(() => {

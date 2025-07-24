@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import Navigation from "./components/Navigation";
-import { CartProvider } from "@/context/CartContext";
+import Providers from './providers';
 
 const inter = Inter({
   variable: "--font-inter",
@@ -46,12 +46,12 @@ export default function RootLayout({
       <body
         className={`${inter.variable} ${jetbrainsMono.variable} antialiased`}
       >
-        <CartProvider>
+        <Providers>
           <Navigation />
           <main className="pt-16">
             {children}
           </main>
-        </CartProvider>
+        </Providers>
       </body>
     </html>
   );

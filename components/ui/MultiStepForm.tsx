@@ -220,7 +220,7 @@ export default function MultiStepForm({
               transition={{ duration: 0.3 }}
               className="min-h-[300px]"
             >
-              {React.cloneElement(steps[currentStep]?.component as React.ReactElement, {
+              {React.cloneElement(steps[currentStep]?.component as React.ReactElement<{ onData?: (data: unknown) => void; data?: unknown }>, {
                 onData: (data: unknown) => updateStepData(steps[currentStep].id, data),
                 data: stepData[steps[currentStep]?.id]
               })}

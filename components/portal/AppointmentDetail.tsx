@@ -253,7 +253,7 @@ export default function AppointmentDetail({ appointment }: AppointmentDetailProp
             </h3>
             {appointment.orders?.items ? (
               <div className="space-y-3">
-                {appointment.orders.items.map((item: Record<string, unknown>, index: number) => (
+                {appointment.orders.items.map((item, index: number) => (
                   <div key={index} className="flex items-center justify-between p-3 bg-slate-900/30 rounded-lg">
                     <div>
                       <p className="text-white font-medium">{item.product_name}</p>
@@ -286,7 +286,7 @@ export default function AppointmentDetail({ appointment }: AppointmentDetailProp
             </h3>
             {appointment.test_results && appointment.test_results.length > 0 ? (
               <div className="space-y-3">
-                {appointment.test_results.map((result: Record<string, unknown>) => (
+                {appointment.test_results.map((result) => (
                   <div key={result.id} className="p-3 bg-slate-900/30 rounded-lg">
                     <div className="flex justify-between items-start mb-2">
                       <p className="text-white font-medium">

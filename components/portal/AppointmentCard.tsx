@@ -120,7 +120,7 @@ export default function AppointmentCard({ appointment }: AppointmentCardProps) {
           <div>
             <p className="text-sm text-slate-400">Location</p>
             <p className="text-white font-medium">
-              {appointment.location_name || 'Downtown Medical Center'}
+              {appointment.locations?.name || 'Prism Health Lab'}
             </p>
             <p className="text-slate-300 text-sm">
               {appointment.staff_name || 'Lab Technician'}

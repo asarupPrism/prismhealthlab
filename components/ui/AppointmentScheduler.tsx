@@ -46,9 +46,7 @@ interface AppointmentSchedulerProps {
 
 export default function AppointmentScheduler({
   locations = [
-    { id: 'downtown', name: 'Downtown Medical Center', address: '123 Health Ave, Suite 200', available: true },
-    { id: 'north', name: 'North Campus Lab', address: '456 Wellness Blvd, Floor 3', available: true },
-    { id: 'south', name: 'South Medical Plaza', address: '789 Care Street, Unit 105', available: true }
+    { id: 'schaumburg', name: 'Prism Health Lab', address: '1321 Tower Road, Schaumburg IL 60173', available: true }
   ],
   onAppointmentSelect,
   onData,
@@ -65,6 +63,8 @@ export default function AppointmentScheduler({
   const [currentMonth, setCurrentMonth] = useState(new Date())
   const [availableSlots, setAvailableSlots] = useState<TimeSlot[]>([])
   const [loading, setLoading] = useState(false)
+  const [currentSlotIndex, setCurrentSlotIndex] = useState(0)
+  const slotsPerPage = 4 // Number of slots to show at once
 
   // Mock staff data - in real app, this would come from API based on location
   const mockStaff = [
@@ -115,6 +115,7 @@ export default function AppointmentScheduler({
   // Load available slots when date or location changes
   const loadAvailableSlots = async (date: Date, location: Location) => {
     setLoading(true)
+    setCurrentSlotIndex(0) // Reset carousel to beginning
     try {
       // Simulate API call delay
       await new Promise(resolve => setTimeout(resolve, 500))
@@ -134,6 +135,7 @@ export default function AppointmentScheduler({
   const handleDateSelect = (date: Date) => {
     setSelectedDate(date)
     setSelectedTimeSlot(null)
+    setCurrentSlotIndex(0) // Reset carousel to beginning
     
     if (selectedLocation) {
       loadAvailableSlots(date, selectedLocation)
@@ -385,7 +387,7 @@ export default function AppointmentScheduler({
                     <span className="ml-3 text-slate-300">Loading available times...</span>
                   </div>
                 ) : (
-                  <div className="space-y-3 max-h-96 overflow-y-auto">
+                  <div>
                     {availableSlots.length === 0 ? (
                       <div className="text-center py-8">
                         <div className="w-12 h-12 bg-slate-700/50 rounded-xl flex items-center justify-center mx-auto mb-3">
@@ -394,58 +396,102 @@ export default function AppointmentScheduler({
                         <p className="text-slate-400">No available appointments for this date</p>
                       </div>
                     ) : (
-                      availableSlots.map((slot) => (
-                        <button
-                          key={slot.id}
-                          onClick={() => handleTimeSlotSelect(slot)}
-                          disabled={!slot.available}
-                          className={`w-full p-4 rounded-xl text-left transition-all duration-300 ${
-                            selectedTimeSlot?.id === slot.id
-                              ? 'bg-gradient-to-r from-emerald-500/20 to-green-500/20 border border-emerald-400/50 shadow-lg shadow-emerald-500/10'
-                              : slot.available
-                              ? 'backdrop-blur-sm bg-slate-700/30 border border-slate-600/50 hover:bg-slate-700/50 hover:border-slate-600/70'
-                              : 'bg-slate-800/20 border border-slate-700/30 opacity-50 cursor-not-allowed'
-                          }`}
-                        >
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                              <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
-                                selectedTimeSlot?.id === slot.id
-                                  ? 'bg-gradient-to-br from-emerald-400 to-green-500'
-                                  : slot.available
-                                  ? 'bg-slate-600/50'
-                                  : 'bg-slate-700/30'
-                              }`}>
-                                <div className="w-3 h-3 bg-white/80 rounded-full"></div>
-                              </div>
-                              <div>
-                                <div className="font-medium text-white">
-                                  {formatTime(slot.start)} - {formatTime(slot.end)}
-                                </div>
-                                {slot.staffName && (
-                                  <div className="text-sm text-slate-400">
-                                    with {slot.staffName}
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-                            
-                            <div className="text-right">
-                              {slot.available ? (
-                                <div className="flex items-center gap-2">
-                                  <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
-                                  <span className="text-emerald-300 text-sm">Available</span>
-                                </div>
-                              ) : (
-                                <div className="flex items-center gap-2">
-                                  <div className="w-2 h-2 bg-slate-500 rounded-full"></div>
-                                  <span className="text-slate-500 text-sm">Booked</span>
-                                </div>
-                              )}
-                            </div>
+                      <div className="relative">
+                        {/* Carousel Navigation */}
+                        <div className="flex items-center justify-between mb-4">
+                          <button
+                            onClick={() => setCurrentSlotIndex(Math.max(0, currentSlotIndex - slotsPerPage))}
+                            disabled={currentSlotIndex === 0}
+                            className={`p-3 rounded-xl transition-all duration-300 ${
+                              currentSlotIndex === 0
+                                ? 'bg-slate-800/30 border border-slate-700/30 text-slate-500 cursor-not-allowed'
+                                : 'backdrop-blur-sm bg-slate-700/50 border border-slate-600/50 text-cyan-400 hover:bg-slate-600/60 hover:border-cyan-400/50 hover:shadow-lg hover:shadow-cyan-500/10'
+                            }`}
+                          >
+                            <span className="text-lg font-bold">←</span>
+                          </button>
+                          
+                          <div className="flex items-center gap-2">
+                            <div className="w-2 h-2 bg-amber-400 rounded-full animate-pulse"></div>
+                            <span className="text-sm text-slate-300">
+                              {Math.min(currentSlotIndex + slotsPerPage, availableSlots.length)} of {availableSlots.length} slots
+                            </span>
                           </div>
-                        </button>
-                      ))
+                          
+                          <button
+                            onClick={() => setCurrentSlotIndex(Math.min(availableSlots.length - slotsPerPage, currentSlotIndex + slotsPerPage))}
+                            disabled={currentSlotIndex + slotsPerPage >= availableSlots.length}
+                            className={`p-3 rounded-xl transition-all duration-300 ${
+                              currentSlotIndex + slotsPerPage >= availableSlots.length
+                                ? 'bg-slate-800/30 border border-slate-700/30 text-slate-500 cursor-not-allowed'
+                                : 'backdrop-blur-sm bg-slate-700/50 border border-slate-600/50 text-cyan-400 hover:bg-slate-600/60 hover:border-cyan-400/50 hover:shadow-lg hover:shadow-cyan-500/10'
+                            }`}
+                          >
+                            <span className="text-lg font-bold">→</span>
+                          </button>
+                        </div>
+
+                        {/* Time Slots Carousel */}
+                        <div className="space-y-3">
+                          {availableSlots
+                            .slice(currentSlotIndex, currentSlotIndex + slotsPerPage)
+                            .map((slot) => (
+                            <motion.button
+                              key={slot.id}
+                              initial={{ opacity: 0, x: 20 }}
+                              animate={{ opacity: 1, x: 0 }}
+                              transition={{ duration: 0.3 }}
+                              onClick={() => handleTimeSlotSelect(slot)}
+                              disabled={!slot.available}
+                              className={`w-full p-4 rounded-xl text-left transition-all duration-300 ${
+                                selectedTimeSlot?.id === slot.id
+                                  ? 'bg-gradient-to-r from-emerald-500/20 to-green-500/20 border border-emerald-400/50 shadow-lg shadow-emerald-500/10'
+                                  : slot.available
+                                  ? 'backdrop-blur-sm bg-slate-700/30 border border-slate-600/50 hover:bg-slate-700/50 hover:border-slate-600/70'
+                                  : 'bg-slate-800/20 border border-slate-700/30 opacity-50 cursor-not-allowed'
+                              }`}
+                            >
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-3">
+                                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+                                    selectedTimeSlot?.id === slot.id
+                                      ? 'bg-gradient-to-br from-emerald-400 to-green-500'
+                                      : slot.available
+                                      ? 'bg-slate-600/50'
+                                      : 'bg-slate-700/30'
+                                  }`}>
+                                    <div className="w-3 h-3 bg-white/80 rounded-full"></div>
+                                  </div>
+                                  <div>
+                                    <div className="font-medium text-white">
+                                      {formatTime(slot.start)} - {formatTime(slot.end)}
+                                    </div>
+                                    {slot.staffName && (
+                                      <div className="text-sm text-slate-400">
+                                        with {slot.staffName}
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                                
+                                <div className="text-right">
+                                  {slot.available ? (
+                                    <div className="flex items-center gap-2">
+                                      <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
+                                      <span className="text-emerald-300 text-sm">Available</span>
+                                    </div>
+                                  ) : (
+                                    <div className="flex items-center gap-2">
+                                      <div className="w-2 h-2 bg-slate-500 rounded-full"></div>
+                                      <span className="text-slate-500 text-sm">Booked</span>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            </motion.button>
+                          ))}
+                        </div>
+                      </div>
                     )}
                   </div>
                 )}

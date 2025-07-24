@@ -3,7 +3,7 @@
 import React, { useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { swellHelpers } from '@/lib/swell'
-import { CheckoutData, Cart } from '@/types/shared'
+import { CheckoutData, Cart, CartItem } from '@/types/shared'
 
 interface OrderReviewProps {
   checkoutData: CheckoutData
@@ -33,13 +33,6 @@ export default function OrderReview({
     })
   }
 
-  const formatTime = (date: Date) => {
-    return date.toLocaleTimeString('en-US', {
-      hour: 'numeric',
-      minute: '2-digit',
-      hour12: true
-    })
-  }
 
   return (
     <div className={`max-w-4xl mx-auto ${className}`}>
@@ -53,7 +46,7 @@ export default function OrderReview({
           </h3>
           
           <div className="space-y-4">
-            {cart.items?.map((item, index: number) => (
+            {cart.items?.map((item: CartItem, index: number) => (
               <motion.div 
                 key={item.id}
                 initial={{ opacity: 0, y: 20 }}
@@ -69,11 +62,11 @@ export default function OrderReview({
                 
                 <div className="flex-1">
                   <h4 className="text-lg font-semibold text-white mb-2">
-                    {(item as unknown as Record<string, unknown>).product?.name || item.name || 'Diagnostic Panel'}
+                    {item.name || 'Diagnostic Panel'}
                   </h4>
-                  {(item as unknown as Record<string, unknown>).product?.description && (
+                  {item.description && (
                     <p className="text-sm text-slate-400 mb-3 leading-relaxed">
-                      {String((item as unknown as Record<string, unknown>).product?.description)}
+                      {item.description}
                     </p>
                   )}
                   <div className="flex items-center justify-between">
@@ -124,7 +117,7 @@ export default function OrderReview({
                   <div>
                     <p className="text-sm text-slate-400">Date</p>
                     <p className="text-white font-semibold">
-                      {formatDate(checkoutData.appointment.date)}
+                      {formatDate(checkoutData.appointment.selectedDate)}
                     </p>
                   </div>
                 </div>
@@ -138,7 +131,7 @@ export default function OrderReview({
                   <div>
                     <p className="text-sm text-slate-400">Time</p>
                     <p className="text-white font-semibold">
-                      {formatTime(checkoutData.appointment.timeSlot.start)} - {formatTime(checkoutData.appointment.timeSlot.end)}
+                      {checkoutData.appointment.selectedTime}
                     </p>
                   </div>
                 </div>
@@ -265,7 +258,7 @@ export default function OrderReview({
                     •••• •••• •••• {checkoutData.payment.cardNumber.slice(-4)}
                   </p>
                   <p className="text-sm text-slate-400">
-                    Expires {checkoutData.payment.expiryMonth}/{checkoutData.payment.expiryYear}
+                    Expires {checkoutData.payment.expiryDate}
                   </p>
                   <p className="text-sm text-slate-300">
                     {checkoutData.payment.nameOnCard}

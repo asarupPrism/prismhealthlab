@@ -90,7 +90,7 @@ export default function RecentResultsCard({ results }: RecentResultsCardProps) {
                 </div>
                 <div>
                   <h3 className="text-white font-semibold">
-                    {result.diagnostic_tests?.name || result.test_name || 'Lab Test'}
+                    {result.diagnostic_tests?.name || 'Lab Test'}
                   </h3>
                   <p className="text-slate-400 text-sm">
                     {result.diagnostic_tests?.category || 'Blood Work'}
@@ -117,13 +117,16 @@ export default function RecentResultsCard({ results }: RecentResultsCardProps) {
             {/* Test Values */}
             {result.test_values && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                {Object.entries(result.test_values).slice(0, 4).map(([key, value]: [string, Record<string, unknown>]) => (
+                {Object.entries(result.test_values).slice(0, 4).map(([key, value]) => (
                   <div key={key} className="flex justify-between items-center bg-slate-900/30 p-3 rounded-lg">
                     <span className="text-slate-300 text-sm capitalize">
                       {key.replace(/_/g, ' ')}
                     </span>
-                    <span className={`font-mono font-semibold ${getStatusColor(value?.status || 'normal', value?.value)}`}>
-                      {value?.value || value} {value?.unit || ''}
+                    <span className={`font-mono font-semibold ${getStatusColor(
+                      typeof value === 'object' && value !== null ? value.status || 'normal' : 'normal',
+                      typeof value === 'object' && value !== null && typeof value.value === 'number' ? value.value : undefined
+                    )}`}>
+                      {typeof value === 'object' && value !== null ? value.value : value} {typeof value === 'object' && value !== null ? value.unit || '' : ''}
                     </span>
                   </div>
                 ))}
