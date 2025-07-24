@@ -23,6 +23,7 @@ interface CartContextType extends CartState {
   addToCart: (productId: string, options?: { variantId?: string; quantity?: number }) => Promise<void>;
   updateCartItem: (itemId: string, quantity: number) => Promise<void>;
   removeFromCart: (itemId: string) => Promise<void>;
+  updateCart: (updates: { metadata?: Record<string, unknown> }) => Promise<void>;
   clearCart: () => void;
   refreshCart: () => Promise<void>;
 }
@@ -48,6 +49,7 @@ const transformSwellCart = (swellCart: unknown): Cart | null => {
     total: Number(cart.sub_total || cart.grand_total || 0),
     currency: String(cart.currency || 'USD'),
     itemCount: Number(cart.item_quantity || 0),
+    metadata: cart.metadata as Record<string, unknown> || {},
   };
 };
 
@@ -154,6 +156,23 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  // Update cart (for metadata, etc.)
+  const updateCart = async (updates: { metadata?: Record<string, unknown> }) => {
+    try {
+      dispatch({ type: 'SET_LOADING', payload: true });
+      dispatch({ type: 'CLEAR_ERROR' });
+      
+      // Import swell directly for cart updates
+      const swell = (await import('@/lib/swell')).default;
+      const updatedCart = await swell.cart.update(updates);
+      const transformedCart = transformSwellCart(updatedCart);
+      dispatch({ type: 'SET_CART', payload: transformedCart });
+    } catch (error) {
+      dispatch({ type: 'SET_ERROR', payload: 'Failed to update cart' });
+      console.error('Error updating cart:', error);
+    }
+  };
+
   // Clear cart
   const clearCart = () => {
     dispatch({ type: 'RESET_CART' });
@@ -164,6 +183,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     addToCart,
     updateCartItem,
     removeFromCart,
+    updateCart,
     clearCart,
     refreshCart,
   };

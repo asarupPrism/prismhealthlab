@@ -101,6 +101,7 @@ export interface Cart {
   total: number;
   currency: string;
   itemCount: number;
+  metadata?: Record<string, unknown>;
 }
 
 export interface SwellBillingInfo {

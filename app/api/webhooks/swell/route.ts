@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAdminClient } from '@/lib/supabase/admin';
+import { sendAppointmentConfirmation } from '@/lib/email';
 // import { headers } from 'next/headers';
 
 // Webhook handler for Swell events
@@ -60,6 +61,7 @@ async function handleOrderCreated(order: Record<string, unknown>) {
     const billing = order.billing as Record<string, unknown> || {};
     const account = order.account as Record<string, unknown> || {};
     const items = order.items as Record<string, unknown>[] || [];
+    const metadata = order.metadata as Record<string, unknown> || {};
     
     // Prepare order data for Supabase
     const orderData = {
@@ -80,6 +82,7 @@ async function handleOrderCreated(order: Record<string, unknown>) {
       })),
       billing_address: billing,
       shipping_address: order.shipping as Record<string, unknown> || null,
+      metadata: metadata,
     };
     
     // Insert order into Supabase
@@ -120,8 +123,10 @@ async function handleOrderCreated(order: Record<string, unknown>) {
         console.error('Error creating/updating profile:', profileError);
       }
     }
+
+    // Process appointment data from metadata
+    await processAppointmentFromMetadata(supabase, metadata, orderResult, orderData.user_id);
     
-    // TODO: Trigger appointment scheduling workflow
     // TODO: Send confirmation email
     // TODO: Create notification
     
@@ -198,24 +203,15 @@ async function handleOrderPaid(order: Record<string, unknown>) {
     
     console.log('Payment confirmed for order:', orderData.id);
     
-    // TODO: Trigger appointment scheduling workflow
-    // For now, we'll create a basic appointment record that can be scheduled later
-    /*
-    const appointmentData = {
-      user_id: orderData.user_id,
-      order_id: orderData.id,
-      location_id: 'default', // You'll need to set up locations
-      status: 'pending_schedule',
-    };
-    
-    const { error: appointmentError } = await supabase
-      .from('appointments')
-      .insert([appointmentData]);
-    
-    if (appointmentError) {
-      console.error('Error creating appointment record:', appointmentError);
+    // Process appointment from order metadata when payment is confirmed
+    if (order.metadata) {
+      await processAppointmentFromMetadata(
+        supabase, 
+        order.metadata as Record<string, unknown>, 
+        orderData, 
+        orderData.user_id
+      );
     }
-    */
     
     // TODO: Send payment confirmation email
     // TODO: Generate test requisition forms
@@ -256,6 +252,186 @@ async function handleSubscriptionUpdated(subscription: Record<string, unknown>) 
   } catch (error) {
     console.error('Error handling subscription update:', error);
     throw error;
+  }
+}
+
+// Helper function to process appointment data from cart metadata
+async function processAppointmentFromMetadata(
+  supabase: ReturnType<typeof getAdminClient>,
+  metadata: Record<string, unknown>,
+  orderData: Record<string, unknown>,
+  userId: string
+) {
+  try {
+    // Check if appointment data exists in metadata
+    const appointmentData = metadata.appointment as Record<string, unknown>;
+    if (!appointmentData) {
+      console.log('No appointment data found in order metadata');
+      return;
+    }
+
+    console.log('Processing appointment from metadata:', appointmentData);
+
+    // Extract appointment details
+    const {
+      scheduled_date,
+      location_name,
+      location_address,
+      staff_name,
+      appointment_type = 'blood_draw'
+    } = appointmentData;
+
+    if (!scheduled_date) {
+      console.error('No scheduled_date in appointment metadata');
+      return;
+    }
+
+    // Find or create location
+    let locationId: string;
+    
+    if (location_name) {
+      // Try to find existing location by name
+      const { data: existingLocation } = await supabase
+        .from('locations')
+        .select('id')
+        .eq('name', String(location_name))
+        .single();
+
+      if (existingLocation) {
+        locationId = existingLocation.id;
+      } else {
+        // Create new location if it doesn't exist
+        const { data: newLocation, error: locationCreateError } = await supabase
+          .from('locations')
+          .insert([{
+            name: String(location_name),
+            address: String(location_address || ''),
+            phone: '(555) 123-4567', // Default phone
+            hours: {
+              monday: { start: '09:00', end: '17:00', closed: false },
+              tuesday: { start: '09:00', end: '17:00', closed: false },
+              wednesday: { start: '09:00', end: '17:00', closed: false },
+              thursday: { start: '09:00', end: '17:00', closed: false },
+              friday: { start: '09:00', end: '17:00', closed: false },
+              saturday: { start: '09:00', end: '15:00', closed: false },
+              sunday: { start: '10:00', end: '14:00', closed: true }
+            },
+            active: true
+          }])
+          .select('id')
+          .single();
+
+        if (locationCreateError) {
+          console.error('Error creating location:', locationCreateError);
+          locationId = 'default'; // Fallback to default location
+        } else {
+          locationId = newLocation.id;
+          console.log('Created new location:', locationId);
+        }
+      }
+    } else {
+      locationId = 'default'; // Fallback to default location
+    }
+
+    // Create appointment record
+    const appointmentRecord = {
+      user_id: userId,
+      order_id: orderData.id,
+      location_id: locationId,
+      scheduled_date: new Date(String(scheduled_date)).toISOString(),
+      appointment_type: String(appointment_type),
+      status: 'confirmed',
+      staff_name: staff_name ? String(staff_name) : null,
+      notes: `Appointment scheduled via checkout for order #${orderData.swell_order_id}`,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    };
+
+    const { data: appointment, error: appointmentError } = await supabase
+      .from('appointments')
+      .insert([appointmentRecord])
+      .select(`
+        *,
+        locations(name, address),
+        orders(swell_order_id, total)
+      `)
+      .single();
+
+    if (appointmentError) {
+      console.error('Error creating appointment:', appointmentError);
+      throw appointmentError;
+    }
+
+    console.log('Appointment created successfully:', {
+      appointment_id: appointment.id,
+      scheduled_date: appointment.scheduled_date,
+      location: appointment.locations?.name,
+      order_id: appointment.order_id
+    });
+
+    // Send appointment confirmation email
+    await sendAppointmentConfirmationEmail(appointment, orderData);
+    
+    // TODO: Add to calendar integrations
+    // TODO: Set up reminder notifications
+
+  } catch (error) {
+    console.error('Error processing appointment from metadata:', error);
+    // Don't throw here to avoid failing the entire webhook
+    // The order should still be processed even if appointment creation fails
+  }
+}
+
+// Helper function to send appointment confirmation email
+async function sendAppointmentConfirmationEmail(
+  appointment: Record<string, unknown>,
+  orderData: Record<string, unknown>
+) {
+  try {
+    // Extract customer information
+    const customerEmail = String(orderData.customer_email || '');
+    const customerName = String(orderData.customer_name || 'Valued Customer');
+    
+    if (!customerEmail) {
+      console.warn('No customer email available for appointment confirmation');
+      return;
+    }
+
+    // Prepare appointment date/time
+    const appointmentDate = new Date(String(appointment.scheduled_date));
+    
+    // Extract test names from order items
+    const orderItems = orderData.items as Array<Record<string, unknown>> || [];
+    const testNames = orderItems.map(item => String(item.product_name || 'Diagnostic Test'));
+    
+    // Prepare email data
+    const emailData = {
+      customerName,
+      customerEmail,
+      appointmentDate: appointmentDate.toISOString().split('T')[0],
+      appointmentTime: appointmentDate.toLocaleTimeString('en-US', {
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true
+      }),
+      locationName: (appointment.locations as Record<string, unknown>)?.name as string || 'Prism Health Lab',
+      locationAddress: (appointment.locations as Record<string, unknown>)?.address as string || 'Downtown Medical Center',
+      orderNumber: String(orderData.swell_order_id || orderData.id || 'N/A'),
+      testNames
+    };
+
+    // Send the confirmation email
+    const emailSent = await sendAppointmentConfirmation(emailData);
+    
+    if (emailSent) {
+      console.log('Appointment confirmation email sent successfully to:', customerEmail);
+    } else {
+      console.error('Failed to send appointment confirmation email to:', customerEmail);
+    }
+
+  } catch (error) {
+    console.error('Error sending appointment confirmation email:', error);
+    // Don't throw error to avoid failing the webhook
   }
 }
 

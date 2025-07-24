@@ -8,27 +8,111 @@ import Link from 'next/link';
 function CheckoutSuccessContent() {
   const searchParams = useSearchParams();
   const [orderData, setOrderData] = useState<Record<string, unknown> | null>(null);
+  const [appointmentData, setAppointmentData] = useState<Record<string, unknown> | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const orderId = searchParams.get('order');
 
   useEffect(() => {
-    // In a real implementation, you would fetch order details from Swell
-    // For now, we'll simulate some order data
-    if (orderId) {
-      setOrderData({
-        id: orderId,
-        number: `PHL-${Math.random().toString(36).substr(2, 9).toUpperCase()}`,
-        total: 149.00,
-        items: [
-          {
-            name: 'Muscle & Performance Panel',
-            price: 149.00,
-            quantity: 1
+    async function fetchOrderAndAppointment() {
+      if (!orderId) {
+        setError('No order ID provided');
+        setLoading(false);
+        return;
+      }
+
+      try {
+        // Fetch order details from API
+        const orderResponse = await fetch(`/api/orders/${orderId}`, {
+          credentials: 'include'
+        });
+
+        if (!orderResponse.ok) {
+          throw new Error('Failed to fetch order details');
+        }
+
+        const orderResult = await orderResponse.json();
+        setOrderData(orderResult.order);
+
+        // Try to fetch appointment details if available
+        try {
+          const appointmentsResponse = await fetch('/api/appointments?limit=1', {
+            credentials: 'include'
+          });
+
+          if (appointmentsResponse.ok) {
+            const appointmentsResult = await appointmentsResponse.json();
+            
+            // Find appointment associated with this order
+            const relatedAppointment = appointmentsResult.appointments?.find(
+              (apt: Record<string, unknown>) => apt.order_id === orderResult.order.id
+            );
+
+            if (relatedAppointment) {
+              setAppointmentData(relatedAppointment);
+            }
           }
-        ],
-        email: 'customer@example.com'
-      });
+        } catch (appointmentError) {
+          console.warn('Could not fetch appointment details:', appointmentError);
+          // Don't show error for appointment fetch failure - it's optional
+        }
+
+      } catch (err) {
+        console.error('Error fetching order details:', err);
+        setError('Failed to load order details');
+        
+        // Fallback to simulated data for demo purposes
+        setOrderData({
+          id: orderId,
+          number: `PHL-${Math.random().toString(36).substr(2, 9).toUpperCase()}`,
+          total: 149.00,
+          items: [
+            {
+              name: 'Muscle & Performance Panel',
+              price: 149.00,
+              quantity: 1
+            }
+          ],
+          customer_email: 'customer@example.com'
+        });
+      } finally {
+        setLoading(false);
+      }
     }
+
+    fetchOrderAndAppointment();
   }, [orderId]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-400 mb-4"></div>
+          <p className="text-slate-400">Loading order details...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 bg-rose-500/20 border border-rose-400/30 rounded-xl flex items-center justify-center mx-auto mb-4">
+            <div className="w-8 h-8 text-rose-400 font-bold text-2xl">!</div>
+          </div>
+          <h2 className="text-xl font-semibold text-white mb-2">Unable to Load Order</h2>
+          <p className="text-slate-400 mb-6">{error}</p>
+          <Link
+            href="/portal"
+            className="px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold rounded-xl hover:from-cyan-400 hover:to-blue-500 transition-all duration-300"
+          >
+            Go to Patient Portal
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-slate-950 pt-8">
@@ -131,7 +215,7 @@ function CheckoutSuccessContent() {
                     </div>
                     <div>
                       <p className="text-white font-medium mb-1">Confirmation Email</p>
-                      <p className="text-slate-400 text-sm">We&apos;ll send detailed instructions to {String(orderData.email)}</p>
+                      <p className="text-slate-400 text-sm">We&apos;ll send detailed instructions to {String(orderData.customer_email || orderData.email)}</p>
                     </div>
                   </div>
 
@@ -154,6 +238,153 @@ function CheckoutSuccessContent() {
                       <p className="text-slate-400 text-sm">Secure access to your results within 2-3 business days</p>
                     </div>
                   </div>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Appointment Details */}
+        {appointmentData && (
+          <motion.div
+            initial={{ y: 30, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.45, duration: 0.5 }}
+            className="backdrop-blur-sm bg-gradient-to-br from-emerald-500/10 to-green-500/10 border border-emerald-400/20 rounded-2xl p-8 shadow-xl shadow-slate-900/50 mb-8"
+          >
+            <div className="border-l-2 border-emerald-500/30 pl-6 mb-6">
+              <h2 className="text-2xl font-semibold text-white mb-2 flex items-center gap-2">
+                <div className="w-3 h-3 bg-emerald-400 rounded-full animate-pulse"></div>
+                Your Appointment is Scheduled
+              </h2>
+              <p className="text-emerald-300">Blood draw appointment confirmed</p>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {/* Appointment Details */}
+              <div>
+                <h3 className="text-lg font-medium text-white mb-4 flex items-center gap-2">
+                  <div className="w-2 h-2 bg-cyan-400 rounded-full"></div>
+                  Appointment Information
+                </h3>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between p-4 bg-slate-700/20 rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-gradient-to-br from-cyan-400/20 to-blue-500/20 border border-cyan-400/30 rounded-lg flex items-center justify-center">
+                        <div className="w-5 h-5 bg-cyan-300/50 rounded flex items-center justify-center">
+                          <div className="w-2 h-2 bg-white rounded-full"></div>
+                        </div>
+                      </div>
+                      <div>
+                        <p className="text-white font-medium">Date & Time</p>
+                        <p className="text-slate-400 text-sm">
+                          {new Date(String(appointmentData.scheduled_date)).toLocaleDateString('en-US', {
+                            weekday: 'long',
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric'
+                          })}
+                        </p>
+                      </div>
+                    </div>
+                    <p className="text-white font-mono text-lg">
+                      {new Date(String(appointmentData.scheduled_date)).toLocaleTimeString('en-US', {
+                        hour: 'numeric',
+                        minute: '2-digit',
+                        hour12: true
+                      })}
+                    </p>
+                  </div>
+
+                  <div className="flex items-center justify-between p-4 bg-slate-700/20 rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-gradient-to-br from-emerald-400/20 to-green-500/20 border border-emerald-400/30 rounded-lg flex items-center justify-center">
+                        <div className="w-5 h-5 bg-emerald-300/50 rounded flex items-center justify-center">
+                          <div className="w-2 h-2 bg-white rounded-full"></div>
+                        </div>
+                      </div>
+                      <div>
+                        <p className="text-white font-medium">Location</p>
+                        <p className="text-slate-400 text-sm">
+                          {String((appointmentData.locations as Record<string, unknown>)?.name) || 'Downtown Medical Center'}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {appointmentData.staff_name ? (
+                    <div className="flex items-center justify-between p-4 bg-slate-700/20 rounded-lg">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-gradient-to-br from-purple-400/20 to-pink-500/20 border border-purple-400/30 rounded-lg flex items-center justify-center">
+                          <div className="w-5 h-5 bg-purple-300/50 rounded flex items-center justify-center">
+                            <div className="w-2 h-2 bg-white rounded-full"></div>
+                          </div>
+                        </div>
+                        <div>
+                          <p className="text-white font-medium">Staff</p>
+                          <p className="text-slate-400 text-sm">{String(appointmentData.staff_name)}</p>
+                        </div>
+                      </div>
+                    </div>
+                  ) : null}
+                </div>
+              </div>
+
+              {/* Preparation Instructions */}
+              <div>
+                <h3 className="text-lg font-medium text-white mb-4 flex items-center gap-2">
+                  <div className="w-2 h-2 bg-amber-400 rounded-full"></div>
+                  Preparation Instructions
+                </h3>
+                <div className="space-y-3">
+                  <div className="flex items-start gap-3 p-3 bg-slate-700/20 rounded-lg">
+                    <div className="w-6 h-6 bg-emerald-400/20 border border-emerald-400/30 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <div className="w-2 h-2 bg-emerald-400 rounded-full"></div>
+                    </div>
+                    <div>
+                      <p className="text-white font-medium text-sm mb-1">Fasting Required</p>
+                      <p className="text-slate-400 text-sm">
+                        Do not eat or drink anything except water for 8-12 hours before your appointment
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-3 p-3 bg-slate-700/20 rounded-lg">
+                    <div className="w-6 h-6 bg-cyan-400/20 border border-cyan-400/30 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <div className="w-2 h-2 bg-cyan-400 rounded-full"></div>
+                    </div>
+                    <div>
+                      <p className="text-white font-medium text-sm mb-1">Arrive Early</p>
+                      <p className="text-slate-400 text-sm">
+                        Please arrive 15 minutes before your scheduled time
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-3 p-3 bg-slate-700/20 rounded-lg">
+                    <div className="w-6 h-6 bg-purple-400/20 border border-purple-400/30 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
+                    </div>
+                    <div>
+                      <p className="text-white font-medium text-sm mb-1">Bring Valid ID</p>
+                      <p className="text-slate-400 text-sm">
+                        Valid photo identification is required for all appointments
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Quick Action for Appointment */}
+                <div className="mt-6">
+                  <Link
+                    href={`/portal/appointments/${appointmentData.id}`}
+                    className="w-full px-4 py-3 bg-gradient-to-r from-emerald-500 to-green-600 text-white font-medium rounded-xl hover:from-emerald-400 hover:to-green-500 transition-all duration-300 shadow-lg shadow-emerald-500/25 flex items-center justify-center gap-2"
+                  >
+                    <div className="w-4 h-4 bg-white/20 rounded flex items-center justify-center">
+                      <div className="w-2 h-2 bg-white rounded-full"></div>
+                    </div>
+                    <span>View Appointment Details</span>
+                  </Link>
                 </div>
               </div>
             </div>
