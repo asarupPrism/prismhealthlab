@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getAdminClient } from '@/lib/supabase/admin';
 // import { headers } from 'next/headers';
 
 // Webhook handler for Swell events
@@ -53,37 +54,76 @@ async function handleOrderCreated(order: Record<string, unknown>) {
   try {
     console.log('New order created:', order.id);
     
-    // TODO: Implement Supabase integration
-    // 1. Save order to Supabase orders table
-    // 2. Create appointment slots if needed
-    // 3. Send confirmation email
-    // 4. Trigger notification system
+    const supabase = getAdminClient();
     
-    // Example structure for Supabase integration:
-    /*
+    // Extract customer information
+    const billing = order.billing as Record<string, unknown> || {};
+    const account = order.account as Record<string, unknown> || {};
+    const items = order.items as Record<string, unknown>[] || [];
+    
+    // Prepare order data for Supabase
     const orderData = {
-      swell_order_id: order.id,
-      customer_email: order.account?.email || order.billing?.email,
-      customer_name: `${order.billing?.first_name} ${order.billing?.last_name}`,
-      total: order.total,
-      currency: order.currency,
-      status: order.status,
-      items: order.items?.map(item => ({
-        product_id: item.product_id,
-        product_name: item.product?.name,
-        quantity: item.quantity,
-        price: item.price
+      swell_order_id: String(order.id),
+      user_id: String(account.id || 'guest'),
+      customer_email: String(account.email || billing.email || ''),
+      customer_name: `${billing.first_name || ''} ${billing.last_name || ''}`.trim(),
+      total: Number(order.grand_total || order.sub_total || 0),
+      currency: String(order.currency || 'USD'),
+      status: String(order.status || 'pending'),
+      payment_status: String(order.payment_status || 'pending'),
+      items: items.map(item => ({
+        product_id: String(item.product_id || ''),
+        product_name: String((item.product as Record<string, unknown>)?.name || ''),
+        quantity: Number(item.quantity || 1),
+        price: Number(item.price || 0),
+        variant_id: String(item.variant_id || '')
       })),
-      created_at: new Date(order.date_created),
-      billing_address: order.billing,
-      shipping_address: order.shipping,
+      billing_address: billing,
+      shipping_address: order.shipping as Record<string, unknown> || null,
     };
     
-    // Insert into Supabase
-    const { data, error } = await supabase
+    // Insert order into Supabase
+    const { data: orderResult, error: orderError } = await supabase
       .from('orders')
-      .insert([orderData]);
-    */
+      .insert([orderData])
+      .select()
+      .single();
+    
+    if (orderError) {
+      console.error('Error saving order to Supabase:', orderError);
+      throw orderError;
+    }
+    
+    console.log('Order saved to Supabase:', orderResult.id);
+    
+    // Create user profile if it doesn't exist (for guest orders)
+    if (orderData.customer_email && orderData.user_id === 'guest') {
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .upsert([{
+          user_id: orderData.user_id,
+          email: orderData.customer_email,
+          first_name: String(billing.first_name || ''),
+          last_name: String(billing.last_name || ''),
+          phone: String(billing.phone || ''),
+          address_line_1: String(billing.address1 || ''),
+          address_line_2: String(billing.address2 || ''),
+          city: String(billing.city || ''),
+          state: String(billing.state || ''),
+          zip_code: String(billing.zip || ''),
+          country: String(billing.country || 'US'),
+        }], {
+          onConflict: 'user_id'
+        });
+      
+      if (profileError) {
+        console.error('Error creating/updating profile:', profileError);
+      }
+    }
+    
+    // TODO: Trigger appointment scheduling workflow
+    // TODO: Send confirmation email
+    // TODO: Create notification
     
   } catch (error) {
     console.error('Error handling order creation:', error);
@@ -96,10 +136,35 @@ async function handleOrderUpdated(order: Record<string, unknown>) {
   try {
     console.log('Order updated:', order.id);
     
-    // TODO: Update order in Supabase
-    // 1. Update order status
-    // 2. Handle fulfillment changes
-    // 3. Update appointment scheduling if needed
+    const supabase = getAdminClient();
+    
+    // Update order in Supabase
+    const updateData = {
+      status: String(order.status || 'pending'),
+      payment_status: String(order.payment_status || 'pending'),
+      total: Number(order.grand_total || order.sub_total || 0),
+      updated_at: new Date().toISOString(),
+    };
+    
+    const { data, error } = await supabase
+      .from('orders')
+      .update(updateData)
+      .eq('swell_order_id', String(order.id))
+      .select()
+      .single();
+    
+    if (error) {
+      console.error('Error updating order in Supabase:', error);
+      throw error;
+    }
+    
+    console.log('Order updated in Supabase:', data.id);
+    
+    // Handle appointment scheduling based on status changes
+    if (order.status === 'complete' || order.status === 'delivered') {
+      // TODO: Update appointment status if needed
+      // TODO: Trigger test results workflow
+    }
     
   } catch (error) {
     console.error('Error handling order update:', error);
@@ -112,11 +177,49 @@ async function handleOrderPaid(order: Record<string, unknown>) {
   try {
     console.log('Order paid:', order.id);
     
-    // TODO: Process payment confirmation
-    // 1. Update payment status in Supabase
-    // 2. Trigger appointment scheduling workflow
-    // 3. Send payment confirmation email
-    // 4. Generate test requisition forms
+    const supabase = getAdminClient();
+    
+    // Update payment status in Supabase
+    const { data: orderData, error: orderError } = await supabase
+      .from('orders')
+      .update({
+        payment_status: 'paid',
+        status: 'processing',
+        updated_at: new Date().toISOString(),
+      })
+      .eq('swell_order_id', String(order.id))
+      .select()
+      .single();
+    
+    if (orderError) {
+      console.error('Error updating payment status:', orderError);
+      throw orderError;
+    }
+    
+    console.log('Payment confirmed for order:', orderData.id);
+    
+    // TODO: Trigger appointment scheduling workflow
+    // For now, we'll create a basic appointment record that can be scheduled later
+    /*
+    const appointmentData = {
+      user_id: orderData.user_id,
+      order_id: orderData.id,
+      location_id: 'default', // You'll need to set up locations
+      status: 'pending_schedule',
+    };
+    
+    const { error: appointmentError } = await supabase
+      .from('appointments')
+      .insert([appointmentData]);
+    
+    if (appointmentError) {
+      console.error('Error creating appointment record:', appointmentError);
+    }
+    */
+    
+    // TODO: Send payment confirmation email
+    // TODO: Generate test requisition forms
+    // TODO: Create notification for user
     
   } catch (error) {
     console.error('Error handling order payment:', error);

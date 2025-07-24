@@ -419,7 +419,7 @@ function ProductsPageContent() {
       });
       
       if (swellPanel) {
-        console.log('Matched panel:', panel.name, 'with Swell product:', (swellPanel as any).name);
+        console.log('Matched panel:', panel.name, 'with Swell product:', (swellPanel as Record<string, unknown>).name);
       }
       
       return {
@@ -459,10 +459,10 @@ function ProductsPageContent() {
         alert(`${panel.name} is not yet available in our store. Please contact us to order this panel.`);
         // Fallback: could redirect to contact form or show message
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error adding to cart:', error);
       // Handle error - show user feedback
-      const errorMessage = error?.message || 'Unable to add item to cart';
+      const errorMessage = (error as Error)?.message || 'Unable to add item to cart';
       alert(`Error: ${errorMessage}. Please check the console for details.`);
     }
   };

@@ -171,10 +171,10 @@ export const swellHelpers = {
       ensureInitialized();
       
       // Use the correct Swell.js API format
-      const cartItem = {
+      const cartItem: Record<string, unknown> = {
         product_id: productId,
         quantity: options?.quantity || 1,
-      } as any;
+      };
       
       if (options?.variantId) {
         cartItem.variant_id = options.variantId;

@@ -11,6 +11,8 @@
     "populate-swell": "node scripts/populate-swell-products.js"
   },
   "dependencies": {
+    "@supabase/ssr": "^0.6.1",
+    "@supabase/supabase-js": "^2.52.1",
     "dotenv": "^17.2.0",
     "framer-motion": "^12.23.7",
     "next": "15.3.3",
