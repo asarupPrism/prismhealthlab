@@ -107,12 +107,20 @@ export function CartProvider({ children }: { children: ReactNode }) {
       dispatch({ type: 'SET_LOADING', payload: true });
       dispatch({ type: 'CLEAR_ERROR' });
       
+      console.log('CartContext: Adding product to cart:', { productId, options });
+      
       const updatedCart = await swellHelpers.addToCart(productId, options);
       const transformedCart = transformSwellCart(updatedCart);
       dispatch({ type: 'SET_CART', payload: transformedCart });
-    } catch (error) {
-      dispatch({ type: 'SET_ERROR', payload: 'Failed to add item to cart' });
-      console.error('Error adding to cart:', error);
+      
+      console.log('CartContext: Successfully added to cart');
+    } catch (error: any) {
+      const errorMessage = error?.message || 'Failed to add item to cart';
+      dispatch({ type: 'SET_ERROR', payload: errorMessage });
+      console.error('CartContext: Error adding to cart:', error);
+      
+      // Re-throw for the component to handle
+      throw error;
     }
   };
 

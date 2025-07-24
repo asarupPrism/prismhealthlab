@@ -391,10 +391,36 @@ function ProductsPageContent() {
   // Merge static panels with Swell data for pricing and cart functionality
   const getMergedPanels = () => {
     return panels.map(panel => {
-      const swellPanel = swellPanels.find(sp => 
-        (sp as Record<string, unknown>).slug === panel.id || 
-        String((sp as Record<string, unknown>).name).toLowerCase().includes(panel.name.toLowerCase().substring(0, 10))
-      );
+      // Try multiple matching strategies
+      const swellPanel = swellPanels.find(sp => {
+        const swellProduct = sp as Record<string, unknown>;
+        const swellSlug = String(swellProduct.slug || '').toLowerCase();
+        const swellName = String(swellProduct.name || '').toLowerCase();
+        const panelIdLower = panel.id.toLowerCase();
+        const panelNameLower = panel.name.toLowerCase();
+        
+        // Try exact slug match first
+        if (swellSlug === panelIdLower) return true;
+        
+        // Try name contains match
+        if (swellName.includes(panelNameLower.substring(0, 10))) return true;
+        
+        // Try slug contains match
+        if (swellSlug.includes(panelIdLower.replace(/-/g, ''))) return true;
+        
+        // Log for debugging
+        console.log('No match found for:', panel.name, {
+          swellSlug,
+          swellName,
+          panelId: panelIdLower
+        });
+        
+        return false;
+      });
+      
+      if (swellPanel) {
+        console.log('Matched panel:', panel.name, 'with Swell product:', (swellPanel as any).name);
+      }
       
       return {
         ...panel,
@@ -427,13 +453,17 @@ function ProductsPageContent() {
         await addToCart(panel.swellId, { quantity: 1 });
         console.log('Added to cart:', panel.name);
         // You could add a toast notification here
+        alert(`${panel.name} added to cart!`);
       } else {
         console.warn('Panel not found in Swell store:', panel.name);
+        alert(`${panel.name} is not yet available in our store. Please contact us to order this panel.`);
         // Fallback: could redirect to contact form or show message
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error adding to cart:', error);
       // Handle error - show user feedback
+      const errorMessage = error?.message || 'Unable to add item to cart';
+      alert(`Error: ${errorMessage}. Please check the console for details.`);
     }
   };
 
