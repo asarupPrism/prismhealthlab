@@ -3,6 +3,8 @@
 import React, { useState, useEffect, Suspense } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSearchParams } from 'next/navigation';
+import { swellHelpers } from '@/lib/swell';
+import { useCart } from '@/context/CartContext';
 
 type Stage = 'categories' | 'panels' | 'detail';
 type Category = 'performance' | 'wellness' | 'hormones' | 'comprehensive';
@@ -22,6 +24,9 @@ interface Panel {
     category: string;
     tests: { name: string; purpose: string }[];
   }[];
+  // Swell fields
+  swellId?: string;
+  swellPrice?: number;
 }
 
 const panels: Panel[] = [
@@ -311,10 +316,13 @@ const panels: Panel[] = [
 
 function ProductsPageContent() {
   const searchParams = useSearchParams();
+  const { addToCart } = useCart();
   const [currentStage, setCurrentStage] = useState<Stage>('categories');
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const [scrollProgress, setScrollProgress] = useState(0);
   const [flippedCards, setFlippedCards] = useState<Set<string>>(new Set());
+  const [swellPanels, setSwellPanels] = useState<Array<Record<string, unknown>>>([]);
+  const [isLoadingSwell, setIsLoadingSwell] = useState(false);
 
   // Handle URL parameters for direct category navigation
   useEffect(() => {
@@ -362,8 +370,43 @@ function ProductsPageContent() {
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [flippedCards, currentStage]);
 
+  // Load Swell data and merge with static panels
+  useEffect(() => {
+    const loadSwellData = async () => {
+      try {
+        setIsLoadingSwell(true);
+        const response = await swellHelpers.getProducts({ limit: 50 });
+        setSwellPanels((response.results || []).map((product: unknown) => product as Record<string, unknown>));
+      } catch (error) {
+        console.error('Error loading Swell products:', error);
+        // Fallback to static data if Swell fails
+      } finally {
+        setIsLoadingSwell(false);
+      }
+    };
+
+    loadSwellData();
+  }, []);
+
+  // Merge static panels with Swell data for pricing and cart functionality
+  const getMergedPanels = () => {
+    return panels.map(panel => {
+      const swellPanel = swellPanels.find(sp => 
+        (sp as Record<string, unknown>).slug === panel.id || 
+        String((sp as Record<string, unknown>).name).toLowerCase().includes(panel.name.toLowerCase().substring(0, 10))
+      );
+      
+      return {
+        ...panel,
+        swellId: swellPanel ? String((swellPanel as Record<string, unknown>).id) : undefined,
+        swellPrice: swellPanel ? Number((swellPanel as Record<string, unknown>).price) : undefined,
+        price: swellPanel ? swellHelpers.formatPrice(Number((swellPanel as Record<string, unknown>).price) || 0) : panel.price
+      };
+    });
+  };
+
   const getCategoryPanels = (category: Category) => {
-    return panels.filter(panel => panel.category === category);
+    return getMergedPanels().filter(panel => panel.category === category);
   };
 
   const toggleCardFlip = (cardId: string) => {
@@ -376,6 +419,22 @@ function ProductsPageContent() {
       }
       return newSet;
     });
+  };
+
+  const handleAddToCart = async (panel: Panel) => {
+    try {
+      if (panel.swellId) {
+        await addToCart(panel.swellId, { quantity: 1 });
+        console.log('Added to cart:', panel.name);
+        // You could add a toast notification here
+      } else {
+        console.warn('Panel not found in Swell store:', panel.name);
+        // Fallback: could redirect to contact form or show message
+      }
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+      // Handle error - show user feedback
+    }
   };
 
   const getCategoryInfo = (category: Category) => {
@@ -809,7 +868,9 @@ function ProductsPageContent() {
                       
                       <div className="space-y-2 sm:space-y-3 mt-auto">
                               <button 
-                                className={`w-full px-4 py-2 sm:py-3 font-semibold rounded-xl transition-all duration-300 shadow-lg text-white text-sm sm:text-base min-h-[40px] sm:min-h-[48px] ${
+                                onClick={() => handleAddToCart(panel)}
+                                disabled={isLoadingSwell || !panel.swellId}
+                                className={`w-full px-4 py-2 sm:py-3 font-semibold rounded-xl transition-all duration-300 shadow-lg text-white text-sm sm:text-base min-h-[40px] sm:min-h-[48px] disabled:opacity-50 disabled:cursor-not-allowed ${
                                   panel.color === 'emerald' ? 'bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-400 hover:to-green-500 hover:shadow-emerald-500/25' :
                                   panel.color === 'cyan' ? 'bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 hover:shadow-cyan-500/25' :
                                   panel.color === 'amber' ? 'bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 hover:shadow-amber-500/25' :
@@ -819,7 +880,7 @@ function ProductsPageContent() {
                                   'bg-gradient-to-r from-teal-500 to-cyan-600 hover:from-teal-400 hover:to-cyan-500 hover:shadow-teal-500/25'
                                 }`}
                               >
-                                Order Panel
+                                {isLoadingSwell ? 'Loading...' : panel.swellId ? 'Add to Cart' : 'Order Panel'}
                               </button>
                               <button 
                                 onClick={() => toggleCardFlip(panel.id)}

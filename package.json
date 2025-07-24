@@ -6,13 +6,18 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test-swell": "node scripts/test-swell-connection.js",
+    "populate-swell": "node scripts/populate-swell-products.js"
   },
   "dependencies": {
+    "dotenv": "^17.2.0",
     "framer-motion": "^12.23.7",
     "next": "15.3.3",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "swell-js": "^4.2.5",
+    "swell-node": "^6.0.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

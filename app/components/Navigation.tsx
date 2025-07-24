@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
+import CartIcon from './CartIcon';
 
 export default function Navigation() {
   const [isDropdownOpen, setIsDropdownOpen] = useState<string | null>(null);
@@ -126,6 +127,7 @@ export default function Navigation() {
 
           {/* Desktop CTAs */}
           <div className="hidden lg:flex items-center gap-4">
+            <CartIcon />
             <Link href="/login" className="text-slate-300 hover:text-white transition-colors font-medium">
               Log In
             </Link>
@@ -139,17 +141,20 @@ export default function Navigation() {
             </Link>
           </div>
 
-          {/* Mobile Menu Button */}
-          <button
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="lg:hidden p-2 text-slate-300 hover:text-white transition-colors"
-          >
-            <div className="w-6 h-6 flex flex-col justify-center gap-1">
-              <div className={`w-full h-0.5 bg-current transition-all duration-300 ${isMobileMenuOpen ? 'rotate-45 translate-y-1.5' : ''}`}></div>
-              <div className={`w-full h-0.5 bg-current transition-all duration-300 ${isMobileMenuOpen ? 'opacity-0' : ''}`}></div>
-              <div className={`w-full h-0.5 bg-current transition-all duration-300 ${isMobileMenuOpen ? '-rotate-45 -translate-y-1.5' : ''}`}></div>
-            </div>
-          </button>
+          {/* Mobile Cart & Menu */}
+          <div className="lg:hidden flex items-center gap-2">
+            <CartIcon />
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="p-2 text-slate-300 hover:text-white transition-colors"
+            >
+              <div className="w-6 h-6 flex flex-col justify-center gap-1">
+                <div className={`w-full h-0.5 bg-current transition-all duration-300 ${isMobileMenuOpen ? 'rotate-45 translate-y-1.5' : ''}`}></div>
+                <div className={`w-full h-0.5 bg-current transition-all duration-300 ${isMobileMenuOpen ? 'opacity-0' : ''}`}></div>
+                <div className={`w-full h-0.5 bg-current transition-all duration-300 ${isMobileMenuOpen ? '-rotate-45 -translate-y-1.5' : ''}`}></div>
+              </div>
+            </button>
+          </div>
         </div>
 
         {/* Mobile Menu */}
