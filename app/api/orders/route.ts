@@ -1,6 +1,125 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 
+// POST /api/orders - Create a new order record in Supabase
+export async function POST(request: NextRequest) {
+  try {
+    const supabase = await createClient()
+    
+    // Get the request data
+    const orderData = await request.json()
+    
+    // Verify user is authenticated
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    if (authError || !user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    // Extract order details from the request
+    const {
+      swellOrderId,
+      billing,
+      appointment,
+      cartTotal,
+      discount,
+      couponCode,
+      tests
+    } = orderData
+
+    // Insert order into Supabase orders table
+    const { data: order, error: orderError } = await supabase
+      .from('orders')
+      .insert({
+        id: swellOrderId,
+        user_id: user.id,
+        total_amount: cartTotal,
+        discount_amount: discount || 0,
+        coupon_code: couponCode || null,
+        status: 'pending',
+        billing_info: {
+          firstName: billing?.firstName,
+          lastName: billing?.lastName,
+          email: billing?.email,
+          phone: billing?.phone,
+          address1: billing?.address1,
+          address2: billing?.address2,
+          city: billing?.city,
+          state: billing?.state,
+          zip: billing?.zip,
+          country: billing?.country || 'US'
+        },
+        metadata: {
+          source: 'web_checkout',
+          user_agent: request.headers.get('user-agent'),
+          ip_address: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip')
+        }
+      })
+      .select()
+      .single()
+
+    if (orderError) {
+      console.error('Error creating order:', orderError)
+      return NextResponse.json({ error: 'Failed to create order' }, { status: 500 })
+    }
+
+    // Insert appointment if provided
+    if (appointment) {
+      const { error: appointmentError } = await supabase
+        .from('appointments')
+        .insert({
+          order_id: swellOrderId,
+          user_id: user.id,
+          appointment_date: appointment.selectedDate,
+          appointment_time: appointment.selectedTime,
+          location_id: appointment.locationId || null,
+          status: 'scheduled',
+          appointment_type: 'blood_draw',
+          metadata: {
+            location_name: appointment.locationName,
+            staff_name: appointment.staffName
+          }
+        })
+
+      if (appointmentError) {
+        console.error('Error creating appointment:', appointmentError)
+        // Don't fail the order creation, but log the error
+      }
+    }
+
+    // Insert test items
+    if (tests && tests.length > 0) {
+      const testItems = tests.map((test: {
+        productId: string;
+        name: string;
+        quantity: number;
+        price: number;
+      }) => ({
+        order_id: swellOrderId,
+        test_id: test.productId,
+        test_name: test.name,
+        quantity: test.quantity,
+        price: test.price,
+        total: test.price * test.quantity
+      }))
+
+      const { error: testsError } = await supabase
+        .from('order_tests')
+        .insert(testItems)
+
+      if (testsError) {
+        console.error('Error creating test items:', testsError)
+        // Don't fail the order creation, but log the error
+      }
+    }
+
+    return NextResponse.json({ success: true, order })
+
+  } catch (error) {
+    console.error('Order creation error:', error)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+  }
+}
+
 // GET /api/orders - Get current user's orders
 export async function GET(request: NextRequest) {
   try {

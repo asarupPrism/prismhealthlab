@@ -1,7 +1,10 @@
 'use client'
 
 import React, { useState, useEffect, useCallback } from 'react'
-import { motion } from 'framer-motion'
+import LoginPopup from '@/components/ui/LoginPopup'
+import BillingPersonalInfo from './BillingPersonalInfo'
+import BillingAddress from './BillingAddress'
+import PaymentMethod from './PaymentMethod'
 
 interface BillingInfo {
   firstName: string
@@ -64,6 +67,15 @@ export default function CombinedPaymentBillingForm({
   })
 
   const [errors, setErrors] = useState<Record<string, string>>({})
+  const [touchedFields, setTouchedFields] = useState<Set<string>>(new Set())
+  const [isLoginPopupOpen, setIsLoginPopupOpen] = useState(false)
+  
+  // Collapsible section states
+  const [expandedSections, setExpandedSections] = useState({
+    personal: true,
+    address: false,
+    payment: false
+  })
 
   // Validation function
   const validateForm = useCallback(() => {
@@ -114,6 +126,40 @@ export default function CombinedPaymentBillingForm({
     }
   }, [billingData, paymentData, onData, validateForm])
 
+  const handleFieldTouch = (fieldName: string) => {
+    setTouchedFields(prev => new Set(prev).add(fieldName))
+  }
+
+  const handleLoginSuccess = (userData: {
+    firstName: string
+    lastName: string
+    email: string
+    phone: string
+    address1: string
+    address2: string
+    city: string
+    state: string
+    zip: string
+  }) => {
+    setBillingData({
+      ...billingData,
+      firstName: userData.firstName,
+      lastName: userData.lastName,
+      email: userData.email,
+      phone: userData.phone,
+      address1: userData.address1,
+      address2: userData.address2,
+      city: userData.city,
+      state: userData.state,
+      zip: userData.zip
+    })
+    // Mark all fields as touched since they're auto-filled
+    setTouchedFields(new Set([
+      'firstName', 'lastName', 'email', 'phone', 
+      'address1', 'city', 'state', 'zip'
+    ]))
+  }
+
   const handleBillingChange = (field: keyof BillingInfo, value: string) => {
     setBillingData(prev => ({ ...prev, [field]: value }))
   }
@@ -127,386 +173,193 @@ export default function CombinedPaymentBillingForm({
     return value.replace(/\s/g, '').replace(/(.{4})/g, '$1 ').trim()
   }
 
+  // Toggle section expansion
+  const toggleSection = (section: keyof typeof expandedSections) => {
+    setExpandedSections(prev => ({
+      ...prev,
+      [section]: !prev[section]
+    }))
+  }
+
+  // Handle edit - reopen completed section for editing
+  const handleEdit = (section: keyof typeof expandedSections) => {
+    setExpandedSections(prev => ({
+      ...prev,
+      [section]: true
+    }))
+  }
+
+  // Check completion status for badges (no auto-behavior)
+  const isPersonalComplete = !!(
+    billingData.firstName && 
+    billingData.lastName && 
+    billingData.email && 
+    billingData.phone &&
+    // Check there are no validation errors for personal fields
+    !errors.firstName && 
+    !errors.lastName && 
+    !errors.email && 
+    !errors.phone &&
+    // Ensure user has interacted with all required fields
+    touchedFields.has('firstName') && touchedFields.has('lastName') && 
+    touchedFields.has('email') && touchedFields.has('phone')
+  )
+  
+  const isAddressComplete = !!(
+    billingData.address1 && 
+    billingData.city && 
+    billingData.state && 
+    billingData.zip &&
+    // Check there are no validation errors for address fields
+    !errors.address1 && 
+    !errors.city && 
+    !errors.state && 
+    !errors.zip &&
+    // Ensure user has interacted with all required fields
+    touchedFields.has('address1') && touchedFields.has('city') && 
+    touchedFields.has('state') && touchedFields.has('zip')
+  )
+  
+  const isPaymentComplete = !!(
+    paymentData.cardNumber.replace(/\s/g, '').length >= 13 && 
+    paymentData.expiryMonth && 
+    paymentData.expiryYear && 
+    paymentData.cvv.length >= 3 && 
+    paymentData.nameOnCard && 
+    paymentData.agreeToTerms &&
+    // Check there are no validation errors for payment fields
+    !errors.cardNumber && 
+    !errors.expiryMonth && 
+    !errors.expiryYear && 
+    !errors.cvv && 
+    !errors.nameOnCard && 
+    !errors.agreeToTerms &&
+    // Ensure user has interacted with all required fields
+    touchedFields.has('cardNumber') && touchedFields.has('expiryMonth') && 
+    touchedFields.has('expiryYear') && touchedFields.has('cvv') && 
+    touchedFields.has('nameOnCard') && touchedFields.has('agreeToTerms')
+  )
+
+  // Auto-collapse completed sections
+  React.useEffect(() => {
+    if (isPersonalComplete && expandedSections.personal) {
+      setTimeout(() => {
+        setExpandedSections(prev => ({
+          ...prev,
+          personal: false
+        }))
+      }, 1000) // Delay to let user see completion
+    }
+  }, [isPersonalComplete, expandedSections.personal])
+
+  React.useEffect(() => {
+    if (isAddressComplete && expandedSections.address) {
+      setTimeout(() => {
+        setExpandedSections(prev => ({
+          ...prev,
+          address: false
+        }))
+      }, 1000)
+    }
+  }, [isAddressComplete, expandedSections.address])
+
+  React.useEffect(() => {
+    if (isPaymentComplete && expandedSections.payment) {
+      setTimeout(() => {
+        setExpandedSections(prev => ({
+          ...prev,
+          payment: false
+        }))
+      }, 1000)
+    }
+  }, [isPaymentComplete, expandedSections.payment])
+
+
+
   return (
     <div className={`${className}`}>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Billing Information */}
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.3 }}
-          className="backdrop-blur-sm bg-slate-800/40 border border-slate-700/50 rounded-2xl p-6 shadow-xl shadow-slate-900/50"
+      {/* Login Button Header */}
+      <div className="flex items-center justify-between mb-8">
+        <div>
+          <h2 className="text-2xl font-semibold text-white flex items-center gap-3">
+            <div className="w-3 h-3 bg-cyan-400 rounded-full animate-pulse"></div>
+            Billing & Payment Details
+          </h2>
+          <p className="text-slate-400 text-sm mt-1">Secure checkout for your diagnostic tests</p>
+        </div>
+        <button
+          type="button"
+          onClick={() => setIsLoginPopupOpen(true)}
+          className="px-6 py-3 backdrop-blur-sm bg-purple-500/20 border border-purple-400/30 text-purple-300 text-sm font-medium rounded-xl hover:bg-purple-500/30 hover:border-purple-400/50 transition-all duration-300 flex items-center gap-3 shadow-lg shadow-purple-500/10"
         >
-          <h3 className="text-lg font-semibold text-white mb-6 flex items-center gap-2">
-            <div className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse"></div>
-            Billing Information
-          </h3>
-
-          <div className="space-y-4">
-            {/* Name Fields */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
-                  First Name <span className="text-rose-400">*</span>
-                </label>
-                <input
-                  type="text"
-                  value={billingData.firstName}
-                  onChange={(e) => handleBillingChange('firstName', e.target.value)}
-                  className="w-full px-4 py-3 bg-slate-900/50 border border-slate-700/50 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-400/50 focus:border-cyan-400/50 transition-all duration-200"
-                  placeholder="Enter your first name"
-                />
-                {errors.firstName && (
-                  <div className="mt-1 text-sm text-rose-400 flex items-center gap-2">
-                    <div className="w-3 h-3 bg-rose-400/20 border border-rose-400/50 rounded-full flex items-center justify-center flex-shrink-0">
-                      <div className="w-1.5 h-1.5 bg-rose-400 rounded-full animate-pulse"></div>
-                    </div>
-                    {errors.firstName}
-                  </div>
-                )}
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
-                  Last Name <span className="text-rose-400">*</span>
-                </label>
-                <input
-                  type="text"
-                  value={billingData.lastName}
-                  onChange={(e) => handleBillingChange('lastName', e.target.value)}
-                  className="w-full px-4 py-3 bg-slate-900/50 border border-slate-700/50 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-400/50 focus:border-cyan-400/50 transition-all duration-200"
-                  placeholder="Enter your last name"
-                />
-                {errors.lastName && (
-                  <div className="mt-1 text-sm text-rose-400 flex items-center gap-2">
-                    <div className="w-3 h-3 bg-rose-400/20 border border-rose-400/50 rounded-full flex items-center justify-center flex-shrink-0">
-                      <div className="w-1.5 h-1.5 bg-rose-400 rounded-full animate-pulse"></div>
-                    </div>
-                    {errors.lastName}
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Contact Fields */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
-                  Email Address <span className="text-rose-400">*</span>
-                </label>
-                <input
-                  type="email"
-                  value={billingData.email}
-                  onChange={(e) => handleBillingChange('email', e.target.value)}
-                  className="w-full px-4 py-3 bg-slate-900/50 border border-slate-700/50 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-400/50 focus:border-cyan-400/50 transition-all duration-200"
-                  placeholder="Enter your email"
-                />
-                {errors.email && (
-                  <div className="mt-1 text-sm text-rose-400 flex items-center gap-2">
-                    <div className="w-3 h-3 bg-rose-400/20 border border-rose-400/50 rounded-full flex items-center justify-center flex-shrink-0">
-                      <div className="w-1.5 h-1.5 bg-rose-400 rounded-full animate-pulse"></div>
-                    </div>
-                    {errors.email}
-                  </div>
-                )}
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
-                  Phone Number <span className="text-rose-400">*</span>
-                </label>
-                <input
-                  type="tel"
-                  value={billingData.phone}
-                  onChange={(e) => handleBillingChange('phone', e.target.value)}
-                  className="w-full px-4 py-3 bg-slate-900/50 border border-slate-700/50 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-400/50 focus:border-cyan-400/50 transition-all duration-200"
-                  placeholder="Enter your phone number"
-                />
-                {errors.phone && (
-                  <div className="mt-1 text-sm text-rose-400 flex items-center gap-2">
-                    <div className="w-3 h-3 bg-rose-400/20 border border-rose-400/50 rounded-full flex items-center justify-center flex-shrink-0">
-                      <div className="w-1.5 h-1.5 bg-rose-400 rounded-full animate-pulse"></div>
-                    </div>
-                    {errors.phone}
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Address Fields */}
-            <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">
-                Street Address <span className="text-rose-400">*</span>
-              </label>
-              <input
-                type="text"
-                value={billingData.address1}
-                onChange={(e) => handleBillingChange('address1', e.target.value)}
-                className="w-full px-4 py-3 bg-slate-900/50 border border-slate-700/50 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-400/50 focus:border-cyan-400/50 transition-all duration-200"
-                placeholder="Enter your street address"
-              />
-              {errors.address1 && (
-                <div className="mt-1 text-sm text-rose-400 flex items-center gap-2">
-                  <div className="w-3 h-3 bg-rose-400/20 border border-rose-400/50 rounded-full flex items-center justify-center flex-shrink-0">
-                    <div className="w-1.5 h-1.5 bg-rose-400 rounded-full animate-pulse"></div>
-                  </div>
-                  {errors.address1}
-                </div>
-              )}
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">
-                Apartment, Suite, etc. (Optional)
-              </label>
-              <input
-                type="text"
-                value={billingData.address2}
-                onChange={(e) => handleBillingChange('address2', e.target.value)}
-                className="w-full px-4 py-3 bg-slate-900/50 border border-slate-700/50 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-400/50 focus:border-cyan-400/50 transition-all duration-200"
-                placeholder="Apartment, suite, etc."
-              />
-            </div>
-
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
-                  City <span className="text-rose-400">*</span>
-                </label>
-                <input
-                  type="text"
-                  value={billingData.city}
-                  onChange={(e) => handleBillingChange('city', e.target.value)}
-                  className="w-full px-4 py-3 bg-slate-900/50 border border-slate-700/50 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-400/50 focus:border-cyan-400/50 transition-all duration-200"
-                  placeholder="City"
-                />
-                {errors.city && (
-                  <div className="mt-1 text-sm text-rose-400 flex items-center gap-2">
-                    <div className="w-3 h-3 bg-rose-400/20 border border-rose-400/50 rounded-full flex items-center justify-center flex-shrink-0">
-                      <div className="w-1.5 h-1.5 bg-rose-400 rounded-full animate-pulse"></div>
-                    </div>
-                    {errors.city}
-                  </div>
-                )}
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
-                  State <span className="text-rose-400">*</span>
-                </label>
-                <input
-                  type="text"
-                  value={billingData.state}
-                  onChange={(e) => handleBillingChange('state', e.target.value)}
-                  className="w-full px-4 py-3 bg-slate-900/50 border border-slate-700/50 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-400/50 focus:border-cyan-400/50 transition-all duration-200"
-                  placeholder="State"
-                />
-                {errors.state && (
-                  <div className="mt-1 text-sm text-rose-400 flex items-center gap-2">
-                    <div className="w-3 h-3 bg-rose-400/20 border border-rose-400/50 rounded-full flex items-center justify-center flex-shrink-0">
-                      <div className="w-1.5 h-1.5 bg-rose-400 rounded-full animate-pulse"></div>
-                    </div>
-                    {errors.state}
-                  </div>
-                )}
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
-                  ZIP Code <span className="text-rose-400">*</span>
-                </label>
-                <input
-                  type="text"
-                  value={billingData.zip}
-                  onChange={(e) => handleBillingChange('zip', e.target.value)}
-                  className="w-full px-4 py-3 bg-slate-900/50 border border-slate-700/50 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-400/50 focus:border-cyan-400/50 transition-all duration-200"
-                  placeholder="ZIP"
-                />
-                {errors.zip && (
-                  <div className="mt-1 text-sm text-rose-400 flex items-center gap-2">
-                    <div className="w-3 h-3 bg-rose-400/20 border border-rose-400/50 rounded-full flex items-center justify-center flex-shrink-0">
-                      <div className="w-1.5 h-1.5 bg-rose-400 rounded-full animate-pulse"></div>
-                    </div>
-                    {errors.zip}
-                  </div>
-                )}
-              </div>
-            </div>
+          <div className="w-4 h-4 bg-purple-400/50 rounded-full flex items-center justify-center">
+            <div className="w-2 h-2 bg-white rounded-full"></div>
           </div>
-        </motion.div>
-
-        {/* Payment Information */}
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.3, delay: 0.1 }}
-          className="backdrop-blur-sm bg-slate-800/40 border border-slate-700/50 rounded-2xl p-6 shadow-xl shadow-slate-900/50"
-        >
-          <h3 className="text-lg font-semibold text-white mb-6 flex items-center gap-2">
-            <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
-            Payment Information
-          </h3>
-
-          <div className="space-y-4">
-            {/* Card Number */}
-            <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">
-                Card Number <span className="text-rose-400">*</span>
-              </label>
-              <input
-                type="text"
-                value={paymentData.cardNumber}
-                onChange={(e) => handlePaymentChange('cardNumber', formatCardNumber(e.target.value))}
-                maxLength={19}
-                className="w-full px-4 py-3 bg-slate-900/50 border border-slate-700/50 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-400/50 focus:border-cyan-400/50 transition-all duration-200 font-mono"
-                placeholder="1234 5678 9012 3456"
-              />
-              {errors.cardNumber && (
-                <div className="mt-1 text-sm text-rose-400 flex items-center gap-2">
-                  <div className="w-3 h-3 bg-rose-400/20 border border-rose-400/50 rounded-full flex items-center justify-center flex-shrink-0">
-                    <div className="w-1.5 h-1.5 bg-rose-400 rounded-full animate-pulse"></div>
-                  </div>
-                  {errors.cardNumber}
-                </div>
-              )}
-            </div>
-
-            {/* Expiry and CVV */}
-            <div className="grid grid-cols-3 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
-                  Month <span className="text-rose-400">*</span>
-                </label>
-                <select
-                  value={paymentData.expiryMonth}
-                  onChange={(e) => handlePaymentChange('expiryMonth', e.target.value)}
-                  className="w-full px-4 py-3 bg-slate-900/50 border border-slate-700/50 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-cyan-400/50 focus:border-cyan-400/50 transition-all duration-200"
-                >
-                  <option value="">MM</option>
-                  {Array.from({ length: 12 }, (_, i) => i + 1).map(month => (
-                    <option key={month} value={month.toString().padStart(2, '0')}>
-                      {month.toString().padStart(2, '0')}
-                    </option>
-                  ))}
-                </select>
-                {errors.expiryMonth && (
-                  <div className="mt-1 text-sm text-rose-400 flex items-center gap-2">
-                    <div className="w-3 h-3 bg-rose-400/20 border border-rose-400/50 rounded-full flex items-center justify-center flex-shrink-0">
-                      <div className="w-1.5 h-1.5 bg-rose-400 rounded-full animate-pulse"></div>
-                    </div>
-                    {errors.expiryMonth}
-                  </div>
-                )}
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
-                  Year <span className="text-rose-400">*</span>
-                </label>
-                <select
-                  value={paymentData.expiryYear}
-                  onChange={(e) => handlePaymentChange('expiryYear', e.target.value)}
-                  className="w-full px-4 py-3 bg-slate-900/50 border border-slate-700/50 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-cyan-400/50 focus:border-cyan-400/50 transition-all duration-200"
-                >
-                  <option value="">YYYY</option>
-                  {Array.from({ length: 12 }, (_, i) => new Date().getFullYear() + i).map(year => (
-                    <option key={year} value={year}>
-                      {year}
-                    </option>
-                  ))}
-                </select>
-                {errors.expiryYear && (
-                  <div className="mt-1 text-sm text-rose-400 flex items-center gap-2">
-                    <div className="w-3 h-3 bg-rose-400/20 border border-rose-400/50 rounded-full flex items-center justify-center flex-shrink-0">
-                      <div className="w-1.5 h-1.5 bg-rose-400 rounded-full animate-pulse"></div>
-                    </div>
-                    {errors.expiryYear}
-                  </div>
-                )}
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
-                  CVV <span className="text-rose-400">*</span>
-                </label>
-                <input
-                  type="text"
-                  value={paymentData.cvv}
-                  onChange={(e) => handlePaymentChange('cvv', e.target.value.replace(/\D/g, '').slice(0, 4))}
-                  className="w-full px-4 py-3 bg-slate-900/50 border border-slate-700/50 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-400/50 focus:border-cyan-400/50 transition-all duration-200 font-mono"
-                  placeholder="123"
-                />
-                {errors.cvv && (
-                  <div className="mt-1 text-sm text-rose-400 flex items-center gap-2">
-                    <div className="w-3 h-3 bg-rose-400/20 border border-rose-400/50 rounded-full flex items-center justify-center flex-shrink-0">
-                      <div className="w-1.5 h-1.5 bg-rose-400 rounded-full animate-pulse"></div>
-                    </div>
-                    {errors.cvv}
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Cardholder Name */}
-            <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">
-                Cardholder Name <span className="text-rose-400">*</span>
-              </label>
-              <input
-                type="text"
-                value={paymentData.nameOnCard}
-                onChange={(e) => handlePaymentChange('nameOnCard', e.target.value)}
-                className="w-full px-4 py-3 bg-slate-900/50 border border-slate-700/50 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-400/50 focus:border-cyan-400/50 transition-all duration-200"
-                placeholder="Enter name as it appears on card"
-              />
-              {errors.nameOnCard && (
-                <div className="mt-1 text-sm text-rose-400 flex items-center gap-2">
-                  <div className="w-3 h-3 bg-rose-400/20 border border-rose-400/50 rounded-full flex items-center justify-center flex-shrink-0">
-                    <div className="w-1.5 h-1.5 bg-rose-400 rounded-full animate-pulse"></div>
-                  </div>
-                  {errors.nameOnCard}
-                </div>
-              )}
-            </div>
-
-            {/* Terms Agreement */}
-            <div className="mt-6">
-              <label className="flex items-start gap-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={paymentData.agreeToTerms}
-                  onChange={(e) => handlePaymentChange('agreeToTerms', e.target.checked)}
-                  className="mt-1 w-4 h-4 bg-slate-900/50 border border-slate-600/50 rounded focus:ring-2 focus:ring-cyan-400/50 focus:ring-offset-0 text-cyan-400"
-                />
-                <span className="text-sm text-slate-300 leading-relaxed">
-                  I agree to the{' '}
-                  <a href="/terms" className="text-cyan-400 hover:text-cyan-300 underline">
-                    Terms and Conditions
-                  </a>{' '}
-                  and{' '}
-                  <a href="/privacy" className="text-cyan-400 hover:text-cyan-300 underline">
-                    Privacy Policy
-                  </a>
-                  <span className="text-rose-400 ml-1">*</span>
-                </span>
-              </label>
-              {errors.agreeToTerms && (
-                <div className="mt-1 text-sm text-rose-400 flex items-center gap-2">
-                  <div className="w-3 h-3 bg-rose-400/20 border border-rose-400/50 rounded-full flex items-center justify-center flex-shrink-0">
-                    <div className="w-1.5 h-1.5 bg-rose-400 rounded-full animate-pulse"></div>
-                  </div>
-                  {errors.agreeToTerms}
-                </div>
-              )}
-            </div>
-
-            {/* Security Notice */}
-            <div className="mt-6 backdrop-blur-sm bg-slate-900/40 border border-slate-700/40 rounded-xl p-4 shadow-lg shadow-slate-900/30">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="w-3 h-3 bg-emerald-400 rounded-full animate-pulse"></div>
-                <span className="text-sm font-semibold text-white">Secure Payment</span>
-              </div>
-              <p className="text-xs text-slate-400 leading-relaxed">
-                Your payment information is encrypted and secure. We use industry-standard SSL encryption to protect your data.
-              </p>
-            </div>
-          </div>
-        </motion.div>
+          Return Customer?
+        </button>
       </div>
+
+      {/* Form Sections */}
+      <div className="space-y-8">
+        {/* Personal Information Section */}
+        <BillingPersonalInfo
+          data={{
+            firstName: billingData.firstName,
+            lastName: billingData.lastName,
+            email: billingData.email,
+            phone: billingData.phone
+          }}
+          errors={errors}
+          touchedFields={touchedFields}
+          onChange={(field, value) => handleBillingChange(field, value)}
+          onFieldTouch={handleFieldTouch}
+          isExpanded={expandedSections.personal}
+          onToggle={() => toggleSection('personal')}
+          onEdit={() => handleEdit('personal')}
+          isComplete={isPersonalComplete}
+        />
+
+        {/* Address Information Section */}
+        <BillingAddress
+          data={{
+            address1: billingData.address1,
+            address2: billingData.address2,
+            city: billingData.city,
+            state: billingData.state,
+            zip: billingData.zip,
+            country: billingData.country
+          }}
+          errors={errors}
+          touchedFields={touchedFields}
+          onChange={(field, value) => handleBillingChange(field, value)}
+          onFieldTouch={handleFieldTouch}
+          isExpanded={expandedSections.address}
+          onToggle={() => toggleSection('address')}
+          onEdit={() => handleEdit('address')}
+          isComplete={isAddressComplete}
+        />
+
+        {/* Payment Method Section */}
+        <PaymentMethod
+          data={paymentData}
+          errors={errors}
+          touchedFields={touchedFields}
+          onChange={handlePaymentChange}
+          onFieldTouch={handleFieldTouch}
+          formatCardNumber={formatCardNumber}
+          isExpanded={expandedSections.payment}
+          onToggle={() => toggleSection('payment')}
+          onEdit={() => handleEdit('payment')}
+          isComplete={isPaymentComplete}
+        />
+      </div>
+
+      {/* Login Popup */}
+      <LoginPopup
+        isOpen={isLoginPopupOpen}
+        onClose={() => setIsLoginPopupOpen(false)}
+        onLoginSuccess={handleLoginSuccess}
+      />
     </div>
   )
 }

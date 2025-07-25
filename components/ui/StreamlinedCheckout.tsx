@@ -1,11 +1,16 @@
 'use client'
 
-import React, { useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import React, { useState, useCallback } from 'react'
+import { motion } from 'framer-motion'
+import ExpandableSection, { SectionStatus } from './ExpandableSection'
+import ProgressTracker from './ProgressTracker'
+import DynamicOrderSummary from './DynamicOrderSummary'
 import CompactAppointmentScheduler from './CompactAppointmentScheduler'
 import CombinedPaymentBillingForm from '../checkout/CombinedPaymentBillingForm'
+import CouponCode from '../checkout/CouponCode'
 import OrderReview from '../checkout/OrderReview'
-import { Cart, CartItem } from '@/lib/swell'
+import { swellHelpers } from '@/lib/swell'
+import { Cart } from '@/lib/swell'
 import { User } from '@supabase/supabase-js'
 
 interface StreamlinedCheckoutProps {
@@ -15,42 +20,163 @@ interface StreamlinedCheckoutProps {
   className?: string
 }
 
+type SectionId = 'appointment' | 'billing' | 'review'
+
+interface CheckoutStep {
+  id: string
+  title: string
+  subtitle?: string
+  status: SectionStatus
+}
+
+interface AppointmentData {
+  selectedDate?: Date
+  selectedTime?: string
+  locationName?: string
+  staffName?: string
+  locationId?: string
+  timeSlot?: {
+    start: string
+  }
+}
+
+interface BillingData {
+  firstName?: string
+  lastName?: string
+  email?: string
+  phone?: string
+  address1?: string
+  address2?: string
+  city?: string
+  state?: string
+  zip?: string
+  country?: string
+}
+
+interface PaymentData {
+  cardNumber?: string
+  nameOnCard?: string
+  expiryMonth?: string
+  expiryYear?: string
+  cvv?: string
+}
+
+interface BillingPaymentData {
+  billing?: BillingData
+  payment?: PaymentData
+}
+
 export default function StreamlinedCheckout({
   cart,
   onComplete,
   className = ''
 }: StreamlinedCheckoutProps) {
-  const [currentStep, setCurrentStep] = useState(1)
+  const [expandedSection, setExpandedSection] = useState<SectionId>('appointment')
   const [checkoutData, setCheckoutData] = useState<Record<string, unknown>>({})
+  const [sectionStatuses, setSectionStatuses] = useState<Record<SectionId, SectionStatus>>({
+    appointment: 'in_progress',
+    billing: 'pending',
+    review: 'pending'
+  })
   const [isLoading, setIsLoading] = useState(false)
+  const [appliedCoupon, setAppliedCoupon] = useState<string>('')
+  const [discount, setDiscount] = useState<number>(0)
 
-  const totalSteps = 2
-  const progressPercentage = (currentStep / totalSteps) * 100
 
-  const getStepTitle = () => {
-    switch (currentStep) {
-      case 1:
-        return 'Complete Your Order'
-      case 2:
-        return 'Review & Complete'
-      default:
-        return 'Checkout'
+  // Progress tracking steps
+  const steps: CheckoutStep[] = [
+    {
+      id: 'appointment',
+      title: 'Schedule Appointment',
+      subtitle: 'Select date, time & location',
+      status: sectionStatuses.appointment
+    },
+    {
+      id: 'billing',
+      title: 'Billing & Payment',
+      subtitle: 'Personal info & payment method',
+      status: sectionStatuses.billing
+    },
+    {
+      id: 'review',
+      title: 'Review & Complete',
+      subtitle: 'Confirm order details',
+      status: sectionStatuses.review
     }
-  }
+  ]
 
-  const handleStepData = (stepId: string, data: unknown) => {
+  const handleSectionToggle = useCallback((sectionId: string) => {
+    setExpandedSection(sectionId as SectionId)
+  }, [])
+
+  const handleSectionEdit = useCallback((sectionId: string) => {
+    const sectionIdTyped = sectionId as SectionId
+    setExpandedSection(sectionIdTyped)
+    
+    // Reset section status to in_progress when editing
+    setSectionStatuses(prev => ({
+      ...prev,
+      [sectionIdTyped]: 'in_progress',
+      // Reset subsequent sections to pending
+      ...(sectionIdTyped === 'appointment' && {
+        billing: 'pending',
+        review: 'pending'
+      }),
+      ...(sectionIdTyped === 'billing' && {
+        review: 'pending'
+      })
+    }))
+  }, [])
+
+  const handleStepData = useCallback((stepId: string, data: unknown) => {
     setCheckoutData(prev => ({ ...prev, [stepId]: data }))
-  }
-
-  const handleNext = () => {
-    if (currentStep < totalSteps) {
-      setCurrentStep(currentStep + 1)
+    
+    // Update section statuses and collapse completed sections
+    if (stepId === 'appointment' && data) {
+      setSectionStatuses(prev => ({
+        ...prev,
+        appointment: 'completed'
+      }))
+      // Auto-collapse completed appointment section
+      setExpandedSection('billing')
+    } else if (stepId === 'billingPayment' && data) {
+      setSectionStatuses(prev => ({
+        ...prev,
+        billing: 'completed'
+      }))
+      // Auto-collapse completed billing section  
+      setExpandedSection('review')
     }
-  }
+  }, [])
 
-  const handlePrevious = () => {
-    if (currentStep > 1) {
-      setCurrentStep(currentStep - 1)
+  // Handle coupon application
+  const handleApplyCoupon = async (code: string) => {
+    try {
+      if (!code) {
+        // Remove coupon
+        await swellHelpers.removeCoupon()
+        setAppliedCoupon('')
+        setDiscount(0)
+        return { success: true, message: 'Coupon removed' }
+      }
+
+      const updatedCart = await swellHelpers.applyCoupon(code)
+      const couponDiscount = (updatedCart as Record<string, unknown>).coupon_total as number || 0
+      
+      if (couponDiscount > 0) {
+        setAppliedCoupon(code)
+        setDiscount(couponDiscount)
+        return { 
+          success: true, 
+          discount: couponDiscount,
+          message: `Coupon applied! You saved $${couponDiscount.toFixed(2)}` 
+        }
+      } else {
+        return { success: false, message: 'Invalid or expired coupon code' }
+      }
+    } catch (error) {
+      console.error('Coupon application error:', error)
+      return { success: false, message: 'Failed to apply coupon. Please try again.' }
     }
   }
 
@@ -58,155 +184,173 @@ export default function StreamlinedCheckout({
     setIsLoading(true)
     try {
       await onComplete?.(checkoutData)
+      setSectionStatuses(prev => ({
+        ...prev,
+        review: 'completed'
+      }))
     } catch (error) {
       console.error('Checkout completion error:', error)
+      setSectionStatuses(prev => ({
+        ...prev,
+        review: 'error'
+      }))
     } finally {
       setIsLoading(false)
     }
   }
 
+  // Format appointment data for summary
+  const appointmentData = checkoutData.appointment as AppointmentData | undefined
+  const appointmentSummary = appointmentData ? (
+    <div className="space-y-2 text-sm">
+      <div className="flex justify-between">
+        <span className="text-slate-400">Date:</span>
+        <span className="text-white">
+          {appointmentData.selectedDate ? 
+            new Date(appointmentData.selectedDate).toLocaleDateString('en-US', {
+              weekday: 'short',
+              month: 'short', 
+              day: 'numeric'
+            }) : 'Not selected'}
+        </span>
+      </div>
+      <div className="flex justify-between">
+        <span className="text-slate-400">Time:</span>
+        <span className="text-white">{appointmentData.selectedTime || 'Not selected'}</span>
+      </div>
+      <div className="flex justify-between">
+        <span className="text-slate-400">Location:</span>
+        <span className="text-white">{appointmentData.locationName || 'Not selected'}</span>
+      </div>
+    </div>
+  ) : null
+
+  // Format billing data for summary
+  const billingPaymentData = checkoutData.billingPayment as BillingPaymentData | undefined
+  const billingSummary = billingPaymentData ? (
+    <div className="space-y-2 text-sm">
+      <div className="flex justify-between">
+        <span className="text-slate-400">Name:</span>
+        <span className="text-white">
+          {[billingPaymentData.billing?.firstName, billingPaymentData.billing?.lastName]
+            .filter(Boolean).join(' ') || 'Not provided'}
+        </span>
+      </div>
+      <div className="flex justify-between">
+        <span className="text-slate-400">Email:</span>
+        <span className="text-white">{billingPaymentData.billing?.email || 'Not provided'}</span>
+      </div>
+      <div className="flex justify-between">
+        <span className="text-slate-400">Payment:</span>
+        <span className="text-white">
+          {billingPaymentData.payment?.cardNumber ? 
+            `••••${billingPaymentData.payment.cardNumber.slice(-4)}` : 'Not provided'}
+        </span>
+      </div>
+    </div>
+  ) : null
+
+  // Create order summary data
+  const orderSummaryData = {
+    cart,
+    appointment: appointmentData ? {
+      selectedDate: appointmentData.selectedDate ? 
+        new Date(appointmentData.selectedDate) : undefined,
+      selectedTime: appointmentData.selectedTime,
+      locationName: appointmentData.locationName,
+      staffName: appointmentData.staffName,
+      locationId: appointmentData.locationId
+    } : undefined,
+    customer: billingPaymentData ? {
+      firstName: billingPaymentData.billing?.firstName,
+      lastName: billingPaymentData.billing?.lastName,
+      email: billingPaymentData.billing?.email,
+      phone: billingPaymentData.billing?.phone
+    } : undefined,
+    payment: billingPaymentData ? {
+      cardNumber: billingPaymentData.payment?.cardNumber,
+      nameOnCard: billingPaymentData.payment?.nameOnCard
+    } : undefined,
+    couponCode: appliedCoupon,
+    discount: discount
+  }
+
   return (
-    <div className={`max-w-7xl mx-auto ${className}`}>
-      {/* Minimal Progress Header */}
-      <div className="backdrop-blur-sm bg-slate-800/40 border border-slate-700/50 rounded-2xl p-6 mb-8 shadow-xl shadow-slate-900/50">
-        <div className="flex items-center justify-between mb-4">
-          <h1 className="text-2xl font-bold text-white flex items-center gap-3">
-            <div className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse"></div>
-            {getStepTitle()}
-          </h1>
-          <span className="text-sm font-mono text-slate-300">
-            Step {currentStep} of {totalSteps}
-          </span>
-        </div>
-        
-        {/* Progress Bar */}
-        <div className="w-full bg-slate-700/50 rounded-full h-2">
-          <motion.div
-            className="bg-gradient-to-r from-cyan-400 to-blue-500 h-2 rounded-full shadow-lg shadow-cyan-500/25"
-            initial={{ width: 0 }}
-            animate={{ width: `${progressPercentage}%` }}
-            transition={{ duration: 0.5, ease: "easeInOut" }}
+    <div className={`${className}`}>
+      {/* Floating Progress Tracker */}
+      <div className="fixed top-16 left-0 right-0 z-40 backdrop-blur-md bg-slate-900/80 border-b border-slate-700/50 shadow-lg">
+        <div className="max-w-7xl mx-auto px-4 py-3">
+          <ProgressTracker 
+            steps={steps}
+            currentStepId={expandedSection}
+            compact={true}
+            orientation="horizontal"
           />
         </div>
       </div>
 
-      {/* Step Content */}
-      <AnimatePresence mode="wait">
-        {currentStep === 1 && (
-          <motion.div
-            key="step1"
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            transition={{ duration: 0.3 }}
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto px-4">
+        <div className="grid grid-cols-1 xl:grid-cols-4 gap-8">
+        {/* Expandable Sections */}
+        <div className="xl:col-span-3 space-y-6 pb-20">
+          {/* Appointment Section */}
+          <ExpandableSection
+            id="appointment"
+            title="Schedule Your Appointment"
+            subtitle="Select your preferred date, time, and location for blood draw"
+            status={sectionStatuses.appointment}
+            isExpanded={expandedSection === 'appointment'}
+            completedSummary={appointmentSummary}
+            onToggle={handleSectionToggle}
+            onEdit={handleSectionEdit}
+            priority="high"
           >
-            {/* Step 1: Complete Your Order */}
-            <div className="grid grid-cols-1 xl:grid-cols-4 gap-8">
-              {/* Main Content Area */}
-              <div className="xl:col-span-3">
-                <div className="grid gap-8">
-                  {/* Appointment Scheduling Section */}
-                  <div className="backdrop-blur-sm bg-slate-800/40 border border-slate-700/50 rounded-2xl p-6 shadow-xl shadow-slate-900/50">
-                    <h2 className="text-xl font-semibold text-white mb-6 flex items-center gap-2">
-                      <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
-                      Schedule Your Appointment
-                    </h2>
-                    <CompactAppointmentScheduler 
-                      onData={(data) => handleStepData('appointment', data)}
-                    />
-                  </div>
+            <CompactAppointmentScheduler 
+              onData={(data) => handleStepData('appointment', data)}
+            />
+          </ExpandableSection>
 
-                  {/* Billing & Payment Section */}
-                  <div className="backdrop-blur-sm bg-slate-800/40 border border-slate-700/50 rounded-2xl p-6 shadow-xl shadow-slate-900/50">
-                    <h2 className="text-xl font-semibold text-white mb-6 flex items-center gap-2">
-                      <div className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse"></div>
-                      Billing & Payment Details
-                    </h2>
-                    <CombinedPaymentBillingForm 
-                      onData={(data) => handleStepData('billingPayment', data)}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Order Summary Sidebar - Matches existing checkout design */}
-              <div className="xl:col-span-1">
-                <div className="backdrop-blur-sm bg-slate-800/40 border border-slate-700/50 rounded-2xl p-6 shadow-xl shadow-slate-900/50 sticky top-20">
-                  <h3 className="text-lg font-semibold text-white mb-6 flex items-center gap-2">
-                    <div className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse"></div>
-                    Order Summary
-                  </h3>
-                  
-                  {/* Cart Items */}
-                  <div className="space-y-4 mb-6">
-                    {cart?.items?.map((item: CartItem) => (
-                      <div key={item.id} className="flex items-start gap-3">
-                        <div className="w-12 h-12 bg-gradient-to-br from-cyan-400/20 to-blue-500/20 border border-cyan-400/30 rounded-xl flex items-center justify-center flex-shrink-0">
-                          <div className="w-6 h-6 bg-cyan-300/50 rounded-lg flex items-center justify-center">
-                            <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
-                          </div>
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-white leading-tight mb-1">
-                            {item.product?.name || 'Diagnostic Panel'}
-                          </p>
-                          <p className="text-xs text-slate-400 mb-2">
-                            Qty: {item.quantity} × ${Number(item.price || 0).toFixed(2)}
-                          </p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Total */}
-                  <div className="border-t border-slate-700/50 pt-4 space-y-3">
-                    <div className="flex justify-between text-slate-300 text-sm">
-                      <span>Subtotal:</span>
-                      <span>${Number(cart?.total || 0).toFixed(2)}</span>
-                    </div>
-                    <div className="flex justify-between text-slate-300 text-sm">
-                      <span>Lab Processing:</span>
-                      <span>Included</span>
-                    </div>
-                    <div className="flex justify-between text-lg font-bold text-white border-t border-slate-700/50 pt-3">
-                      <span>Total:</span>
-                      <span className="text-cyan-400">${Number(cart?.total || 0).toFixed(2)}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Navigation */}
-            <div className="mt-8 flex justify-end">
-              <button
-                onClick={handleNext}
-                className="px-8 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold rounded-xl hover:from-cyan-400 hover:to-blue-500 transition-all duration-300 shadow-lg shadow-cyan-500/25 hover:shadow-cyan-500/40 hover:scale-105 flex items-center gap-2"
-              >
-                <span>Continue to Review</span>
-                <div className="w-4 h-4 bg-white/20 rounded flex items-center justify-center">
-                  <div className="w-0 h-0 border-l-2 border-r-2 border-b-2 border-white border-l-transparent border-r-transparent transform rotate-[-90deg]"></div>
-                </div>
-              </button>
-            </div>
-          </motion.div>
-        )}
-
-        {currentStep === 2 && (
-          <motion.div
-            key="step2"
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            transition={{ duration: 0.3 }}
+          {/* Billing & Payment Section */}
+          <ExpandableSection
+            id="billing"
+            title="Billing & Payment Information"
+            subtitle="Personal details and payment method for your order"
+            status={sectionStatuses.billing}
+            isExpanded={expandedSection === 'billing'}
+            isDisabled={sectionStatuses.appointment !== 'completed'}
+            completedSummary={billingSummary}
+            onToggle={handleSectionToggle}
+            onEdit={handleSectionEdit}
+            priority="high"
           >
-            {/* Step 2: Review & Complete */}
-            <div className="backdrop-blur-sm bg-slate-800/40 border border-slate-700/50 rounded-2xl p-8 shadow-xl shadow-slate-900/50">
-              <h2 className="text-2xl font-semibold text-white mb-8 flex items-center gap-3">
-                <div className="w-3 h-3 bg-emerald-400 rounded-full animate-pulse"></div>
-                Review Your Order
-              </h2>
+            <div className="space-y-8">
+              {/* Coupon Code Section */}
+              <CouponCode
+                onApplyCoupon={handleApplyCoupon}
+                appliedCoupon={appliedCoupon}
+                discount={discount}
+              />
               
+              {/* Billing Form */}
+              <CombinedPaymentBillingForm 
+                onData={(data) => handleStepData('billingPayment', data)}
+              />
+            </div>
+          </ExpandableSection>
+
+          {/* Review Section */}
+          <ExpandableSection
+            id="review"
+            title="Review & Complete Order"
+            subtitle="Confirm all details and finalize your diagnostic test order"
+            status={sectionStatuses.review}
+            isExpanded={expandedSection === 'review'}
+            isDisabled={sectionStatuses.billing !== 'completed'}
+            onToggle={handleSectionToggle}
+            priority="high"
+          >
+            <div>
               {cart && (
                 <OrderReview 
                   checkoutData={checkoutData}
@@ -215,19 +359,9 @@ export default function StreamlinedCheckout({
                 />
               )}
 
-              {/* Navigation */}
-              <div className="flex items-center justify-between">
-                <button
-                  onClick={handlePrevious}
-                  className="px-6 py-3 backdrop-blur-sm bg-slate-700/50 border border-slate-600/50 text-slate-200 font-medium rounded-xl hover:bg-slate-600/60 hover:border-slate-500/60 transition-all duration-300"
-                >
-                  <span className="flex items-center gap-2">
-                    <span className="text-lg">←</span>
-                    Back to Details
-                  </span>
-                </button>
-
-                <button
+              {/* Complete Order Button */}
+              <div className="mt-8 flex justify-end">
+                <motion.button
                   onClick={handleComplete}
                   disabled={isLoading}
                   className={`px-8 py-4 font-semibold rounded-xl transition-all duration-300 flex items-center gap-3 ${
@@ -235,11 +369,12 @@ export default function StreamlinedCheckout({
                       ? 'bg-slate-700/30 border border-slate-600/30 text-slate-500 cursor-not-allowed'
                       : 'bg-gradient-to-r from-emerald-500 to-green-600 text-white shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40 hover:scale-105'
                   }`}
+                  whileTap={{ scale: 0.95 }}
                 >
                   {isLoading ? (
                     <>
                       <div className="w-5 h-5 border-2 border-slate-400 border-t-transparent rounded-full animate-spin"></div>
-                      Processing...
+                      Processing Order...
                     </>
                   ) : (
                     <>
@@ -249,12 +384,31 @@ export default function StreamlinedCheckout({
                       Complete Order
                     </>
                   )}
-                </button>
+                </motion.button>
               </div>
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          </ExpandableSection>
+        </div>
+
+          {/* Dynamic Order Summary - Desktop */}
+          <div className="xl:col-span-1 hidden xl:block">
+            <DynamicOrderSummary 
+              data={orderSummaryData}
+              isSticky={true}
+              showDetailedBreakdown={true}
+            />
+          </div>
+        </div>
+
+        {/* Mobile Order Summary - Bottom Sheet */}
+        <div className="xl:hidden mt-8">
+          <DynamicOrderSummary 
+            data={orderSummaryData}
+            isSticky={false}
+            showDetailedBreakdown={false}
+          />
+        </div>
+      </div>
     </div>
   )
 }

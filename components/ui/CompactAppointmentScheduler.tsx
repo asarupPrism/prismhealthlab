@@ -12,6 +12,14 @@ interface TimeSlot {
   staffName?: string
 }
 
+interface Location {
+  id: string
+  name: string
+  address: string
+  phone?: string
+  available: boolean
+}
+
 interface AppointmentData {
   selectedDate: Date
   selectedTime: string
@@ -33,8 +41,11 @@ export default function CompactAppointmentScheduler({
 }: CompactAppointmentSchedulerProps) {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
   const [selectedSlot, setSelectedSlot] = useState<TimeSlot | null>(null)
+  const [selectedLocation, setSelectedLocation] = useState<Location | null>(null)
   const [availableSlots, setAvailableSlots] = useState<TimeSlot[]>([])
+  const [locations, setLocations] = useState<Location[]>([])
   const [loading, setLoading] = useState(false)
+  const [locationsLoading, setLocationsLoading] = useState(true)
 
   // Mock staff data
   const mockStaff = useMemo(() => [
@@ -42,6 +53,50 @@ export default function CompactAppointmentScheduler({
     { id: 'staff2', name: 'Dr. Michael Chen' },
     { id: 'staff3', name: 'Nurse Lisa Garcia' }
   ], [])
+
+  // Fetch locations on component mount
+  useEffect(() => {
+    const fetchLocations = async () => {
+      try {
+        setLocationsLoading(true)
+        const response = await fetch('/api/locations')
+        if (response.ok) {
+          const data = await response.json()
+          setLocations(data.locations || [])
+          // Auto-select first location if only one available
+          if (data.locations?.length === 1) {
+            setSelectedLocation(data.locations[0])
+          }
+        } else {
+          console.error('Failed to fetch locations')
+          // Fallback to hardcoded location
+          const fallbackLocation = {
+            id: 'schaumburg',
+            name: 'Prism Health Lab',
+            address: '1321 Tower Road, Schaumburg IL 60173',
+            available: true
+          }
+          setLocations([fallbackLocation])
+          setSelectedLocation(fallbackLocation)
+        }
+      } catch (error) {
+        console.error('Error fetching locations:', error)
+        // Fallback to hardcoded location
+        const fallbackLocation = {
+          id: 'schaumburg',
+          name: 'Prism Health Lab',
+          address: '1321 Tower Road, Schaumburg IL 60173',
+          available: true
+        }
+        setLocations([fallbackLocation])
+        setSelectedLocation(fallbackLocation)
+      } finally {
+        setLocationsLoading(false)
+      }
+    }
+
+    fetchLocations()
+  }, [])
 
   // Generate next 14 days for date selection
   const getAvailableDates = () => {
@@ -118,7 +173,7 @@ export default function CompactAppointmentScheduler({
 
   // Notify parent when appointment is selected
   useEffect(() => {
-    if (selectedDate && selectedSlot) {
+    if (selectedDate && selectedSlot && selectedLocation) {
       const appointmentData: AppointmentData = {
         selectedDate,
         selectedTime: selectedSlot.start.toLocaleTimeString('en-US', {
@@ -129,25 +184,67 @@ export default function CompactAppointmentScheduler({
         timeSlot: selectedSlot,
         staffId: selectedSlot.staffId!,
         staffName: selectedSlot.staffName!,
-        locationId: 'schaumburg',
-        locationName: 'Prism Health Lab'
+        locationId: selectedLocation.id,
+        locationName: selectedLocation.name
       }
       onData?.(appointmentData)
     }
-  }, [selectedDate, selectedSlot, onData])
+  }, [selectedDate, selectedSlot, selectedLocation, onData])
 
   const availableDates = getAvailableDates()
 
+  if (locationsLoading) {
+    return (
+      <div className={className}>
+        <div className="flex items-center justify-center py-8">
+          <div className="w-6 h-6 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin"></div>
+          <span className="ml-3 text-slate-400">Loading locations...</span>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className={className}>
-      <div className="space-y-6">
+      <div className="space-y-8 pb-4">
         
-        {/* Date Selection */}
+        {/* Location Selection */}
         <div>
           <h3 className="text-lg font-medium text-white mb-4 flex items-center gap-2">
-            <div className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse"></div>
-            Select Date
+            <div className="w-2 h-2 bg-purple-400 rounded-full animate-pulse"></div>
+            Select Location
           </h3>
+          <div className="grid grid-cols-1 gap-3">
+            {locations.map((location) => {
+              const isSelected = selectedLocation?.id === location.id
+              
+              return (
+                <button
+                  key={location.id}
+                  onClick={() => setSelectedLocation(location)}
+                  className={`p-4 rounded-xl text-left transition-all duration-300 ${
+                    isSelected
+                      ? 'bg-gradient-to-br from-purple-500 to-pink-600 text-white shadow-lg shadow-purple-500/25'
+                      : 'backdrop-blur-sm bg-slate-700/50 border border-slate-600/50 text-slate-300 hover:bg-slate-600/60 hover:border-slate-500/60'
+                  }`}
+                >
+                  <div className="font-semibold">{location.name}</div>
+                  <div className="text-sm opacity-75 mt-1">
+                    {location.address}
+                  </div>
+                </button>
+              )
+            })}
+          </div>
+        </div>
+
+        {/* Date Selection */}
+        {selectedLocation && (
+          <div>
+            <h3 className="text-lg font-medium text-white mb-4 flex items-center gap-2">
+              <div className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse"></div>
+              Select Date
+            </h3>
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
             {availableDates.map((date, index) => {
               const isSelected = selectedDate?.toDateString() === date.toDateString()
@@ -172,10 +269,11 @@ export default function CompactAppointmentScheduler({
               )
             })}
           </div>
-        </div>
+          </div>
+        )}
 
         {/* Time Slot Selection */}
-        {selectedDate && (
+        {selectedLocation && selectedDate && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -232,7 +330,7 @@ export default function CompactAppointmentScheduler({
         )}
 
         {/* Selected Appointment Summary */}
-        {selectedDate && selectedSlot && (
+        {selectedLocation && selectedDate && selectedSlot && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -265,7 +363,7 @@ export default function CompactAppointmentScheduler({
                 <span className="text-slate-400">Staff:</span> {selectedSlot.staffName}
               </p>
               <p>
-                <span className="text-slate-400">Location:</span> Prism Health Lab, Schaumburg IL
+                <span className="text-slate-400">Location:</span> {selectedLocation.name}
               </p>
             </div>
           </motion.div>

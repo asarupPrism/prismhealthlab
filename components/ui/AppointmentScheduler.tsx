@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 
 interface TimeSlot {
@@ -45,9 +45,7 @@ interface AppointmentSchedulerProps {
 }
 
 export default function AppointmentScheduler({
-  locations = [
-    { id: 'schaumburg', name: 'Prism Health Lab', address: '1321 Tower Road, Schaumburg IL 60173', available: true }
-  ],
+  locations = [],
   onAppointmentSelect,
   onData,
   minDate = new Date(),
@@ -64,7 +62,58 @@ export default function AppointmentScheduler({
   const [availableSlots, setAvailableSlots] = useState<TimeSlot[]>([])
   const [loading, setLoading] = useState(false)
   const [currentSlotIndex, setCurrentSlotIndex] = useState(0)
+  const [locationsData, setLocationsData] = useState<Location[]>(locations)
+  const [locationsLoading, setLocationsLoading] = useState(locations.length === 0)
   const slotsPerPage = 4 // Number of slots to show at once
+
+  // Fetch locations if none provided
+  useEffect(() => {
+    if (locations.length === 0) {
+      const fetchLocations = async () => {
+        try {
+          setLocationsLoading(true)
+          const response = await fetch('/api/locations')
+          if (response.ok) {
+            const data = await response.json()
+            setLocationsData(data.locations || [])
+            // Auto-select first location if only one available
+            if (data.locations?.length === 1) {
+              setSelectedLocation(data.locations[0])
+            }
+          } else {
+            console.error('Failed to fetch locations')
+            // Fallback to hardcoded location
+            const fallbackLocation = {
+              id: 'schaumburg',
+              name: 'Prism Health Lab',
+              address: '1321 Tower Road, Schaumburg IL 60173',
+              available: true
+            }
+            setLocationsData([fallbackLocation])
+            setSelectedLocation(fallbackLocation)
+          }
+        } catch (error) {
+          console.error('Error fetching locations:', error)
+          // Fallback to hardcoded location
+          const fallbackLocation = {
+            id: 'schaumburg',
+            name: 'Prism Health Lab',
+            address: '1321 Tower Road, Schaumburg IL 60173',
+            available: true
+          }
+          setLocationsData([fallbackLocation])
+          setSelectedLocation(fallbackLocation)
+        } finally {
+          setLocationsLoading(false)
+        }
+      }
+
+      fetchLocations()
+    } else {
+      setLocationsData(locations)
+      setLocationsLoading(false)
+    }
+  }, [locations])
 
   // Mock staff data - in real app, this would come from API based on location
   const mockStaff = [
@@ -237,8 +286,14 @@ export default function AppointmentScheduler({
               <div className="w-2 h-2 bg-cyan-400 rounded-full"></div>
               Choose Location
             </h3>
-            <div className="space-y-4">
-              {locations.map((location) => (
+            {locationsLoading ? (
+              <div className="flex items-center justify-center py-8">
+                <div className="w-6 h-6 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin"></div>
+                <span className="ml-3 text-slate-400">Loading locations...</span>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {locationsData.map((location) => (
                 <button
                   key={location.id}
                   onClick={() => handleLocationSelect(location)}
@@ -279,7 +334,8 @@ export default function AppointmentScheduler({
                   </div>
                 </button>
               ))}
-            </div>
+              </div>
+            )}
           </div>
 
           {/* Calendar */}

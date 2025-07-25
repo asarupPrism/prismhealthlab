@@ -105,8 +105,8 @@ export interface Cart {
 }
 
 export interface SwellBillingInfo {
-  firstName?: string;
-  lastName?: string;
+  first_name?: string;
+  last_name?: string;
   email?: string;
   phone?: string;
   address1?: string;
@@ -222,11 +222,34 @@ export const swellHelpers = {
     }
   },
 
+  // Apply coupon to cart
+  async applyCoupon(code: string) {
+    try {
+      ensureInitialized();
+      return await swell.cart.applyCoupon(code);
+    } catch (error) {
+      console.error('Error applying coupon:', error);
+      throw error;
+    }
+  },
+
+  // Remove coupon from cart
+  async removeCoupon() {
+    try {
+      ensureInitialized();
+      return await swell.cart.removeCoupon();
+    } catch (error) {
+      console.error('Error removing coupon:', error);
+      throw error;
+    }
+  },
+
   // Checkout - convert cart to order
   async checkout(options?: {
     billing?: SwellBillingInfo;
     shipping?: SwellBillingInfo;
     account?: Record<string, unknown>;
+    metadata?: Record<string, unknown>;
   }) {
     try {
       ensureInitialized();
@@ -247,6 +270,12 @@ export const swellHelpers = {
       if (options?.account) {
         await swell.cart.update({
           account: options.account,
+        });
+      }
+
+      if (options?.metadata) {
+        await swell.cart.update({
+          metadata: options.metadata,
         });
       }
       
