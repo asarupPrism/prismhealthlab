@@ -604,6 +604,11 @@ export default function HomePage() {
                     </a>
                   </div>
                 ))}
+                <div>
+                  <Link href="/login?redirect=/admin" className="text-slate-400 hover:text-cyan-300 transition-colors text-sm">
+                    Admin Portal
+                  </Link>
+                </div>
               </div>
             </div>
           </div>

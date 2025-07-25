@@ -11,6 +11,7 @@ interface LoginFormProps {
   onData?: (data: { isAuthenticated: boolean; user?: User }) => void
   showSwitchToSignup?: boolean
   className?: string
+  isAdminLogin?: boolean
 }
 
 export default function LoginForm({
@@ -18,7 +19,8 @@ export default function LoginForm({
   onSwitchToSignup,
   onData,
   showSwitchToSignup = true,
-  className = ''
+  className = '',
+  isAdminLogin = false
 }: LoginFormProps) {
   const { signIn } = useAuth()
   const [formData, setFormData] = useState({
@@ -99,10 +101,13 @@ export default function LoginForm({
             <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse" style={{animationDelay: '0.5s'}}></div>
           </div>
           <h2 className="text-2xl font-semibold text-white mb-2">
-            Sign In to Your Account
+            {isAdminLogin ? 'Admin Access Required' : 'Sign In to Your Account'}
           </h2>
           <p className="text-slate-300 text-sm">
-            Access your health dashboard and test results
+            {isAdminLogin 
+              ? 'Enter your staff credentials to access the admin dashboard'
+              : 'Access your health dashboard and test results'
+            }
           </p>
         </div>
 
@@ -120,7 +125,7 @@ export default function LoginForm({
               name="email"
               value={formData.email}
               onChange={handleInputChange}
-              placeholder="patient@example.com"
+              placeholder={isAdminLogin ? "admin@prismhealthlab.com" : "patient@example.com"}
               className={`w-full px-4 py-3 bg-slate-900/50 border rounded-xl text-white placeholder-slate-400 transition-all duration-300 backdrop-blur-sm focus:outline-none focus:ring-2 ${
                 errors.email
                   ? 'border-rose-500/50 focus:ring-rose-400 focus:border-rose-400'
