@@ -115,7 +115,7 @@ function CheckoutSuccessContent() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 pt-8">
+    <div className="min-h-screen bg-slate-950">
       <div className="max-w-4xl mx-auto px-6 pb-20">
         {/* Success Animation */}
         <motion.div
@@ -130,9 +130,9 @@ function CheckoutSuccessContent() {
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ delay: 0.3, duration: 0.3 }}
-              className="w-8 h-8 text-white font-bold text-2xl"
+              className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center"
             >
-              ✓
+              <div className="w-4 h-4 bg-white rounded-full animate-pulse"></div>
             </motion.div>
           </div>
 
@@ -172,7 +172,7 @@ function CheckoutSuccessContent() {
               {/* Order Items */}
               <div>
                 <h3 className="text-lg font-medium text-white mb-4 flex items-center gap-2">
-                  <div className="w-2 h-2 bg-cyan-400 rounded-full"></div>
+                  <div className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse"></div>
                   Diagnostic Panels Ordered
                 </h3>
                 <div className="space-y-3">

@@ -62,12 +62,12 @@ export default function CartIcon() {
             transition={{ duration: 0.2 }}
             className="absolute top-full right-0 pt-2 w-80 max-w-[calc(100vw-2rem)] z-50"
           >
-            <div className="backdrop-blur-lg bg-slate-800/95 border border-slate-700/50 rounded-xl shadow-xl shadow-slate-900/50 max-h-96 overflow-hidden">
+            <div className="backdrop-blur-lg bg-slate-800/95 border border-slate-700/50 rounded-2xl shadow-xl shadow-slate-900/50 max-h-96 overflow-hidden">
               {/* Header */}
               <div className="p-4 border-b border-slate-700/50">
                 <div className="flex items-center justify-between">
                   <h3 className="text-lg font-semibold text-white flex items-center gap-2">
-                    <div className="w-2 h-2 bg-cyan-400 rounded-full"></div>
+                    <div className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse"></div>
                     Your Cart
                   </h3>
                   <button
@@ -101,9 +101,9 @@ export default function CartIcon() {
                       <div key={String(item.id)} className="p-3 hover:bg-slate-700/30 rounded-lg transition-colors">
                         <div className="flex items-start gap-3">
                           {/* Product Image Placeholder */}
-                          <div className="w-12 h-12 bg-gradient-to-br from-cyan-400/20 to-blue-500/20 border border-cyan-400/30 rounded-lg flex items-center justify-center flex-shrink-0">
-                            <div className="w-6 h-6 bg-cyan-300/50 rounded flex items-center justify-center">
-                              <div className="w-3 h-3 bg-white rounded-full"></div>
+                          <div className="w-12 h-12 bg-gradient-to-br from-cyan-400/20 to-blue-500/20 border border-cyan-400/30 rounded-xl flex items-center justify-center flex-shrink-0">
+                            <div className="w-6 h-6 bg-cyan-300/50 rounded-lg flex items-center justify-center">
+                              <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
                             </div>
                           </div>
 

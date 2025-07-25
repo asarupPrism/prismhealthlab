@@ -135,7 +135,7 @@ export default function CombinedPaymentBillingForm({
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.3 }}
-          className="backdrop-blur-sm bg-slate-800/40 border border-slate-700/50 rounded-xl p-6"
+          className="backdrop-blur-sm bg-slate-800/40 border border-slate-700/50 rounded-2xl p-6 shadow-xl shadow-slate-900/50"
         >
           <h3 className="text-lg font-semibold text-white mb-6 flex items-center gap-2">
             <div className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse"></div>
@@ -157,7 +157,12 @@ export default function CombinedPaymentBillingForm({
                   placeholder="Enter your first name"
                 />
                 {errors.firstName && (
-                  <p className="mt-1 text-sm text-rose-400">{errors.firstName}</p>
+                  <div className="mt-1 text-sm text-rose-400 flex items-center gap-2">
+                    <div className="w-3 h-3 bg-rose-400/20 border border-rose-400/50 rounded-full flex items-center justify-center flex-shrink-0">
+                      <div className="w-1.5 h-1.5 bg-rose-400 rounded-full animate-pulse"></div>
+                    </div>
+                    {errors.firstName}
+                  </div>
                 )}
               </div>
               <div>
@@ -172,7 +177,12 @@ export default function CombinedPaymentBillingForm({
                   placeholder="Enter your last name"
                 />
                 {errors.lastName && (
-                  <p className="mt-1 text-sm text-rose-400">{errors.lastName}</p>
+                  <div className="mt-1 text-sm text-rose-400 flex items-center gap-2">
+                    <div className="w-3 h-3 bg-rose-400/20 border border-rose-400/50 rounded-full flex items-center justify-center flex-shrink-0">
+                      <div className="w-1.5 h-1.5 bg-rose-400 rounded-full animate-pulse"></div>
+                    </div>
+                    {errors.lastName}
+                  </div>
                 )}
               </div>
             </div>
@@ -191,7 +201,12 @@ export default function CombinedPaymentBillingForm({
                   placeholder="Enter your email"
                 />
                 {errors.email && (
-                  <p className="mt-1 text-sm text-rose-400">{errors.email}</p>
+                  <div className="mt-1 text-sm text-rose-400 flex items-center gap-2">
+                    <div className="w-3 h-3 bg-rose-400/20 border border-rose-400/50 rounded-full flex items-center justify-center flex-shrink-0">
+                      <div className="w-1.5 h-1.5 bg-rose-400 rounded-full animate-pulse"></div>
+                    </div>
+                    {errors.email}
+                  </div>
                 )}
               </div>
               <div>
@@ -206,7 +221,12 @@ export default function CombinedPaymentBillingForm({
                   placeholder="Enter your phone number"
                 />
                 {errors.phone && (
-                  <p className="mt-1 text-sm text-rose-400">{errors.phone}</p>
+                  <div className="mt-1 text-sm text-rose-400 flex items-center gap-2">
+                    <div className="w-3 h-3 bg-rose-400/20 border border-rose-400/50 rounded-full flex items-center justify-center flex-shrink-0">
+                      <div className="w-1.5 h-1.5 bg-rose-400 rounded-full animate-pulse"></div>
+                    </div>
+                    {errors.phone}
+                  </div>
                 )}
               </div>
             </div>
@@ -224,7 +244,12 @@ export default function CombinedPaymentBillingForm({
                 placeholder="Enter your street address"
               />
               {errors.address1 && (
-                <p className="mt-1 text-sm text-rose-400">{errors.address1}</p>
+                <div className="mt-1 text-sm text-rose-400 flex items-center gap-2">
+                  <div className="w-3 h-3 bg-rose-400/20 border border-rose-400/50 rounded-full flex items-center justify-center flex-shrink-0">
+                    <div className="w-1.5 h-1.5 bg-rose-400 rounded-full animate-pulse"></div>
+                  </div>
+                  {errors.address1}
+                </div>
               )}
             </div>
 
@@ -254,7 +279,12 @@ export default function CombinedPaymentBillingForm({
                   placeholder="City"
                 />
                 {errors.city && (
-                  <p className="mt-1 text-sm text-rose-400">{errors.city}</p>
+                  <div className="mt-1 text-sm text-rose-400 flex items-center gap-2">
+                    <div className="w-3 h-3 bg-rose-400/20 border border-rose-400/50 rounded-full flex items-center justify-center flex-shrink-0">
+                      <div className="w-1.5 h-1.5 bg-rose-400 rounded-full animate-pulse"></div>
+                    </div>
+                    {errors.city}
+                  </div>
                 )}
               </div>
               <div>
@@ -269,7 +299,12 @@ export default function CombinedPaymentBillingForm({
                   placeholder="State"
                 />
                 {errors.state && (
-                  <p className="mt-1 text-sm text-rose-400">{errors.state}</p>
+                  <div className="mt-1 text-sm text-rose-400 flex items-center gap-2">
+                    <div className="w-3 h-3 bg-rose-400/20 border border-rose-400/50 rounded-full flex items-center justify-center flex-shrink-0">
+                      <div className="w-1.5 h-1.5 bg-rose-400 rounded-full animate-pulse"></div>
+                    </div>
+                    {errors.state}
+                  </div>
                 )}
               </div>
               <div>
@@ -284,7 +319,12 @@ export default function CombinedPaymentBillingForm({
                   placeholder="ZIP"
                 />
                 {errors.zip && (
-                  <p className="mt-1 text-sm text-rose-400">{errors.zip}</p>
+                  <div className="mt-1 text-sm text-rose-400 flex items-center gap-2">
+                    <div className="w-3 h-3 bg-rose-400/20 border border-rose-400/50 rounded-full flex items-center justify-center flex-shrink-0">
+                      <div className="w-1.5 h-1.5 bg-rose-400 rounded-full animate-pulse"></div>
+                    </div>
+                    {errors.zip}
+                  </div>
                 )}
               </div>
             </div>
@@ -296,7 +336,7 @@ export default function CombinedPaymentBillingForm({
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.3, delay: 0.1 }}
-          className="backdrop-blur-sm bg-slate-800/40 border border-slate-700/50 rounded-xl p-6"
+          className="backdrop-blur-sm bg-slate-800/40 border border-slate-700/50 rounded-2xl p-6 shadow-xl shadow-slate-900/50"
         >
           <h3 className="text-lg font-semibold text-white mb-6 flex items-center gap-2">
             <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
@@ -318,7 +358,12 @@ export default function CombinedPaymentBillingForm({
                 placeholder="1234 5678 9012 3456"
               />
               {errors.cardNumber && (
-                <p className="mt-1 text-sm text-rose-400">{errors.cardNumber}</p>
+                <div className="mt-1 text-sm text-rose-400 flex items-center gap-2">
+                  <div className="w-3 h-3 bg-rose-400/20 border border-rose-400/50 rounded-full flex items-center justify-center flex-shrink-0">
+                    <div className="w-1.5 h-1.5 bg-rose-400 rounded-full animate-pulse"></div>
+                  </div>
+                  {errors.cardNumber}
+                </div>
               )}
             </div>
 
@@ -341,7 +386,12 @@ export default function CombinedPaymentBillingForm({
                   ))}
                 </select>
                 {errors.expiryMonth && (
-                  <p className="mt-1 text-sm text-rose-400">{errors.expiryMonth}</p>
+                  <div className="mt-1 text-sm text-rose-400 flex items-center gap-2">
+                    <div className="w-3 h-3 bg-rose-400/20 border border-rose-400/50 rounded-full flex items-center justify-center flex-shrink-0">
+                      <div className="w-1.5 h-1.5 bg-rose-400 rounded-full animate-pulse"></div>
+                    </div>
+                    {errors.expiryMonth}
+                  </div>
                 )}
               </div>
               <div>
@@ -361,7 +411,12 @@ export default function CombinedPaymentBillingForm({
                   ))}
                 </select>
                 {errors.expiryYear && (
-                  <p className="mt-1 text-sm text-rose-400">{errors.expiryYear}</p>
+                  <div className="mt-1 text-sm text-rose-400 flex items-center gap-2">
+                    <div className="w-3 h-3 bg-rose-400/20 border border-rose-400/50 rounded-full flex items-center justify-center flex-shrink-0">
+                      <div className="w-1.5 h-1.5 bg-rose-400 rounded-full animate-pulse"></div>
+                    </div>
+                    {errors.expiryYear}
+                  </div>
                 )}
               </div>
               <div>
@@ -376,7 +431,12 @@ export default function CombinedPaymentBillingForm({
                   placeholder="123"
                 />
                 {errors.cvv && (
-                  <p className="mt-1 text-sm text-rose-400">{errors.cvv}</p>
+                  <div className="mt-1 text-sm text-rose-400 flex items-center gap-2">
+                    <div className="w-3 h-3 bg-rose-400/20 border border-rose-400/50 rounded-full flex items-center justify-center flex-shrink-0">
+                      <div className="w-1.5 h-1.5 bg-rose-400 rounded-full animate-pulse"></div>
+                    </div>
+                    {errors.cvv}
+                  </div>
                 )}
               </div>
             </div>
@@ -394,7 +454,12 @@ export default function CombinedPaymentBillingForm({
                 placeholder="Enter name as it appears on card"
               />
               {errors.nameOnCard && (
-                <p className="mt-1 text-sm text-rose-400">{errors.nameOnCard}</p>
+                <div className="mt-1 text-sm text-rose-400 flex items-center gap-2">
+                  <div className="w-3 h-3 bg-rose-400/20 border border-rose-400/50 rounded-full flex items-center justify-center flex-shrink-0">
+                    <div className="w-1.5 h-1.5 bg-rose-400 rounded-full animate-pulse"></div>
+                  </div>
+                  {errors.nameOnCard}
+                </div>
               )}
             </div>
 
@@ -420,12 +485,17 @@ export default function CombinedPaymentBillingForm({
                 </span>
               </label>
               {errors.agreeToTerms && (
-                <p className="mt-1 text-sm text-rose-400">{errors.agreeToTerms}</p>
+                <div className="mt-1 text-sm text-rose-400 flex items-center gap-2">
+                  <div className="w-3 h-3 bg-rose-400/20 border border-rose-400/50 rounded-full flex items-center justify-center flex-shrink-0">
+                    <div className="w-1.5 h-1.5 bg-rose-400 rounded-full animate-pulse"></div>
+                  </div>
+                  {errors.agreeToTerms}
+                </div>
               )}
             </div>
 
             {/* Security Notice */}
-            <div className="mt-6 p-4 bg-slate-900/30 border border-slate-700/30 rounded-lg">
+            <div className="mt-6 backdrop-blur-sm bg-slate-900/40 border border-slate-700/40 rounded-xl p-4 shadow-lg shadow-slate-900/30">
               <div className="flex items-center gap-3 mb-2">
                 <div className="w-3 h-3 bg-emerald-400 rounded-full animate-pulse"></div>
                 <span className="text-sm font-semibold text-white">Secure Payment</span>

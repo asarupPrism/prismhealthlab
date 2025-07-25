@@ -60,7 +60,7 @@ export default async function PortalDashboard() {
     .order('created_at', { ascending: false })
 
   return (
-    <div className="min-h-screen bg-slate-950 lg:pl-8 lg:pr-8 pt-8 pb-12">
+    <div className="min-h-screen bg-slate-950 lg:pl-8 lg:pr-8 pb-12">
       <div className="max-w-7xl mx-auto px-6 lg:px-0">
         
         {/* Header */}

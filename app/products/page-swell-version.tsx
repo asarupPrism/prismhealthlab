@@ -158,7 +158,7 @@ function ProductsPageContent() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 pt-8">
+    <div className="min-h-screen bg-slate-950">
       {/* Hero Section */}
       <section className="py-12 px-6">
         <div className="max-w-6xl mx-auto">

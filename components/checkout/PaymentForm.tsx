@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { motion } from 'framer-motion'
 
 interface PaymentInfo {
@@ -67,7 +67,7 @@ export default function PaymentForm({
     }
   }
 
-  const validateForm = (): boolean => {
+  const validateForm = useCallback((): boolean => {
     const newErrors: Record<string, string> = {}
     
     Object.keys(formData).forEach((key) => {
@@ -77,7 +77,7 @@ export default function PaymentForm({
 
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
-  }
+  }, [formData])
 
   const formatCardNumber = (value: string): string => {
     // Remove all non-digit characters
@@ -127,7 +127,7 @@ export default function PaymentForm({
     if (isValid) {
       onData?.(formData)
     }
-  }, [formData, onData])
+  }, [formData, onData, validateForm])
 
   // Generate year options
   const currentYear = new Date().getFullYear()
@@ -135,7 +135,7 @@ export default function PaymentForm({
 
   return (
     <div className={`max-w-2xl mx-auto ${className}`}>
-      <div className="backdrop-blur-sm bg-slate-800/30 border border-slate-700/50 rounded-xl p-8">
+      <div className="backdrop-blur-sm bg-slate-800/40 border border-slate-700/50 rounded-2xl p-8 shadow-xl shadow-slate-900/50">
         <div className="space-y-6">
           
           {/* Card Number */}
@@ -158,14 +158,16 @@ export default function PaymentForm({
               }`}
             />
             {errors.cardNumber && touched.cardNumber && (
-              <motion.p
+              <motion.div
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 className="text-rose-400 text-sm mt-2 flex items-center gap-2"
               >
-                <span className="text-xs">✗</span>
+                <div className="w-3 h-3 bg-rose-400/20 border border-rose-400/50 rounded-full flex items-center justify-center flex-shrink-0">
+                  <div className="w-1.5 h-1.5 bg-rose-400 rounded-full animate-pulse"></div>
+                </div>
                 {errors.cardNumber}
-              </motion.p>
+              </motion.div>
             )}
           </div>
 
@@ -189,14 +191,16 @@ export default function PaymentForm({
               }`}
             />
             {errors.nameOnCard && touched.nameOnCard && (
-              <motion.p
+              <motion.div
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 className="text-rose-400 text-sm mt-2 flex items-center gap-2"
               >
-                <span className="text-xs">✗</span>
+                <div className="w-3 h-3 bg-rose-400/20 border border-rose-400/50 rounded-full flex items-center justify-center flex-shrink-0">
+                  <div className="w-1.5 h-1.5 bg-rose-400 rounded-full animate-pulse"></div>
+                </div>
                 {errors.nameOnCard}
-              </motion.p>
+              </motion.div>
             )}
           </div>
 
@@ -226,14 +230,16 @@ export default function PaymentForm({
                 ))}
               </select>
               {errors.expiryMonth && touched.expiryMonth && (
-                <motion.p
+                <motion.div
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
                   className="text-rose-400 text-sm mt-2 flex items-center gap-2"
                 >
-                  <span className="text-xs">✗</span>
+                  <div className="w-3 h-3 bg-rose-400/20 border border-rose-400/50 rounded-full flex items-center justify-center flex-shrink-0">
+                    <div className="w-1.5 h-1.5 bg-rose-400 rounded-full animate-pulse"></div>
+                  </div>
                   {errors.expiryMonth}
-                </motion.p>
+                </motion.div>
               )}
             </div>
 
@@ -261,14 +267,16 @@ export default function PaymentForm({
                 ))}
               </select>
               {errors.expiryYear && touched.expiryYear && (
-                <motion.p
+                <motion.div
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
                   className="text-rose-400 text-sm mt-2 flex items-center gap-2"
                 >
-                  <span className="text-xs">✗</span>
+                  <div className="w-3 h-3 bg-rose-400/20 border border-rose-400/50 rounded-full flex items-center justify-center flex-shrink-0">
+                    <div className="w-1.5 h-1.5 bg-rose-400 rounded-full animate-pulse"></div>
+                  </div>
                   {errors.expiryYear}
-                </motion.p>
+                </motion.div>
               )}
             </div>
 
@@ -292,14 +300,16 @@ export default function PaymentForm({
                 }`}
               />
               {errors.cvv && touched.cvv && (
-                <motion.p
+                <motion.div
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
                   className="text-rose-400 text-sm mt-2 flex items-center gap-2"
                 >
-                  <span className="text-xs">✗</span>
+                  <div className="w-3 h-3 bg-rose-400/20 border border-rose-400/50 rounded-full flex items-center justify-center flex-shrink-0">
+                    <div className="w-1.5 h-1.5 bg-rose-400 rounded-full animate-pulse"></div>
+                  </div>
                   {errors.cvv}
-                </motion.p>
+                </motion.div>
               )}
             </div>
           </div>
@@ -338,23 +348,25 @@ export default function PaymentForm({
               </label>
             </div>
             {errors.agreeToTerms && touched.agreeToTerms && (
-              <motion.p
+              <motion.div
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 className="text-rose-400 text-sm mt-2 ml-7 flex items-center gap-2"
               >
-                <span className="text-xs">✗</span>
+                <div className="w-3 h-3 bg-rose-400/20 border border-rose-400/50 rounded-full flex items-center justify-center flex-shrink-0">
+                  <div className="w-1.5 h-1.5 bg-rose-400 rounded-full animate-pulse"></div>
+                </div>
                 {errors.agreeToTerms}
-              </motion.p>
+              </motion.div>
             )}
           </div>
 
           {/* Security Features */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8">
-            <div className="p-4 bg-slate-900/30 border border-slate-700/30 rounded-xl">
+            <div className="backdrop-blur-sm bg-slate-900/40 border border-slate-700/40 rounded-xl p-4 shadow-lg shadow-slate-900/30">
               <div className="flex items-center gap-3 mb-2">
                 <div className="w-8 h-8 bg-emerald-500/20 border border-emerald-400/30 rounded-lg flex items-center justify-center">
-                  <div className="w-4 h-4 bg-emerald-400 rounded-lg"></div>
+                  <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
                 </div>
                 <h4 className="text-sm font-semibold text-white">Secure Processing</h4>
               </div>
@@ -363,10 +375,10 @@ export default function PaymentForm({
               </p>
             </div>
 
-            <div className="p-4 bg-slate-900/30 border border-slate-700/30 rounded-xl">
+            <div className="backdrop-blur-sm bg-slate-900/40 border border-slate-700/40 rounded-xl p-4 shadow-lg shadow-slate-900/30">
               <div className="flex items-center gap-3 mb-2">
                 <div className="w-8 h-8 bg-cyan-500/20 border border-cyan-400/30 rounded-lg flex items-center justify-center">
-                  <div className="w-4 h-4 bg-cyan-400 rounded-lg"></div>
+                  <div className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse"></div>
                 </div>
                 <h4 className="text-sm font-semibold text-white">PCI Compliant</h4>
               </div>

@@ -97,12 +97,13 @@ export default function MultiStepForm({
     if (steps.length > 0) {
       onStepChange?.(currentStep, steps[currentStep])
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const progressPercentage = ((currentStep + 1) / steps.length) * 100
 
   return (
-    <div className={`max-w-4xl mx-auto ${className}`}>
+    <div className={`max-w-6xl mx-auto ${className}`}>
       {/* Progress Header */}
       <div className="backdrop-blur-sm bg-slate-800/30 border border-slate-700/50 rounded-2xl p-8 mb-8">
         {/* Progress Bar */}
@@ -128,18 +129,19 @@ export default function MultiStepForm({
         )}
 
         {/* Step Indicators */}
-        <div className="flex items-center justify-between">
+        {/* Desktop Layout (xl+) */}
+        <div className="hidden xl:flex items-center gap-6">
           {steps.map((step, index) => {
             const isActive = index === currentStep
             const isCompleted = completedSteps.has(index)
             const isAccessible = allowSkipSteps || index <= Math.max(...completedSteps) + 1
 
             return (
-              <div key={step.id} className="flex items-center flex-1">
+              <div key={step.id} className="flex items-center flex-1 min-w-0">
                 <button
                   onClick={() => handleStepClick(index)}
                   disabled={!isAccessible}
-                  className={`relative flex items-center justify-center w-12 h-12 rounded-xl transition-all duration-300 ${
+                  className={`relative flex items-center justify-center w-12 h-12 rounded-xl transition-all duration-300 flex-shrink-0 ${
                     isActive
                       ? 'bg-gradient-to-br from-cyan-500 to-blue-600 text-white shadow-lg shadow-cyan-500/25 scale-110'
                       : isCompleted
@@ -162,13 +164,13 @@ export default function MultiStepForm({
 
                 {/* Step Label */}
                 <div className="ml-4 flex-1 min-w-0">
-                  <h3 className={`text-sm font-semibold truncate ${
+                  <h3 className={`text-sm font-semibold ${
                     isActive ? 'text-white' : isCompleted ? 'text-emerald-300' : 'text-slate-400'
                   }`}>
                     {step.title}
                   </h3>
                   {step.description && (
-                    <p className={`text-xs truncate mt-1 ${
+                    <p className={`text-xs mt-1 ${
                       isActive ? 'text-slate-200' : 'text-slate-500'
                     }`}>
                       {step.description}
@@ -185,6 +187,122 @@ export default function MultiStepForm({
                         : 'bg-slate-600/50'
                     }`} />
                   </div>
+                )}
+              </div>
+            )
+          })}
+        </div>
+
+        {/* Tablet Layout (md-lg) */}
+        <div className="hidden md:grid xl:hidden grid-cols-3 gap-4">
+          {steps.map((step, index) => {
+            const isActive = index === currentStep
+            const isCompleted = completedSteps.has(index)
+            const isAccessible = allowSkipSteps || index <= Math.max(...completedSteps) + 1
+            const getColStartClass = () => {
+              if (index === 3) return 'col-start-1'
+              if (index === 4) return 'col-start-3'
+              return ''
+            }
+
+            return (
+              <div key={step.id} className={`flex items-center gap-3 ${getColStartClass()}`}>
+                <button
+                  onClick={() => handleStepClick(index)}
+                  disabled={!isAccessible}
+                  className={`relative flex items-center justify-center w-10 h-10 rounded-xl transition-all duration-300 flex-shrink-0 ${
+                    isActive
+                      ? 'bg-gradient-to-br from-cyan-500 to-blue-600 text-white shadow-lg shadow-cyan-500/25 scale-110'
+                      : isCompleted
+                      ? 'bg-gradient-to-br from-emerald-500 to-green-600 text-white shadow-lg shadow-emerald-500/25'
+                      : isAccessible
+                      ? 'backdrop-blur-sm bg-slate-700/50 border border-slate-600/50 text-slate-300 hover:bg-slate-600/60 hover:border-slate-500/60'
+                      : 'bg-slate-800/30 border border-slate-700/30 text-slate-500 cursor-not-allowed'
+                  }`}
+                >
+                  {isCompleted ? (
+                    <div className="w-5 h-5 bg-white/20 rounded-lg flex items-center justify-center">
+                      <div className="w-2 h-2 bg-white rounded-full"></div>
+                    </div>
+                  ) : showStepNumbers ? (
+                    <span className="font-semibold text-sm">{index + 1}</span>
+                  ) : (
+                    <div className="w-2 h-2 bg-current rounded-full"></div>
+                  )}
+                </button>
+
+                {/* Step Label */}
+                <div className="flex-1 min-w-0">
+                  <h3 className={`text-sm font-semibold ${
+                    isActive ? 'text-white' : isCompleted ? 'text-emerald-300' : 'text-slate-400'
+                  }`}>
+                    {step.title}
+                  </h3>
+                  <p className={`text-xs mt-1 ${
+                    isActive ? 'text-slate-200' : 'text-slate-500'
+                  }`}>
+                    {step.description}
+                  </p>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+
+        {/* Mobile Layout (sm and below) */}
+        <div className="md:hidden space-y-6">
+          {steps.map((step, index) => {
+            const isActive = index === currentStep
+            const isCompleted = completedSteps.has(index)
+            const isAccessible = allowSkipSteps || index <= Math.max(...completedSteps) + 1
+
+            return (
+              <div key={step.id} className="relative flex items-center gap-4">
+                <button
+                  onClick={() => handleStepClick(index)}
+                  disabled={!isAccessible}
+                  className={`relative flex items-center justify-center w-10 h-10 rounded-xl transition-all duration-300 flex-shrink-0 ${
+                    isActive
+                      ? 'bg-gradient-to-br from-cyan-500 to-blue-600 text-white shadow-lg shadow-cyan-500/25'
+                      : isCompleted
+                      ? 'bg-gradient-to-br from-emerald-500 to-green-600 text-white shadow-lg shadow-emerald-500/25'
+                      : isAccessible
+                      ? 'backdrop-blur-sm bg-slate-700/50 border border-slate-600/50 text-slate-300 hover:bg-slate-600/60 hover:border-slate-500/60'
+                      : 'bg-slate-800/30 border border-slate-700/30 text-slate-500 cursor-not-allowed'
+                  }`}
+                >
+                  {isCompleted ? (
+                    <div className="w-5 h-5 bg-white/20 rounded-lg flex items-center justify-center">
+                      <div className="w-2 h-2 bg-white rounded-full"></div>
+                    </div>
+                  ) : showStepNumbers ? (
+                    <span className="font-semibold text-sm">{index + 1}</span>
+                  ) : (
+                    <div className="w-2 h-2 bg-current rounded-full"></div>
+                  )}
+                </button>
+
+                {/* Step Label */}
+                <div className="flex-1">
+                  <h3 className={`text-sm font-semibold ${
+                    isActive ? 'text-white' : isCompleted ? 'text-emerald-300' : 'text-slate-400'
+                  }`}>
+                    {step.title}
+                  </h3>
+                  <p className={`text-xs mt-1 ${
+                    isActive ? 'text-slate-200' : 'text-slate-500'
+                  }`}>
+                    {step.description}
+                  </p>
+                </div>
+
+                {/* Vertical connector for mobile */}
+                {index < steps.length - 1 && (
+                  <div className={`absolute left-5 top-10 w-px h-6 transition-colors duration-300 ${
+                    completedSteps.has(index) 
+                      ? 'bg-gradient-to-b from-emerald-400 to-cyan-400' 
+                      : 'bg-slate-600/50'
+                  }`}></div>
                 )}
               </div>
             )

@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { motion } from 'framer-motion'
 
 interface BillingInfo {
@@ -69,7 +69,7 @@ export default function BillingForm({
     }
   }
 
-  const validateForm = (): boolean => {
+  const validateForm = useCallback((): boolean => {
     const newErrors: Record<string, string> = {}
     
     Object.keys(formData).forEach((key) => {
@@ -79,7 +79,7 @@ export default function BillingForm({
 
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
-  }
+  }, [formData])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target
@@ -105,11 +105,11 @@ export default function BillingForm({
     if (isValid) {
       onData?.(formData)
     }
-  }, [formData, onData])
+  }, [formData, onData, validateForm])
 
   return (
     <div className={`max-w-2xl mx-auto ${className}`}>
-      <div className="backdrop-blur-sm bg-slate-800/30 border border-slate-700/50 rounded-xl p-8">
+      <div className="backdrop-blur-sm bg-slate-800/40 border border-slate-700/50 rounded-2xl p-8 shadow-xl shadow-slate-900/50">
         <div className="space-y-6">
           
           {/* Name Fields */}
@@ -138,7 +138,9 @@ export default function BillingForm({
                   animate={{ opacity: 1, y: 0 }}
                   className="text-rose-400 text-sm mt-2 flex items-center gap-2"
                 >
-                  <span className="text-xs">✗</span>
+                  <div className="w-3 h-3 bg-rose-400/20 border border-rose-400/50 rounded-full flex items-center justify-center flex-shrink-0">
+                    <div className="w-1.5 h-1.5 bg-rose-400 rounded-full animate-pulse"></div>
+                  </div>
                   {errors.firstName}
                 </motion.p>
               )}
@@ -168,7 +170,9 @@ export default function BillingForm({
                   animate={{ opacity: 1, y: 0 }}
                   className="text-rose-400 text-sm mt-2 flex items-center gap-2"
                 >
-                  <span className="text-xs">✗</span>
+                  <div className="w-3 h-3 bg-rose-400/20 border border-rose-400/50 rounded-full flex items-center justify-center flex-shrink-0">
+                    <div className="w-1.5 h-1.5 bg-rose-400 rounded-full animate-pulse"></div>
+                  </div>
                   {errors.lastName}
                 </motion.p>
               )}
@@ -201,7 +205,9 @@ export default function BillingForm({
                   animate={{ opacity: 1, y: 0 }}
                   className="text-rose-400 text-sm mt-2 flex items-center gap-2"
                 >
-                  <span className="text-xs">✗</span>
+                  <div className="w-3 h-3 bg-rose-400/20 border border-rose-400/50 rounded-full flex items-center justify-center flex-shrink-0">
+                    <div className="w-1.5 h-1.5 bg-rose-400 rounded-full animate-pulse"></div>
+                  </div>
                   {errors.email}
                 </motion.p>
               )}
@@ -249,7 +255,9 @@ export default function BillingForm({
                 animate={{ opacity: 1, y: 0 }}
                 className="text-rose-400 text-sm mb-3 flex items-center gap-2"
               >
-                <span className="text-xs">✗</span>
+                <div className="w-3 h-3 bg-rose-400/20 border border-rose-400/50 rounded-full flex items-center justify-center flex-shrink-0">
+                  <div className="w-1.5 h-1.5 bg-rose-400 rounded-full animate-pulse"></div>
+                </div>
                 {errors.address1}
               </motion.p>
             )}
@@ -291,7 +299,9 @@ export default function BillingForm({
                   animate={{ opacity: 1, y: 0 }}
                   className="text-rose-400 text-sm mt-2 flex items-center gap-2"
                 >
-                  <span className="text-xs">✗</span>
+                  <div className="w-3 h-3 bg-rose-400/20 border border-rose-400/50 rounded-full flex items-center justify-center flex-shrink-0">
+                    <div className="w-1.5 h-1.5 bg-rose-400 rounded-full animate-pulse"></div>
+                  </div>
                   {errors.city}
                 </motion.p>
               )}
@@ -321,7 +331,9 @@ export default function BillingForm({
                   animate={{ opacity: 1, y: 0 }}
                   className="text-rose-400 text-sm mt-2 flex items-center gap-2"
                 >
-                  <span className="text-xs">✗</span>
+                  <div className="w-3 h-3 bg-rose-400/20 border border-rose-400/50 rounded-full flex items-center justify-center flex-shrink-0">
+                    <div className="w-1.5 h-1.5 bg-rose-400 rounded-full animate-pulse"></div>
+                  </div>
                   {errors.state}
                 </motion.p>
               )}
@@ -351,7 +363,9 @@ export default function BillingForm({
                   animate={{ opacity: 1, y: 0 }}
                   className="text-rose-400 text-sm mt-2 flex items-center gap-2"
                 >
-                  <span className="text-xs">✗</span>
+                  <div className="w-3 h-3 bg-rose-400/20 border border-rose-400/50 rounded-full flex items-center justify-center flex-shrink-0">
+                    <div className="w-1.5 h-1.5 bg-rose-400 rounded-full animate-pulse"></div>
+                  </div>
                   {errors.zip}
                 </motion.p>
               )}
@@ -377,10 +391,10 @@ export default function BillingForm({
           </div>
 
           {/* Security Notice */}
-          <div className="mt-8 p-4 bg-slate-900/30 border border-slate-700/30 rounded-xl">
+          <div className="mt-8 backdrop-blur-sm bg-slate-900/40 border border-slate-700/40 rounded-xl p-4 shadow-lg shadow-slate-900/30">
             <div className="flex items-start gap-3">
               <div className="w-5 h-5 bg-cyan-400/20 border border-cyan-400/30 rounded flex items-center justify-center flex-shrink-0 mt-0.5">
-                <div className="w-2 h-2 bg-cyan-400 rounded-full"></div>
+                <div className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse"></div>
               </div>
               <div>
                 <p className="text-sm font-medium text-white mb-1">

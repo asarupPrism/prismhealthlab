@@ -39,9 +39,9 @@ export default function OrderReview({
       <div className="space-y-8">
         
         {/* Order Summary */}
-        <div className="backdrop-blur-sm bg-slate-800/30 border border-slate-700/50 rounded-xl p-6">
+        <div className="backdrop-blur-sm bg-slate-800/40 border border-slate-700/50 rounded-2xl p-6 shadow-xl shadow-slate-900/50">
           <h3 className="text-xl font-semibold text-white mb-6 flex items-center gap-2">
-            <div className="w-2 h-2 bg-cyan-400 rounded-full"></div>
+            <div className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse"></div>
             Order Summary
           </h3>
           
@@ -52,11 +52,11 @@ export default function OrderReview({
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3, delay: index * 0.1 }}
-                className="flex items-start gap-4 p-4 bg-slate-900/30 border border-slate-700/30 rounded-xl"
+                className="flex items-start gap-4 p-4 backdrop-blur-sm bg-slate-900/40 border border-slate-700/40 rounded-xl shadow-lg shadow-slate-900/30"
               >
                 <div className="w-16 h-16 bg-gradient-to-br from-cyan-400/20 to-blue-500/20 border border-cyan-400/30 rounded-xl flex items-center justify-center flex-shrink-0">
                   <div className="w-8 h-8 bg-cyan-300/50 rounded-lg flex items-center justify-center">
-                    <div className="w-4 h-4 bg-white rounded-full"></div>
+                    <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
                   </div>
                 </div>
                 
@@ -99,19 +99,19 @@ export default function OrderReview({
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: 0.2 }}
-            className="backdrop-blur-sm bg-slate-800/30 border border-slate-700/50 rounded-xl p-6"
+            className="backdrop-blur-sm bg-slate-800/40 border border-slate-700/50 rounded-2xl p-6 shadow-xl shadow-slate-900/50"
           >
             <h3 className="text-xl font-semibold text-white mb-6 flex items-center gap-2">
-              <div className="w-2 h-2 bg-emerald-400 rounded-full"></div>
+              <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
               Your Appointment
             </h3>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-4">
-                <div className="flex items-center gap-3 p-4 bg-slate-900/30 border border-slate-700/30 rounded-xl">
+                <div className="flex items-center gap-3 p-4 backdrop-blur-sm bg-slate-900/40 border border-slate-700/40 rounded-xl shadow-lg shadow-slate-900/30">
                   <div className="w-10 h-10 bg-gradient-to-br from-cyan-400 to-blue-500 rounded-xl flex items-center justify-center">
                     <div className="w-5 h-5 bg-white/20 rounded-lg flex items-center justify-center">
-                      <div className="w-2 h-2 bg-white rounded-full"></div>
+                      <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
                     </div>
                   </div>
                   <div>
@@ -122,10 +122,10 @@ export default function OrderReview({
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3 p-4 bg-slate-900/30 border border-slate-700/30 rounded-xl">
+                <div className="flex items-center gap-3 p-4 backdrop-blur-sm bg-slate-900/40 border border-slate-700/40 rounded-xl shadow-lg shadow-slate-900/30">
                   <div className="w-10 h-10 bg-gradient-to-br from-emerald-400 to-green-500 rounded-xl flex items-center justify-center">
                     <div className="w-5 h-5 bg-white/20 rounded-lg flex items-center justify-center">
-                      <div className="w-2 h-2 bg-white rounded-full"></div>
+                      <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
                     </div>
                   </div>
                   <div>
@@ -138,10 +138,10 @@ export default function OrderReview({
               </div>
 
               <div className="space-y-4">
-                <div className="flex items-center gap-3 p-4 bg-slate-900/30 border border-slate-700/30 rounded-xl">
+                <div className="flex items-center gap-3 p-4 backdrop-blur-sm bg-slate-900/40 border border-slate-700/40 rounded-xl shadow-lg shadow-slate-900/30">
                   <div className="w-10 h-10 bg-gradient-to-br from-blue-400 to-indigo-500 rounded-xl flex items-center justify-center">
                     <div className="w-5 h-5 bg-white/20 rounded-lg flex items-center justify-center">
-                      <div className="w-2 h-2 bg-white rounded-full"></div>
+                      <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
                     </div>
                   </div>
                   <div>
@@ -152,10 +152,10 @@ export default function OrderReview({
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3 p-4 bg-slate-900/30 border border-slate-700/30 rounded-xl">
+                <div className="flex items-center gap-3 p-4 backdrop-blur-sm bg-slate-900/40 border border-slate-700/40 rounded-xl shadow-lg shadow-slate-900/30">
                   <div className="w-10 h-10 bg-gradient-to-br from-purple-400 to-pink-500 rounded-xl flex items-center justify-center">
                     <div className="w-5 h-5 bg-white/20 rounded-lg flex items-center justify-center">
-                      <div className="w-2 h-2 bg-white rounded-full"></div>
+                      <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
                     </div>
                   </div>
                   <div>
@@ -176,17 +176,17 @@ export default function OrderReview({
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: 0.3 }}
-            className="backdrop-blur-sm bg-slate-800/30 border border-slate-700/50 rounded-xl p-6"
+            className="backdrop-blur-sm bg-slate-800/40 border border-slate-700/50 rounded-2xl p-6 shadow-xl shadow-slate-900/50"
           >
             <h3 className="text-xl font-semibold text-white mb-6 flex items-center gap-2">
-              <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
+              <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
               Patient Account
             </h3>
             
-            <div className="flex items-center gap-4 p-4 bg-slate-900/30 border border-slate-700/30 rounded-xl">
+            <div className="flex items-center gap-4 p-4 backdrop-blur-sm bg-slate-900/40 border border-slate-700/40 rounded-xl shadow-lg shadow-slate-900/30">
               <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-indigo-500 rounded-xl flex items-center justify-center">
                 <div className="w-6 h-6 bg-white/20 rounded-lg flex items-center justify-center">
-                  <div className="w-3 h-3 bg-white rounded-full"></div>
+                  <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
                 </div>
               </div>
               <div>
@@ -207,10 +207,10 @@ export default function OrderReview({
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: 0.4 }}
-            className="backdrop-blur-sm bg-slate-800/30 border border-slate-700/50 rounded-xl p-6"
+            className="backdrop-blur-sm bg-slate-800/40 border border-slate-700/50 rounded-2xl p-6 shadow-xl shadow-slate-900/50"
           >
             <h3 className="text-xl font-semibold text-white mb-6 flex items-center gap-2">
-              <div className="w-2 h-2 bg-amber-400 rounded-full"></div>
+              <div className="w-2 h-2 bg-amber-400 rounded-full animate-pulse"></div>
               Billing Address
             </h3>
             
