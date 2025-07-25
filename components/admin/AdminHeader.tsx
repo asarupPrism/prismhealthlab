@@ -2,9 +2,11 @@
 
 import React, { useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { User } from '@supabase/supabase-js'
 import { AdminProfile } from '@/lib/admin-types'
+import { useAuth } from '@/context'
 
 interface AdminHeaderProps {
   user: User
@@ -15,10 +17,22 @@ interface AdminHeaderProps {
 export default function AdminHeader({ user, profile, adminProfile }: AdminHeaderProps) {
   const [showUserMenu, setShowUserMenu] = useState(false)
   const [showNotifications, setShowNotifications] = useState(false)
+  const { signOut } = useAuth()
+  const router = useRouter()
 
   const handleSignOut = async () => {
-    // TODO: Implement sign out functionality
-    window.location.href = '/logout'
+    try {
+      const { error } = await signOut()
+      if (error) {
+        console.error('Sign out error:', error)
+      }
+      // Redirect to signed out confirmation page
+      router.push('/signed-out')
+    } catch (error) {
+      console.error('Unexpected error during sign out:', error)
+      // Fallback to signed out page even if there's an error
+      router.push('/signed-out')
+    }
   }
 
   return (

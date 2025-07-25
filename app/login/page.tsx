@@ -2,7 +2,7 @@
 
 import React, { useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useAuth } from '@/context/AuthContext'
+import { useAuth } from '@/context'
 import LoginForm from '@/components/auth/LoginForm'
 import { User } from '@/types/shared'
 

@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react'
 import { motion } from 'framer-motion'
-import { useAuth } from '@/context/AuthContext'
+import { useAuth } from '@/context'
 import { User } from '@/types/shared'
 
 interface SignupFormProps {

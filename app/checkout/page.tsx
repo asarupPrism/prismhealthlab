@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useCart } from '@/context/CartContext';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/context';
 import { swellHelpers } from '@/lib/swell';
 import { useRouter } from 'next/navigation';
 import StreamlinedCheckout from '@/components/ui/StreamlinedCheckout';

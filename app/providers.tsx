@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { CartProvider } from '@/context/CartContext'
-import { AuthProvider } from '@/context/AuthContext'
+import { AuthProvider } from '@/context'
 
 interface ProvidersProps {
   children: React.ReactNode

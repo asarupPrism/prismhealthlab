@@ -11,21 +11,29 @@
     "populate-swell": "node scripts/populate-swell-products.js"
   },
   "dependencies": {
+    "@sentry/nextjs": "^9.42.0",
     "@supabase/ssr": "^0.6.1",
     "@supabase/supabase-js": "^2.52.1",
+    "@types/web-push": "^3.6.4",
+    "@upstash/redis": "^1.35.1",
     "dotenv": "^17.2.1",
     "framer-motion": "^12.23.7",
     "next": "15.3.3",
+    "otplib": "^12.0.1",
+    "qrcode.react": "^4.2.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "server-only": "^0.0.1",
     "swell-js": "^4.2.5",
-    "swell-node": "^6.0.0"
+    "swell-node": "^6.0.0",
+    "web-push": "^3.6.7",
+    "web-vitals": "^5.0.3"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
+    "@types/qrcode.react": "^1.0.5",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
