@@ -22,7 +22,7 @@ interface DataPoint {
   value: number
   color?: string
   description?: string
-  metadata?: Record<string, any>
+  metadata?: Record<string, unknown>
 }
 
 interface AccessibleChartProps {
@@ -48,11 +48,7 @@ interface AccessibleChartProps {
   tableCaption?: string
 }
 
-interface FocusableElement {
-  index: number
-  element: HTMLElement
-  dataPoint: DataPoint
-}
+// FocusableElement interface removed - not used
 
 export default function AccessibleChart({
   data,
@@ -149,7 +145,7 @@ export default function AccessibleChart({
       case 't':
       case 'T':
         setIsTableView(!isTableView)
-        announceText(`Switched to ${!isTableView ? 'table' : 'chart'} view`)
+        setAnnounceText(`Switched to ${!isTableView ? 'table' : 'chart'} view`)
         break
       default:
         return
@@ -612,7 +608,7 @@ export function useChartAccessibility() {
       try {
         const parsed = JSON.parse(savedPrefs)
         setPreferences(prev => ({ ...prev, ...parsed }))
-      } catch (e) {
+      } catch {
         console.warn('Failed to parse chart accessibility preferences')
       }
     }

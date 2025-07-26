@@ -4,16 +4,16 @@ import { createClient } from '@/lib/supabase/client'
 
 interface WebSocketMessage {
   type: 'order_update' | 'appointment_update' | 'result_available' | 'system_notification'
-  payload: any
+  payload: unknown
   timestamp: string
   userId: string
 }
 
 interface WebSocketOptions {
-  onOrderUpdate?: (data: any) => void
-  onAppointmentUpdate?: (data: any) => void
-  onResultAvailable?: (data: any) => void
-  onSystemNotification?: (data: any) => void
+  onOrderUpdate?: (data: unknown) => void
+  onAppointmentUpdate?: (data: unknown) => void
+  onResultAvailable?: (data: unknown) => void
+  onSystemNotification?: (data: unknown) => void
   onConnect?: () => void
   onDisconnect?: () => void
   onError?: (error: Error) => void
@@ -220,7 +220,7 @@ export class PatientWebSocketClient {
   }
 
   // Send a message to the server (if needed for future features)
-  public send(message: any): void {
+  public send(message: unknown): void {
     if (this.ws?.readyState === WebSocket.OPEN) {
       this.ws.send(JSON.stringify(message))
     } else {
@@ -230,11 +230,11 @@ export class PatientWebSocketClient {
 }
 
 // React hook for using WebSocket in components
-import { useEffect, useRef, useState, useCallback } from 'react'
+import { useEffect, useRef, useState, useCallback, useMemo } from 'react'
 
 interface UseWebSocketOptions extends WebSocketOptions {
   autoConnect?: boolean
-  dependencies?: any[]
+  dependencies?: unknown[]
 }
 
 export function usePatientWebSocket(userId: string, options: UseWebSocketOptions = {}) {
@@ -246,7 +246,7 @@ export function usePatientWebSocket(userId: string, options: UseWebSocketOptions
   const { autoConnect = true, dependencies = [], ...wsOptions } = options
 
   // Enhanced callbacks that update React state
-  const enhancedOptions: WebSocketOptions = {
+  const enhancedOptions: WebSocketOptions = useMemo(() => ({
     ...wsOptions,
     onConnect: () => {
       setConnectionState('connected')
@@ -277,7 +277,7 @@ export function usePatientWebSocket(userId: string, options: UseWebSocketOptions
       setLastMessage({ type: 'system_notification', payload: data, timestamp: new Date().toISOString(), userId })
       options.onSystemNotification?.(data)
     }
-  }
+  }), [wsOptions, options, userId])
 
   // Initialize WebSocket client
   useEffect(() => {
@@ -294,7 +294,7 @@ export function usePatientWebSocket(userId: string, options: UseWebSocketOptions
       clientRef.current?.disconnect()
       clientRef.current = null
     }
-  }, [userId, autoConnect, ...dependencies])
+  }, [userId, autoConnect, enhancedOptions, ...dependencies])
 
   // Manual connection control
   const connect = useCallback(() => {
@@ -311,7 +311,7 @@ export function usePatientWebSocket(userId: string, options: UseWebSocketOptions
     }
   }, [])
 
-  const send = useCallback((message: any) => {
+  const send = useCallback((message: unknown) => {
     clientRef.current?.send(message)
   }, [])
 
@@ -335,21 +335,21 @@ export function usePatientWebSocket(userId: string, options: UseWebSocketOptions
 }
 
 // Hook for specific data types
-export function useOrderUpdates(userId: string, onUpdate?: (order: any) => void) {
+export function useOrderUpdates(userId: string, onUpdate?: (order: unknown) => void) {
   return usePatientWebSocket(userId, {
     onOrderUpdate: onUpdate,
     autoConnect: true
   })
 }
 
-export function useAppointmentUpdates(userId: string, onUpdate?: (appointment: any) => void) {
+export function useAppointmentUpdates(userId: string, onUpdate?: (appointment: unknown) => void) {
   return usePatientWebSocket(userId, {
     onAppointmentUpdate: onUpdate,
     autoConnect: true
   })
 }
 
-export function useResultNotifications(userId: string, onResult?: (result: any) => void) {
+export function useResultNotifications(userId: string, onResult?: (result: unknown) => void) {
   return usePatientWebSocket(userId, {
     onResultAvailable: onResult,
     autoConnect: true

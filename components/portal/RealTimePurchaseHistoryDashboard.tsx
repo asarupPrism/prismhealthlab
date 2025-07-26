@@ -9,7 +9,7 @@ import { PurchaseHistoryTouchCard } from '@/components/ui/TouchOptimizedCard'
 import { useResponsiveBreakpoints } from '@/hooks/useTouchInteractions'
 
 interface PurchaseHistoryData {
-  orders: any[]
+  orders: Record<string, unknown>[]
   summary: {
     totalOrders: number
     totalSpent: number
@@ -54,17 +54,17 @@ export default function RealTimePurchaseHistoryDashboard({
   itemHeight = 240,
   containerHeight = 600,
   enablePerformanceMode = true,
-  preloadPages = 2,
+  // preloadPages removed - not used
   enableRealTimeUpdates = true
 }: RealTimePurchaseHistoryDashboardProps) {
   const [summary, setSummary] = useState<PurchaseHistoryData['summary'] | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [refreshing, setRefreshing] = useState(false)
   const [lastRefresh, setLastRefresh] = useState<Date>(new Date())
-  const [recentUpdates, setRecentUpdates] = useState<any[]>([])
+  const [recentUpdates, setRecentUpdates] = useState<Record<string, unknown>[]>([])
   const [showUpdatesAlert, setShowUpdatesAlert] = useState(false)
   
-  const [filters, setFilters] = useState<FilterState>({
+  const [filters] = useState<FilterState>({
     status: '',
     dateFrom: '',
     dateTo: '',
@@ -77,7 +77,7 @@ export default function RealTimePurchaseHistoryDashboard({
   const updateTimeoutRef = useRef<NodeJS.Timeout>()
 
   // Real-time WebSocket integration
-  const { orders: realTimeOrders, updateOrder, isConnected } = useRealTimeOrders()
+  const { orders: realTimeOrders, isConnected } = useRealTimeOrders()
 
   // Performance monitoring
   const performanceMetrics = useRef({
@@ -96,10 +96,7 @@ export default function RealTimePurchaseHistoryDashboard({
     error: listError,
     loadMore,
     refresh,
-    addItems,
-    updateItem,
-    removeItem,
-    isEmpty,
+    // addItems, updateItem, removeItem, isEmpty removed - not used
     totalCount
   } = useVirtualizedList({
     pageSize: filters.limit,
@@ -185,7 +182,7 @@ export default function RealTimePurchaseHistoryDashboard({
     toggleExpanded,
     setLoading: setCardLoading,
     isExpanded,
-    isLoading: isCardLoading,
+    // isLoading renamed to avoid unused variable warning
     clearAll: clearExpandedCards,
     expandedCount
   } = useVirtualizedCardInteractions()
@@ -201,7 +198,7 @@ export default function RealTimePurchaseHistoryDashboard({
       metrics.lastRenderTime = now
       
       if ('memory' in performance) {
-        metrics.memoryUsage = (performance as any).memory.usedJSHeapSize
+        metrics.memoryUsage = (performance as { memory: { usedJSHeapSize: number } }).memory.usedJSHeapSize
       }
     }
   })
@@ -232,15 +229,7 @@ export default function RealTimePurchaseHistoryDashboard({
   }, [refresh, clearExpandedCards])
 
   // Handle filter changes with debouncing
-  const handleFilterChange = useCallback((newFilters: Partial<FilterState>) => {
-    setFilters(prev => ({
-      ...prev,
-      ...newFilters,
-      page: 1
-    }))
-    
-    clearExpandedCards()
-  }, [clearExpandedCards])
+  // handleFilterChange removed - not used in current implementation
 
   // Handle card expansion with loading state
   const handleOrderExpand = useCallback(async (orderId: string) => {
@@ -262,7 +251,7 @@ export default function RealTimePurchaseHistoryDashboard({
   }, [isExpanded, toggleExpanded, setCardLoading])
 
   // Render optimized item function with touch support
-  const renderOrderItem = useCallback((order: any, index: number, isVisible: boolean) => {
+  const renderOrderItem = useCallback((order: PurchaseOrder, index: number, isVisible: boolean) => {
     if (breakpoints.isMobile) {
       return (
         <PurchaseHistoryTouchCard

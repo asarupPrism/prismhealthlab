@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { logPatientDataAccess } from '@/lib/audit/hipaa-logger'
 
-const webpush = require('web-push')
+import webpush from 'web-push'
 
 // Configure web-push
 webpush.setVapidDetails(
@@ -15,7 +15,7 @@ interface PushNotificationPayload {
   userId: string
   title: string
   body: string
-  data?: any
+  data?: Record<string, unknown>
   priority?: 'low' | 'medium' | 'high' | 'urgent'
   type?: 'order_update' | 'appointment_reminder' | 'result_available' | 'system_alert'
   actions?: Array<{
@@ -38,7 +38,7 @@ export async function POST(request: NextRequest) {
     
     // Check if request is from authenticated admin or system
     let isAuthorized = false
-    let adminUserId = null
+    let adminUserId: string | null = null
     
     if (authHeader?.startsWith('Bearer ')) {
       const { data: { user }, error } = await supabase.auth.getUser(authHeader.split(' ')[1])
@@ -194,9 +194,9 @@ export async function POST(request: NextRequest) {
     console.error('Push notification send error:', error)
 
     // Handle specific web-push errors
-    if (error.statusCode === 410) {
+    if ((error as Record<string, unknown>).statusCode === 410) {
       // Subscription expired - deactivate it
-      await deactivateExpiredSubscription(error)
+      await deactivateExpiredSubscription(error as Record<string, unknown>)
       return NextResponse.json(
         { error: 'Push subscription expired and has been deactivated' },
         { status: 410 }
@@ -255,12 +255,12 @@ function getTTL(priority: string): number {
   }
 }
 
-async function deactivateExpiredSubscription(error: any) {
+async function deactivateExpiredSubscription(error: Record<string, unknown>) {
   try {
     const supabase = createClient()
     
     // Extract endpoint from error if possible
-    const endpoint = error.endpoint
+    const endpoint = error.endpoint as string
     if (endpoint) {
       await supabase
         .from('push_subscriptions')
@@ -277,7 +277,7 @@ async function deactivateExpiredSubscription(error: any) {
 }
 
 // GET /api/push/send - Get push notification statistics (admin only)
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const supabase = createClient()
     
@@ -316,24 +316,28 @@ export async function GET(request: NextRequest) {
     // Process statistics
     const processed = {
       totalSent: stats?.length || 0,
-      byType: {},
-      byPriority: {},
-      byStatus: {},
+      byType: {} as Record<string, number>,
+      byPriority: {} as Record<string, number>,
+      byStatus: {} as Record<string, number>,
       recentActivity: stats?.slice(-10) || []
     }
 
     stats?.forEach(notification => {
+      const notificationType = notification.notification_type as string
+      const priority = notification.priority as string
+      const status = notification.status as string
+      
       // By type
-      processed.byType[notification.notification_type] = 
-        (processed.byType[notification.notification_type] || 0) + 1
+      processed.byType[notificationType] = 
+        (processed.byType[notificationType] || 0) + 1
 
       // By priority
-      processed.byPriority[notification.priority] = 
-        (processed.byPriority[notification.priority] || 0) + 1
+      processed.byPriority[priority] = 
+        (processed.byPriority[priority] || 0) + 1
 
       // By status
-      processed.byStatus[notification.status] = 
-        (processed.byStatus[notification.status] || 0) + 1
+      processed.byStatus[status] = 
+        (processed.byStatus[status] || 0) + 1
     })
 
     return NextResponse.json({

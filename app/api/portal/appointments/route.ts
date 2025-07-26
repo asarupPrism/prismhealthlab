@@ -8,7 +8,7 @@ interface AppointmentWithOrder {
   status: string
   appointment_type: string
   location_id?: string
-  metadata: any
+  metadata: Record<string, unknown>
   created_at: string
   updated_at: string
   order: {
@@ -24,7 +24,7 @@ interface AppointmentWithOrder {
     name: string
     address: string
     phone: string
-    hours: any
+    hours: Record<string, unknown>
   }
 }
 
@@ -118,7 +118,7 @@ export async function GET(request: NextRequest) {
         .map(apt => apt.location_id)
     )] as string[]
 
-    let locations: any[] = []
+    let locations: Record<string, unknown>[] = []
     if (locationIds.length > 0) {
       const { data: locationData, error: locationError } = await supabase
         .from('locations')
@@ -142,9 +142,9 @@ export async function GET(request: NextRequest) {
         appointment_type: apt.appointment_type || 'blood_draw',
         location_id: apt.location_id,
         metadata: {
-          ...apt.metadata,
-          location_name: apt.metadata?.location_name || location?.name,
-          staff_name: apt.metadata?.staff_name
+          ...(apt.metadata as Record<string, unknown>),
+          location_name: (apt.metadata as Record<string, unknown>)?.location_name || location?.name,
+          staff_name: (apt.metadata as Record<string, unknown>)?.staff_name
         },
         created_at: apt.created_at,
         updated_at: apt.updated_at,
@@ -155,10 +155,10 @@ export async function GET(request: NextRequest) {
           order_tests: apt.orders.order_tests || []
         } : null,
         location_info: location ? {
-          name: location.name,
-          address: location.address,
-          phone: location.phone,
-          hours: location.operating_hours
+          name: location.name as string,
+          address: location.address as string,
+          phone: location.phone as string,
+          hours: location.operating_hours as Record<string, unknown>
         } : undefined
       }
     })
@@ -232,8 +232,8 @@ function calculateAppointmentSummary(appointments: AppointmentWithOrder[]): Appo
   const nextAppointment = nextUpcoming ? {
     date: nextUpcoming.appointment_date,
     time: nextUpcoming.appointment_time,
-    location: nextUpcoming.metadata?.location_name || 'Location TBD',
-    testsCount: nextUpcoming.order?.order_tests?.reduce((sum, test) => sum + test.quantity, 0) || 0
+    location: (nextUpcoming.metadata as Record<string, unknown>)?.location_name as string || 'Location TBD',
+    testsCount: nextUpcoming.order?.order_tests?.reduce((sum, test) => sum + (test.quantity as number), 0) || 0
   } : undefined
 
   // Get recently completed appointments (within last 30 days)
@@ -326,7 +326,7 @@ export async function PUT(request: NextRequest) {
           .update({
             status: 'cancelled',
             metadata: {
-              ...appointment.metadata,
+              ...(appointment.metadata as Record<string, unknown>),
               cancelled_at: new Date().toISOString(),
               cancelled_by: 'patient',
               cancellation_reason: updateData.reason || 'Patient request'
@@ -348,7 +348,7 @@ export async function PUT(request: NextRequest) {
           .from('appointments')
           .update({
             metadata: {
-              ...appointment.metadata,
+              ...(appointment.metadata as Record<string, unknown>),
               reschedule_requested: true,
               reschedule_requested_at: new Date().toISOString(),
               requested_date: updateData.requestedDate,

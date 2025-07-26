@@ -1,6 +1,5 @@
 import 'server-only'
 import { createClient } from '@/lib/supabase/server'
-import { swellAuth } from '@/lib/swell'
 
 export interface AccountCreationData {
   email: string
@@ -328,7 +327,7 @@ async function logSecurityEvent(
   userId: string,
   action: string,
   resource: string,
-  metadata: Record<string, any> = {}
+  metadata: Record<string, unknown> = {}
 ) {
   const supabase = await createClient()
   
@@ -376,7 +375,7 @@ export async function createAccountDuringCheckout(
 export async function linkOrderToAccount(
   userId: string,
   swellOrderId: string,
-  orderData: Record<string, any>
+  orderData: Record<string, unknown>
 ) {
   const supabase = await createClient()
   

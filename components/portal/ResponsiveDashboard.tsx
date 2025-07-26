@@ -1,11 +1,10 @@
 'use client'
 
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react'
-import { motion, AnimatePresence, PanInfo, useMotionValue, useTransform } from 'framer-motion'
-import { useSwipeable } from 'react-swipeable'
+import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion'
 import AccessibleAnalyticsDashboard from './AccessibleAnalyticsDashboard'
 import VirtualizedPurchaseHistoryDashboard from './VirtualizedPurchaseHistoryDashboard'
-import HealthTrendChart from '@/components/charts/HealthTrendChart'
+// HealthTrendChart import removed - not used
 
 interface ResponsiveDashboardProps {
   userId: string
@@ -33,10 +32,10 @@ interface GestureState {
 }
 
 const DASHBOARD_VIEWS = [
-  { id: 'overview', label: 'Overview', icon: '📊', color: 'cyan' },
-  { id: 'history', label: 'History', icon: '📋', color: 'blue' },
-  { id: 'health', label: 'Health', icon: '❤️', color: 'emerald' },
-  { id: 'appointments', label: 'Appointments', icon: '📅', color: 'amber' }
+  { id: 'overview', label: 'Overview', icon: '●', color: 'cyan' },
+  { id: 'history', label: 'History', icon: '+', color: 'blue' },
+  { id: 'health', label: 'Health', icon: '▲', color: 'emerald' },
+  { id: 'appointments', label: 'Appointments', icon: '→', color: 'amber' }
 ] as const
 
 export default function ResponsiveDashboard({
@@ -70,7 +69,6 @@ export default function ResponsiveDashboard({
   })
 
   const containerRef = useRef<HTMLDivElement>(null)
-  const touchStartTimeRef = useRef<number>(0)
   const refreshTimeoutRef = useRef<NodeJS.Timeout>()
 
   // Motion values for gestures
@@ -125,7 +123,7 @@ export default function ResponsiveDashboard({
     }
 
     if (newIndex !== currentIndex) {
-      setCurrentView(DASHBOARD_VIEWS[newIndex].id as any)
+      setCurrentView(DASHBOARD_VIEWS[newIndex].id as typeof DASHBOARD_VIEWS[number]['id'])
       
       // Haptic feedback on supported devices
       if ('vibrate' in navigator) {
@@ -319,7 +317,7 @@ export default function ResponsiveDashboard({
                 <motion.button
                   key={view.id}
                   onClick={() => {
-                    setCurrentView(view.id as any)
+                    setCurrentView(view.id as typeof view.id)
                     setIsMenuOpen(false)
                   }}
                   className={`
@@ -459,10 +457,10 @@ export default function ResponsiveDashboard({
         {/* Swipe indicator dots */}
         {viewport.isMobile && (
           <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 flex gap-2 bg-slate-800/80 backdrop-blur-sm rounded-full px-4 py-2">
-            {DASHBOARD_VIEWS.map((view, index) => (
+            {DASHBOARD_VIEWS.map((view) => (
               <motion.button
                 key={view.id}
-                onClick={() => setCurrentView(view.id as any)}
+                onClick={() => setCurrentView(view.id as typeof view.id)}
                 className={`w-2 h-2 rounded-full transition-colors ${
                   currentView === view.id ? 'bg-cyan-400' : 'bg-slate-600'
                 }`}

@@ -82,7 +82,7 @@ export function initializeSentry() {
 }
 
 // Sanitize error data to remove PHI and sensitive information
-function sanitizeErrorData(event: Sentry.ErrorEvent, hint?: Sentry.EventHint): Sentry.ErrorEvent | null {
+function sanitizeErrorData(event: Sentry.ErrorEvent): Sentry.ErrorEvent | null {
   if (!event) return null
 
   // Remove sensitive data from request data
@@ -189,10 +189,10 @@ function sanitizeRequestData(request: Sentry.Request): Sentry.Request {
 }
 
 // Sanitize extra data
-function sanitizeExtraData(data: any): any {
+function sanitizeExtraData(data: unknown): unknown {
   if (!data || typeof data !== 'object') return data
   
-  const sanitized = { ...data }
+  const sanitized = { ...(data as Record<string, unknown>) }
   const sensitiveKeys = [
     'password', 'token', 'key', 'secret', 'auth', 'authorization',
     'ssn', 'dob', 'email', 'phone', 'address', 'name', 'firstName',
@@ -212,27 +212,7 @@ function sanitizeExtraData(data: any): any {
 }
 
 // Get user-friendly route names for monitoring
-function getRouteName(pathname: string): string {
-  const routes: Record<string, string> = {
-    '/': 'Home',
-    '/portal': 'Patient Portal',
-    '/portal/dashboard': 'Dashboard',
-    '/portal/history': 'Purchase History',
-    '/portal/results': 'Test Results',
-    '/portal/appointments': 'Appointments',
-    '/tests': 'Test Catalog',
-    '/checkout': 'Checkout',
-    '/auth/login': 'Login',
-    '/auth/signup': 'Signup'
-  }
-  
-  // Handle dynamic routes
-  if (pathname.includes('/portal/orders/')) return 'Order Details'
-  if (pathname.includes('/portal/results/')) return 'Result Details'
-  if (pathname.includes('/tests/')) return 'Test Details'
-  
-  return routes[pathname] || 'Unknown Page'
-}
+// getRouteName function removed - not used
 
 // User context management for monitoring
 export function setUserContext(user: User | null) {
@@ -250,7 +230,7 @@ export function setUserContext(user: User | null) {
 }
 
 // Custom error tracking with context
-export function trackError(error: Error, context?: Record<string, any>, level: Sentry.SeverityLevel = 'error') {
+export function trackError(error: Error, context?: Record<string, unknown>, level: Sentry.SeverityLevel = 'error') {
   Sentry.withScope((scope) => {
     scope.setLevel(level)
     
@@ -334,7 +314,7 @@ export function trackAPICall(
 }
 
 // WebSocket monitoring
-export function trackWebSocketEvent(event: string, data?: any, error?: Error) {
+export function trackWebSocketEvent(event: string, data?: unknown, error?: Error) {
   if (error) {
     Sentry.withScope((scope) => {
       scope.setTag('websocket_event', event)
@@ -352,7 +332,7 @@ export function trackWebSocketEvent(event: string, data?: any, error?: Error) {
 }
 
 // PWA monitoring
-export function trackPWAEvent(event: string, data?: any) {
+export function trackPWAEvent(event: string, data?: unknown) {
   Sentry.addBreadcrumb({
     category: 'pwa',
     message: `PWA ${event}`,
@@ -398,7 +378,7 @@ export function trackAccessibilityIssue(issue: string, element?: string, severit
 }
 
 // HIPAA compliance monitoring
-export function trackComplianceEvent(event: string, details?: Record<string, any>) {
+export function trackComplianceEvent(event: string, details?: Record<string, unknown>) {
   Sentry.addBreadcrumb({
     category: 'compliance',
     message: `HIPAA ${event}`,
@@ -408,7 +388,7 @@ export function trackComplianceEvent(event: string, details?: Record<string, any
 }
 
 // Security event monitoring
-export function trackSecurityEvent(event: string, severity: 'low' | 'medium' | 'high' | 'critical', details?: Record<string, any>) {
+export function trackSecurityEvent(event: string, severity: 'low' | 'medium' | 'high' | 'critical', details?: Record<string, unknown>) {
   Sentry.withScope((scope) => {
     scope.setTag('security_event', 'true')
     scope.setLevel(severity === 'critical' ? 'fatal' : severity === 'high' ? 'error' : 'warning')

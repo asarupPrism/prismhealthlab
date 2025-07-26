@@ -37,7 +37,7 @@ export default function SSRSafeAuthGuard({
   showLoadingOnSSR = false
 }: SSRSafeAuthGuardProps) {
   const isClient = useClientOnly()
-  const { user, isAuthenticated, isAdmin, hasRole, isLoading, isHydrated } = useSSRSafeAuth()
+  const { isAuthenticated, isAdmin, hasRole, isLoading, isHydrated } = useSSRSafeAuth()
 
   // During SSR or before hydration
   if (!isClient || !isHydrated) {
@@ -78,7 +78,7 @@ export default function SSRSafeAuthGuard({
       <div className="min-h-screen bg-slate-950 flex items-center justify-center">
         <div className="text-center">
           <h2 className="text-xl font-semibold text-white mb-2">Admin Access Required</h2>
-          <p className="text-slate-400">You don't have permission to access this page.</p>
+          <p className="text-slate-400">You don&apos;t have permission to access this page.</p>
         </div>
       </div>
     )

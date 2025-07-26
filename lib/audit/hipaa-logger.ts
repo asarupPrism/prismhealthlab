@@ -1,6 +1,6 @@
 import 'server-only'
 import { createClient } from '@/lib/supabase/server'
-import { createHash, createHmac } from 'crypto'
+import { createHmac } from 'crypto'
 
 // HIPAA-compliant audit event types
 export const HIPAA_EVENT_TYPES = {
@@ -67,7 +67,7 @@ export interface HIPAAAuditEvent {
   outcome: 'success' | 'failure' | 'warning'
   risk_level: RiskLevel
   phi_accessed?: boolean
-  metadata: Record<string, any>
+  metadata: Record<string, unknown>
   ip_address?: string
   user_agent?: string
   session_id?: string
@@ -264,7 +264,7 @@ export class HIPAAAuditLogger {
   }
 
   // Backup logging for critical audit events
-  private async logToBackupStore(auditRecord: any): Promise<void> {
+  private async logToBackupStore(auditRecord: Record<string, unknown>): Promise<void> {
     try {
       // In production, this would write to:
       // - Separate database
@@ -339,7 +339,7 @@ export class HIPAAAuditLogger {
       phi_accessed?: boolean
     }
   ): Promise<{
-    events: any[]
+    events: Record<string, unknown>[]
     summary: {
       total_events: number
       high_risk_events: number
@@ -412,7 +412,7 @@ export async function logPatientDataAccess(
   dataType: string,
   action: string,
   outcome: 'success' | 'failure' = 'success',
-  metadata: Record<string, any> = {},
+  metadata: Record<string, unknown> = {},
   request?: Request
 ): Promise<void> {
   await hipaaAuditLogger.logEvent({
@@ -435,7 +435,7 @@ export async function logSecurityEvent(
   action: string,
   outcome: 'success' | 'failure' | 'warning',
   riskLevel: RiskLevel,
-  metadata: Record<string, any> = {},
+  metadata: Record<string, unknown> = {},
   request?: Request
 ): Promise<void> {
   await hipaaAuditLogger.logEvent({
@@ -454,7 +454,7 @@ export async function logSystemEvent(
   eventType: HIPAAAuditEventType,
   action: string,
   outcome: 'success' | 'failure' | 'warning',
-  metadata: Record<string, any> = {}
+  metadata: Record<string, unknown> = {}
 ): Promise<void> {
   await hipaaAuditLogger.logEvent({
     event_type: eventType,

@@ -182,7 +182,7 @@ export async function verifyAndEnableTOTP(userId: string, token: string): Promis
     const { error } = await supabase
       .from('profiles')
       .update({
-        failed_2fa_attempts: (profile as any).failed_2fa_attempts + 1
+        failed_2fa_attempts: ((profile as unknown as { failed_2fa_attempts: number }).failed_2fa_attempts || 0) + 1
       })
       .eq('user_id', userId)
     
@@ -437,7 +437,7 @@ export async function logSecurityEvent(
   userId: string,
   action: string,
   resource: string,
-  metadata: Record<string, any> = {}
+  metadata: Record<string, unknown> = {}
 ) {
   const supabase = await createClient()
   

@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { usePWAInstallBanner, usePWA } from '@/hooks/usePWA'
 
@@ -27,8 +27,8 @@ export default function PWAInstallBanner({
       if (!success) {
         console.log('Installation was cancelled or failed')
       }
-    } catch (error) {
-      console.error('Installation error:', error)
+    } catch (_error) {
+      console.error('Installation error:', _error)
     } finally {
       setIsInstalling(false)
     }

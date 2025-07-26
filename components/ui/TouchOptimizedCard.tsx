@@ -1,8 +1,8 @@
 'use client'
 
-import React, { useState, useRef, useCallback, useEffect } from 'react'
-import { motion, useMotionValue, useTransform, PanInfo } from 'framer-motion'
-import { useTouchInteractions, useDeviceCapabilities } from '@/hooks/useTouchInteractions'
+import React, { useState, useRef, useCallback } from 'react'
+import { motion, useMotionValue, useTransform } from 'framer-motion'
+import { useDeviceCapabilities } from '@/hooks/useTouchInteractions'
 
 interface TouchOptimizedCardProps {
   children: React.ReactNode
@@ -100,12 +100,12 @@ export default function TouchOptimizedCard({
   })
 
   // Handle pan gestures for swipe actions
-  const handlePanStart = useCallback((event: any, info: PanInfo) => {
+  const handlePanStart = useCallback(() => {
     if (!allowSwipeActions || disabled) return
     setIsPressed(true)
   }, [allowSwipeActions, disabled])
 
-  const handlePan = useCallback((event: any, info: PanInfo) => {
+  const handlePan = useCallback((_event: unknown, info: PanInfo) => {
     if (!allowSwipeActions || disabled) return
 
     const { offset } = info
@@ -124,7 +124,7 @@ export default function TouchOptimizedCard({
     }
   }, [allowSwipeActions, disabled, swipeThreshold, x])
 
-  const handlePanEnd = useCallback((event: any, info: PanInfo) => {
+  const handlePanEnd = useCallback((_event: unknown, info: PanInfo) => {
     if (!allowSwipeActions || disabled) return
 
     const { offset, velocity } = info
@@ -357,7 +357,7 @@ export function PurchaseHistoryTouchCard({
   onViewResults,
   className = ''
 }: {
-  order: any
+  order: Record<string, unknown>
   onExpand?: () => void
   onViewDetails?: () => void
   onViewResults?: () => void
@@ -425,7 +425,7 @@ export function PurchaseHistoryTouchCard({
         {/* Compact test summary */}
         <div className="bg-slate-900/30 rounded-lg p-3 mb-4">
           <div className="text-sm text-white">
-            {order.order_tests?.slice(0, 2).map((test: any) => test.test_name).join(', ')}
+            {order.order_tests?.slice(0, 2).map((test: { test_name: string }) => test.test_name).join(', ')}
             {(order.order_tests?.length || 0) > 2 && (
               <span className="text-slate-400"> +{(order.order_tests?.length || 0) - 2} more</span>
             )}

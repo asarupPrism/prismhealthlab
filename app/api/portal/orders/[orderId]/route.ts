@@ -8,8 +8,8 @@ interface DetailedOrderData {
     discount_amount: number
     currency: string
     status: string
-    billing_info: any
-    metadata: any
+    billing_info: Record<string, unknown>
+    metadata: Record<string, unknown>
     created_at: string
     updated_at: string
     order_tests: Array<{
@@ -23,8 +23,8 @@ interface DetailedOrderData {
         id: string
         result_status: string
         completed_at?: string
-        result_data: any
-        reference_ranges: any
+        result_data: Record<string, unknown>
+        reference_ranges: Record<string, unknown>
         abnormal_flags: string[]
       }[]
     }>
@@ -36,7 +36,7 @@ interface DetailedOrderData {
       location_name?: string
       staff_name?: string
       confirmation_sent: boolean
-      metadata: any
+      metadata: Record<string, unknown>
     }>
     payment_history: Array<{
       payment_method: string
@@ -52,17 +52,18 @@ interface DetailedOrderData {
     title: string
     description: string
     status: 'completed' | 'pending' | 'cancelled' | 'error'
-    metadata?: any
+    metadata?: Record<string, unknown>
   }>
 }
 
 // GET /api/portal/orders/[orderId] - Fetch detailed order information
 export async function GET(
   request: NextRequest,
-  { params }: { params: { orderId: string } }
+  context: { params: Promise<{ orderId: string }> }
 ) {
   try {
     const supabase = await createClient()
+    const params = await context.params
     const { orderId } = params
     
     // Get authenticated user
@@ -124,7 +125,7 @@ export async function GET(
 
     // Fetch test results for order tests if available
     const testIds = order.order_tests?.map(test => test.test_id) || []
-    let testResults: any[] = []
+    let testResults: Record<string, unknown>[] = []
 
     if (testIds.length > 0) {
       const { data: results, error: resultsError } = await supabase
@@ -159,8 +160,8 @@ export async function GET(
     // Process appointments with location/staff data
     const processedAppointments = order.appointments?.map(apt => ({
       ...apt,
-      location_name: apt.metadata?.location_name,
-      staff_name: apt.metadata?.staff_name
+      location_name: (apt.metadata as Record<string, unknown>)?.location_name as string,
+      staff_name: (apt.metadata as Record<string, unknown>)?.staff_name as string
     })) || []
 
     // Fetch payment history from metadata or transaction logs
@@ -208,27 +209,30 @@ export async function GET(
 }
 
 // Extract payment history from order metadata
-function extractPaymentHistory(order: any) {
+function extractPaymentHistory(order: Record<string, unknown>) {
   const payments = []
   
   // Extract from Swell order data
-  if (order.swell_order_data?.payments) {
-    payments.push(...order.swell_order_data.payments.map((payment: any) => ({
-      payment_method: payment.method || 'card',
-      amount: payment.amount || order.total_amount,
-      status: payment.status || 'completed',
-      processed_at: payment.date_created || order.created_at,
-      transaction_id: payment.transaction_id || payment.id
+  const swellOrderData = order.swell_order_data as Record<string, unknown>
+  if (swellOrderData?.payments) {
+    const payments_data = swellOrderData.payments as Array<Record<string, unknown>>
+    payments.push(...payments_data.map((payment: Record<string, unknown>) => ({
+      payment_method: (payment.method as string) || 'card',
+      amount: (payment.amount as number) || (order.total_amount as number),
+      status: (payment.status as string) || 'completed',
+      processed_at: (payment.date_created as string) || (order.created_at as string),
+      transaction_id: (payment.transaction_id as string) || (payment.id as string)
     })))
   }
 
   // Add default payment entry if none found
   if (payments.length === 0) {
+    const orderMetadata = order.metadata as Record<string, unknown>
     payments.push({
       payment_method: 'card',
-      amount: order.total_amount,
-      status: order.metadata?.payment_status || 'completed',
-      processed_at: order.metadata?.payment_confirmed_at || order.created_at
+      amount: order.total_amount as number,
+      status: (orderMetadata?.payment_status as string) || 'completed',
+      processed_at: (orderMetadata?.payment_confirmed_at as string) || (order.created_at as string)
     })
   }
 
@@ -236,77 +240,80 @@ function extractPaymentHistory(order: any) {
 }
 
 // Build comprehensive timeline of order events
-function buildOrderTimeline(order: any, appointments: any[], testResults: any[]) {
+function buildOrderTimeline(order: Record<string, unknown>, appointments: Record<string, unknown>[], testResults: Record<string, unknown>[]) {
   const timeline = []
 
   // Order created
   timeline.push({
-    timestamp: order.created_at,
+    timestamp: order.created_at as string,
     event_type: 'order_created',
     title: 'Order Placed',
-    description: `Diagnostic test order #${order.id.slice(-8)} has been created`,
+    description: `Diagnostic test order #${(order.id as string).slice(-8)} has been created`,
     status: 'completed' as const
   })
 
   // Payment processed
-  if (order.metadata?.payment_confirmed_at) {
+  const orderMetadata = order.metadata as Record<string, unknown>
+  if (orderMetadata?.payment_confirmed_at) {
     timeline.push({
-      timestamp: order.metadata.payment_confirmed_at,
+      timestamp: orderMetadata.payment_confirmed_at as string,
       event_type: 'payment_processed',
       title: 'Payment Processed',
-      description: `Payment of $${order.total_amount.toFixed(2)} has been processed successfully`,
+      description: `Payment of $${(order.total_amount as number).toFixed(2)} has been processed successfully`,
       status: 'completed' as const
     })
   }
 
   // Appointments
   appointments.forEach(apt => {
-    const aptDateTime = new Date(`${apt.appointment_date} ${apt.appointment_time}`)
+    const aptDateTime = new Date(`${apt.appointment_date as string} ${apt.appointment_time as string}`)
     const now = new Date()
 
-    if (apt.status === 'scheduled') {
+    if ((apt.status as string) === 'scheduled') {
       timeline.push({
-        timestamp: apt.appointment_date,
+        timestamp: apt.appointment_date as string,
         event_type: 'appointment_scheduled',
         title: 'Blood Draw Scheduled',
-        description: `Appointment scheduled for ${aptDateTime.toLocaleDateString()} at ${apt.appointment_time}${apt.location_name ? ` - ${apt.location_name}` : ''}`,
+        description: `Appointment scheduled for ${aptDateTime.toLocaleDateString()} at ${apt.appointment_time as string}${apt.location_name ? ` - ${apt.location_name as string}` : ''}`,
         status: aptDateTime > now ? 'pending' as const : 'completed' as const,
-        metadata: { appointment_id: apt.id }
+        metadata: { appointment_id: apt.id as string }
       })
     }
 
-    if (apt.status === 'completed') {
+    if ((apt.status as string) === 'completed') {
+      const aptMetadata = apt.metadata as Record<string, unknown>
       timeline.push({
-        timestamp: apt.metadata?.completed_at || apt.appointment_date,
+        timestamp: (aptMetadata?.completed_at as string) || (apt.appointment_date as string),
         event_type: 'sample_collected',
         title: 'Sample Collected',
-        description: `Blood sample collected successfully${apt.staff_name ? ` by ${apt.staff_name}` : ''}`,
+        description: `Blood sample collected successfully${apt.staff_name ? ` by ${apt.staff_name as string}` : ''}`,
         status: 'completed' as const,
-        metadata: { appointment_id: apt.id }
+        metadata: { appointment_id: apt.id as string }
       })
     }
   })
 
   // Test results
   testResults.forEach(result => {
-    if (result.result_status === 'completed' && result.completed_at) {
+    if ((result.result_status as string) === 'completed' && result.completed_at) {
+      const abnormalFlags = result.abnormal_flags as string[]
       timeline.push({
-        timestamp: result.completed_at,
+        timestamp: result.completed_at as string,
         event_type: 'results_available',
         title: 'Results Available',
         description: `Test results are now available for review`,
         status: 'completed' as const,
         metadata: { 
-          result_id: result.id,
-          has_abnormal_flags: result.abnormal_flags?.length > 0
+          result_id: result.id as string,
+          has_abnormal_flags: abnormalFlags?.length > 0
         }
       })
     }
   })
 
   // Order completion
-  if (order.status === 'completed') {
-    const completedAt = order.metadata?.completed_at || order.updated_at
+  if ((order.status as string) === 'completed') {
+    const completedAt = (orderMetadata?.completed_at as string) || (order.updated_at as string)
     timeline.push({
       timestamp: completedAt,
       event_type: 'order_completed',
@@ -325,10 +332,11 @@ function buildOrderTimeline(order: any, appointments: any[], testResults: any[])
 // PUT /api/portal/orders/[orderId] - Update order (limited patient actions)
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { orderId: string } }
+  context: { params: Promise<{ orderId: string }> }
 ) {
   try {
     const supabase = await createClient()
+    const params = await context.params
     const { orderId } = params
     
     const { data: { user }, error: authError } = await supabase.auth.getUser()
@@ -361,7 +369,7 @@ export async function PUT(
     
     switch (action) {
       case 'cancel_order':
-        if (order.status !== 'pending') {
+        if ((order.status as string) !== 'pending') {
           return NextResponse.json(
             { error: 'Order cannot be cancelled in current status' },
             { status: 400 }
@@ -373,7 +381,7 @@ export async function PUT(
           .update({
             status: 'cancelled',
             metadata: {
-              ...order.metadata,
+              ...(order.metadata as Record<string, unknown>),
               cancelled_at: new Date().toISOString(),
               cancelled_by: 'patient'
             },
@@ -387,7 +395,7 @@ export async function PUT(
           .from('orders')
           .update({
             metadata: {
-              ...order.metadata,
+              ...(order.metadata as Record<string, unknown>),
               results_delivery_requested: true,
               results_delivery_requested_at: new Date().toISOString()
             },

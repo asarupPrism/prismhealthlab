@@ -124,7 +124,7 @@ export const safeWindow = {
 export const safeSetTimeout = (callback: () => void, delay: number): NodeJS.Timeout | number => {
   if (isServer) {
     // Return a dummy timeout ID for SSR
-    return 0 as any
+    return 0 as unknown as NodeJS.Timeout
   }
   return setTimeout(callback, delay)
 }
@@ -133,7 +133,7 @@ export const safeSetTimeout = (callback: () => void, delay: number): NodeJS.Time
 export const safeSetInterval = (callback: () => void, delay: number): NodeJS.Timeout | number => {
   if (isServer) {
     // Return a dummy interval ID for SSR
-    return 0 as any
+    return 0 as unknown as NodeJS.Timeout
   }
   return setInterval(callback, delay)
 }

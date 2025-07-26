@@ -28,8 +28,8 @@ interface PurchaseOrder {
   discount_amount: number
   currency: string
   status: string
-  billing_info: any
-  metadata: any
+  billing_info: Record<string, unknown>
+  metadata: Record<string, unknown>
   created_at: string
   updated_at: string
   order_tests: TestItem[]
@@ -51,13 +51,7 @@ const statusColors = {
   delivered: 'emerald'
 } as const
 
-const statusIcons = {
-  pending: '⏳',
-  processing: '🔄',
-  completed: '✅',
-  cancelled: '❌',
-  delivered: '📋'
-} as const
+// statusIcons removed - contained emojis which violate style guide
 
 export default function PurchaseHistoryCard({ 
   order, 

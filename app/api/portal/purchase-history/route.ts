@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { cacheUserData, cacheManager, generateCacheKey } from '@/lib/cache/redis'
+import { cacheUserData, cacheManager } from '@/lib/cache/redis'
 import { processInvalidationQueueOnDemand } from '@/lib/cache/invalidation-service'
-import { logPatientDataAccess, HIPAA_EVENT_TYPES, RISK_LEVELS } from '@/lib/audit/hipaa-logger'
-import swell from 'swell-js'
+import { logPatientDataAccess } from '@/lib/audit/hipaa-logger'
 
 interface PurchaseHistoryQuery {
   page?: number
@@ -20,9 +19,9 @@ interface OrderWithTests {
   discount_amount: number
   currency: string
   status: string
-  billing_info: any
-  swell_order_data: any
-  metadata: any
+  billing_info: Record<string, unknown>
+  swell_order_data: Record<string, unknown>
+  metadata: Record<string, unknown>
   created_at: string
   updated_at: string
   order_tests: Array<{
@@ -93,7 +92,7 @@ export async function GET(request: NextRequest) {
 
     // Create cache key based on query parameters
     const queryHash = Buffer.from(JSON.stringify(query)).toString('base64').slice(0, 16)
-    const cacheKey = generateCacheKey('purchase_history', user.id, queryHash)
+    // Cache key not used directly in this function
     
     // Check for force refresh
     const forceRefresh = searchParams.get('refresh') === 'true'
@@ -104,7 +103,7 @@ export async function GET(request: NextRequest) {
       'purchase_history',
       async () => {
         // Get user profile to check for Swell customer ID
-        const { data: profile, error: profileError } = await supabase
+        const { error: profileError } = await supabase
           .from('profiles')
           .select('swell_customer_id, first_name, last_name')
           .eq('user_id', user.id)
@@ -183,10 +182,10 @@ export async function GET(request: NextRequest) {
         // Process orders and format appointment data
         const processedOrders: OrderWithTests[] = (orders || []).map(order => ({
           ...order,
-          appointments: (order.appointments || []).map((apt: any) => ({
+          appointments: (order.appointments || []).map((apt: Record<string, unknown>) => ({
             ...apt,
-            location_name: apt.metadata?.location_name,
-            staff_name: apt.metadata?.staff_name
+            location_name: (apt.metadata as Record<string, unknown>)?.location_name as string,
+            staff_name: (apt.metadata as Record<string, unknown>)?.staff_name as string
           }))
         }))
 
@@ -291,24 +290,10 @@ function calculateOrderSummary(orders: OrderWithTests[], totalCount: number) {
 }
 
 // Process cache invalidation queue for real-time updates
-async function processInvalidationQueue(userId: string) {
-  const supabase = await createClient()
-  
-  try {
-    // Mark processed invalidation entries for this user
-    await supabase
-      .from('cache_invalidation_queue')
-      .update({ processed: true })
-      .eq('user_id', userId)
-      .eq('processed', false)
-      .in('cache_type', ['purchase_history', 'analytics'])
-  } catch (error) {
-    console.error('Error processing cache invalidation:', error)
-  }
-}
+// Removed unused function processInvalidationQueue
 
 // POST /api/portal/purchase-history - Manual cache refresh with immediate invalidation
-export async function POST(request: NextRequest) {
+export async function POST() {
   try {
     const supabase = await createClient()
     

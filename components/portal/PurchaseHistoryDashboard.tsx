@@ -7,7 +7,7 @@ import PurchaseStatistics from './PurchaseStatistics'
 import PurchaseFilters from './PurchaseFilters'
 
 interface PurchaseHistoryData {
-  orders: any[]
+  orders: Record<string, unknown>[]
   summary: {
     totalOrders: number
     totalSpent: number

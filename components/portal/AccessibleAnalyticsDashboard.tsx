@@ -60,7 +60,7 @@ interface AccessibleAnalyticsDashboardProps {
 }
 
 export default function AccessibleAnalyticsDashboard({
-  userId,
+  // userId removed - not used
   className = '',
   refreshInterval = 300000, // 5 minutes
   showExportOptions = true
@@ -229,7 +229,7 @@ export default function AccessibleAnalyticsDashboard({
             <label className="text-sm text-slate-400">Time Range:</label>
             <select
               value={selectedTimeRange}
-              onChange={(e) => setSelectedTimeRange(e.target.value as any)}
+              onChange={(e) => setSelectedTimeRange(e.target.value as '3m' | '6m' | '1y' | 'all')}
               className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-cyan-400"
               aria-label="Select time range for analytics"
             >
@@ -432,7 +432,7 @@ export default function AccessibleAnalyticsDashboard({
           {activeView === 'health' && data && (
             <div className="space-y-8">
               {/* Health Trends */}
-              {data.healthMetrics.biomarkerTrends.map((biomarker, index) => (
+              {data.healthMetrics.biomarkerTrends.map((biomarker) => (
                 <HealthTrendChart
                   key={biomarker.name}
                   data={biomarker.data}

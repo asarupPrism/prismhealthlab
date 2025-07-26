@@ -17,9 +17,9 @@ interface PortalTab {
 }
 
 interface DashboardData {
-  recentOrders: any[]
-  upcomingAppointments: any[]
-  pendingResults: any[]
+  recentOrders: Record<string, unknown>[]
+  upcomingAppointments: Record<string, unknown>[]
+  pendingResults: Record<string, unknown>[]
   securityStatus: {
     twoFactorEnabled: boolean
     lastLogin: string
@@ -148,7 +148,7 @@ export default function PatientPortalDashboard() {
     }
   }
 
-  const handleAppointmentReschedule = async (appointmentId: string, data: any) => {
+  const handleAppointmentReschedule = async (appointmentId: string, data: Record<string, unknown>) => {
     try {
       const response = await fetch('/api/portal/appointments', {
         method: 'PUT',

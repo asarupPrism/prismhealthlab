@@ -46,8 +46,6 @@ export default function VirtualizedList<T>({
   maintainScrollPosition = true
 }: VirtualizedListProps<T>) {
   const [scrollTop, setScrollTop] = useState(0)
-  const [containerWidth, setContainerWidth] = useState(0)
-  const [itemHeights, setItemHeights] = useState<Map<number, number>>(new Map())
   const [lastScrollDirection, setLastScrollDirection] = useState<'up' | 'down'>('down')
   
   const containerRef = useRef<HTMLDivElement>(null)
@@ -149,27 +147,17 @@ export default function VirtualizedList<T>({
   }, [onLoadMore, hasNextPage, isLoading, totalHeight, containerHeight, itemHeight, onScroll, lastScrollDirection])
 
   // Handle item height measurement for estimated heights
-  const measureItemHeight = useCallback((index: number, height: number) => {
-    if (estimatedItemHeight) {
-      setItemHeights(prev => {
-        const newMap = new Map(prev)
-        if (newMap.get(index) !== height) {
-          newMap.set(index, height)
-          return newMap
-        }
-        return prev
-      })
-    }
-  }, [estimatedItemHeight])
+  const measureItemHeight = useCallback(() => {
+    // This would be used for dynamic height calculations
+    // Currently simplified for basic virtualization
+  }, [])
 
   // Resize observer for container width
   useEffect(() => {
     if (!containerRef.current) return
 
-    resizeObserver.current = new ResizeObserver((entries) => {
-      for (const entry of entries) {
-        setContainerWidth(entry.contentRect.width)
-      }
+    resizeObserver.current = new ResizeObserver(() => {
+      // Container width tracking would go here if needed
     })
 
     resizeObserver.current.observe(containerRef.current)
@@ -216,7 +204,7 @@ export default function VirtualizedList<T>({
         const height = itemRef.current.offsetHeight
         measureItemHeight(virtualItem.index, height)
       }
-    }, [virtualItem.index, item])
+    }, [virtualItem.index, item, estimatedItemHeight, measureItemHeight])
 
     return (
       <div
@@ -360,10 +348,8 @@ export default function VirtualizedList<T>({
 // Hook for managing virtualized list state
 export function useVirtualizedList<T>({
   initialItems = [],
-  pageSize = 20,
-  fetchMore,
-  itemHeight = 100,
-  estimatedItemHeight = false
+  // pageSize, itemHeight, estimatedItemHeight removed - not used
+  fetchMore
 }: {
   initialItems?: T[]
   pageSize?: number

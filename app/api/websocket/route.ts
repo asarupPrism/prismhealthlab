@@ -114,7 +114,7 @@ export async function GET(request: NextRequest) {
 }
 
 // Polyfill for WebSocket upgrade (since Next.js doesn't have built-in WebSocket support)
-function upgradeWebSocket(request: NextRequest) {
+function upgradeWebSocket() {
   // This is a simplified implementation
   // In production, you would use a WebSocket library like 'ws' or deploy to a platform that supports WebSockets
   
@@ -147,7 +147,7 @@ async function setupUserSubscriptions(connectionId: string, userId: string) {
     const supabase = createClient()
 
     // Subscribe to order updates
-    const orderSubscription = supabase
+    supabase
       .channel(`orders_${userId}`)
       .on('postgres_changes', {
         event: '*',
@@ -165,7 +165,7 @@ async function setupUserSubscriptions(connectionId: string, userId: string) {
       .subscribe()
 
     // Subscribe to appointment updates
-    const appointmentSubscription = supabase
+    supabase
       .channel(`appointments_${userId}`)
       .on('postgres_changes', {
         event: '*',
@@ -183,7 +183,7 @@ async function setupUserSubscriptions(connectionId: string, userId: string) {
       .subscribe()
 
     // Subscribe to test results
-    const resultsSubscription = supabase
+    supabase
       .channel(`test_results_${userId}`)
       .on('postgres_changes', {
         event: 'INSERT',
@@ -210,7 +210,7 @@ async function setupUserSubscriptions(connectionId: string, userId: string) {
   }
 }
 
-function handleClientMessage(connectionId: string, message: any) {
+function handleClientMessage(connectionId: string, message: Record<string, unknown>) {
   const connection = connections.get(connectionId)
   if (!connection) return
 
@@ -228,23 +228,23 @@ function handleClientMessage(connectionId: string, message: any) {
     case 'subscribe':
       // Handle additional subscriptions if needed
       if (message.channel && typeof message.channel === 'string') {
-        connection.subscriptions.add(message.channel)
+        connection.subscriptions.add(message.channel as string)
       }
       break
 
     case 'unsubscribe':
       // Handle unsubscriptions
       if (message.channel && typeof message.channel === 'string') {
-        connection.subscriptions.delete(message.channel)
+        connection.subscriptions.delete(message.channel as string)
       }
       break
 
     default:
-      console.warn('Unknown client message type:', message.type)
+      console.warn('Unknown client message type:', message.type as string)
   }
 }
 
-function broadcastToUser(userId: string, message: any) {
+function broadcastToUser(userId: string, message: Record<string, unknown>) {
   const userConnectionIds = userConnections.get(userId)
   if (!userConnectionIds) return
 
@@ -297,45 +297,10 @@ setInterval(() => {
   staleConnections.forEach(cleanup)
 }, 30000) // Check every 30 seconds
 
-// Utility functions for triggering notifications from other parts of the app
-export function notifyOrderUpdate(userId: string, orderData: any) {
-  broadcastToUser(userId, {
-    type: 'order_update',
-    payload: orderData,
-    timestamp: new Date().toISOString(),
-    userId
-  })
-}
-
-export function notifyAppointmentUpdate(userId: string, appointmentData: any) {
-  broadcastToUser(userId, {
-    type: 'appointment_update',
-    payload: appointmentData,
-    timestamp: new Date().toISOString(),
-    userId
-  })
-}
-
-export function notifyResultAvailable(userId: string, resultData: any) {
-  broadcastToUser(userId, {
-    type: 'result_available',
-    payload: resultData,
-    timestamp: new Date().toISOString(),
-    userId
-  })
-}
-
-export function notifySystemMessage(userId: string, message: string, data?: any) {
-  broadcastToUser(userId, {
-    type: 'system_notification',
-    payload: { message, data },
-    timestamp: new Date().toISOString(),
-    userId
-  })
-}
+// Utility functions removed - not used in current implementation
 
 // Health check endpoint
-export async function POST(request: NextRequest) {
+export async function POST() {
   const activeConnections = connections.size
   const activeUsers = userConnections.size
 

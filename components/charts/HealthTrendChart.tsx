@@ -1,8 +1,8 @@
 'use client'
 
-import React, { useMemo, useCallback } from 'react'
+import React, { useMemo } from 'react'
 import { motion } from 'framer-motion'
-import AccessibleChart, { useChartAccessibility } from './AccessibleChart'
+import AccessibleChart from './AccessibleChart'
 
 interface HealthDataPoint {
   date: string
@@ -50,16 +50,16 @@ export default function HealthTrendChart({
   title,
   description,
   showReferenceRange = true,
-  showTrendLine = true,
+  // showTrendLine removed - not used
   width = 600,
   height = 400,
   className = ''
 }: HealthTrendChartProps) {
-  const { preferences } = useChartAccessibility()
+  // preferences removed - not used
 
   // Process health data for chart consumption
   const chartData = useMemo(() => {
-    return data.map((point, index) => ({
+    return data.map((point) => ({
       label: new Date(point.date).toLocaleDateString('en-US', {
         month: 'short',
         day: 'numeric'
@@ -105,82 +105,7 @@ export default function HealthTrendChart({
     }
   }, [data])
 
-  // Render reference range overlay
-  const renderReferenceRange = useCallback((chartDimensions: any) => {
-    if (!showReferenceRange || !data[0]?.referenceRange) return null
-
-    const { chartWidth, chartHeight, padding, maxValue, minValue } = chartDimensions
-    const range = data[0].referenceRange
-
-    const normalMinY = chartHeight - ((range.min - minValue) / (maxValue - minValue)) * chartHeight
-    const normalMaxY = chartHeight - ((range.max - minValue) / (maxValue - minValue)) * chartHeight
-    const optimalY = range.optimal ? 
-      chartHeight - ((range.optimal - minValue) / (maxValue - minValue)) * chartHeight : null
-
-    return (
-      <g transform={`translate(${padding.left}, ${padding.top})`} aria-hidden="true">
-        {/* Normal range band */}
-        <rect
-          x={0}
-          y={normalMaxY}
-          width={chartWidth}
-          height={normalMinY - normalMaxY}
-          fill="#10b981"
-          fillOpacity={0.1}
-          stroke="#10b981"
-          strokeWidth={1}
-          strokeOpacity={0.3}
-          strokeDasharray="2,2"
-        />
-        
-        {/* Optimal value line */}
-        {optimalY && (
-          <line
-            x1={0}
-            y1={optimalY}
-            x2={chartWidth}
-            y2={optimalY}
-            stroke="#10b981"
-            strokeWidth={2}
-            strokeOpacity={0.6}
-            strokeDasharray="4,4"
-          />
-        )}
-
-        {/* Range labels */}
-        <text
-          x={chartWidth + 10}
-          y={normalMaxY}
-          fill="#10b981"
-          fontSize="10"
-          dominantBaseline="middle"
-        >
-          {range.max} (Upper)
-        </text>
-        <text
-          x={chartWidth + 10}
-          y={normalMinY}
-          fill="#10b981"
-          fontSize="10"
-          dominantBaseline="middle"
-        >
-          {range.min} (Lower)
-        </text>
-        {optimalY && (
-          <text
-            x={chartWidth + 10}
-            y={optimalY}
-            fill="#10b981"
-            fontSize="10"
-            dominantBaseline="middle"
-            fontWeight="600"
-          >
-            {range.optimal} (Optimal)
-          </text>
-        )}
-      </g>
-    )
-  }, [showReferenceRange, data])
+  // Render reference range overlay - function removed as unused
 
   const enhancedDescription = useMemo(() => {
     let desc = description || ''
@@ -366,7 +291,7 @@ export function MultiBiomarkerChart({
   height?: number
   className?: string
 }) {
-  const { preferences } = useChartAccessibility()
+  // preferences removed - not used
 
   const combinedData = useMemo(() => {
     // Combine all datasets into a single chart-friendly format
@@ -375,7 +300,7 @@ export function MultiBiomarkerChart({
     )].sort()
 
     return allDates.map(date => {
-      const dataPoint: any = {
+      const dataPoint: Record<string, unknown> = {
         label: new Date(date).toLocaleDateString('en-US', {
           month: 'short',
           day: 'numeric'
@@ -383,7 +308,7 @@ export function MultiBiomarkerChart({
         date
       }
 
-      datasets.forEach((dataset, index) => {
+      datasets.forEach((dataset) => {
         const point = dataset.data.find(d => d.date === date)
         dataPoint[`${dataset.name}_value`] = point?.value || null
         dataPoint[`${dataset.name}_status`] = point?.status || 'normal'
@@ -424,7 +349,7 @@ export function MultiBiomarkerChart({
       <div className="mt-8 bg-slate-800/40 backdrop-blur-sm border border-slate-700/50 rounded-xl p-6">
         <h4 className="text-md font-semibold text-white mb-4">Multi-Biomarker Summary</h4>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {datasets.map((dataset, index) => {
+          {datasets.map((dataset) => {
             const latestData = dataset.data[dataset.data.length - 1]
             return (
               <div key={dataset.name} className="text-center">

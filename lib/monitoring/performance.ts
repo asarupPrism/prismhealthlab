@@ -1,6 +1,6 @@
 'use client'
 
-import { trackError, trackBusinessMetric, startTransaction } from './sentry'
+import { trackBusinessMetric } from './sentry'
 
 interface PerformanceMetric {
   name: string
@@ -8,7 +8,7 @@ interface PerformanceMetric {
   unit: string
   timestamp: number
   tags?: Record<string, string>
-  context?: Record<string, any>
+  context?: Record<string, unknown>
 }
 
 interface WebVitalsMetric {
@@ -343,7 +343,7 @@ class PerformanceMonitor {
     // Monitor memory usage periodically
     setInterval(() => {
       if ('memory' in performance) {
-        const memory = (performance as any).memory
+        const memory = (performance as unknown as { memory: { usedJSHeapSize: number; totalJSHeapSize: number; jsHeapSizeLimit: number } }).memory
         
         this.recordMetric({
           name: 'memory.used_heap',
@@ -523,7 +523,7 @@ class PerformanceMonitor {
     return 'server_error'
   }
 
-  public trackError(error: Error, context?: Record<string, any>) {
+  public trackError(error: Error, context?: Record<string, unknown>) {
     this.recordMetric({
       name: 'error.count',
       value: 1,
@@ -587,7 +587,7 @@ export function trackAPICall(endpoint: string, method: string, status: number, d
   performanceMonitor?.trackAPICall(endpoint, method, status, duration, cached)
 }
 
-export function trackPerformanceError(error: Error, context?: Record<string, any>) {
+export function trackPerformanceError(error: Error, context?: Record<string, unknown>) {
   performanceMonitor?.trackError(error, context)
 }
 

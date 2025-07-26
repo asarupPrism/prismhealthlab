@@ -1,9 +1,9 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { get2FAStatus } from '@/lib/auth/two-factor'
 
 // GET /api/auth/2fa/status - Get comprehensive 2FA status
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const supabase = await createClient()
     

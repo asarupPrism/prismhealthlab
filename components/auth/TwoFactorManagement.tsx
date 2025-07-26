@@ -39,8 +39,8 @@ export default function TwoFactorManagement() {
         const data = await response.json()
         setSettings(data)
       }
-    } catch (error) {
-      console.error('Failed to load 2FA settings:', error)
+    } catch {
+      console.error('Failed to load 2FA settings:', _error)
     }
   }
 
@@ -61,7 +61,7 @@ export default function TwoFactorManagement() {
         const errorData = await response.json()
         setError(errorData.error || 'Failed to setup 2FA')
       }
-    } catch (error) {
+    } catch {
       setError('Network error occurred')
     } finally {
       setLoading(false)
@@ -103,7 +103,7 @@ export default function TwoFactorManagement() {
         const errorData = await response.json()
         setError(errorData.error || 'Invalid verification code')
       }
-    } catch (error) {
+    } catch {
       setError('Network error occurred')
     } finally {
       setLoading(false)
@@ -137,7 +137,7 @@ export default function TwoFactorManagement() {
         const errorData = await response.json()
         setError(errorData.error || 'Failed to disable 2FA')
       }
-    } catch (error) {
+    } catch {
       setError('Network error occurred')
     } finally {
       setLoading(false)
@@ -165,7 +165,7 @@ export default function TwoFactorManagement() {
         const errorData = await response.json()
         setError(errorData.error || 'Failed to generate backup codes')
       }
-    } catch (error) {
+    } catch {
       setError('Network error occurred')
     } finally {
       setLoading(false)

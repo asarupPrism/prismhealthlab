@@ -87,7 +87,7 @@ export async function POST(request: NextRequest) {
 }
 
 // GET /api/auth/2fa/backup-codes - Get backup codes count
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const supabase = await createClient()
     

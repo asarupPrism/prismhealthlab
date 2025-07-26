@@ -15,7 +15,7 @@ interface CreateAccountRequest {
   }
   orderData?: {
     swellOrderId: string
-    orderDetails: Record<string, any>
+    orderDetails: Record<string, unknown>
   }
 }
 

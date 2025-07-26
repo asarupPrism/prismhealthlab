@@ -23,8 +23,7 @@ interface SafeAreaInsets {
 
 export default function MobileLayout({
   children,
-  showHeader = true,
-  showFooter = true,
+  // showHeader and showFooter removed - not used in implementation
   enablePullToRefresh = true,
   enableSafeAreas = true,
   optimizePerformance = true,
@@ -37,7 +36,7 @@ export default function MobileLayout({
     left: 0
   })
   const [isOnline, setIsOnline] = useState(true)
-  const [installPrompt, setInstallPrompt] = useState<any>(null)
+  const [installPrompt, setInstallPrompt] = useState<unknown>(null)
   const [showInstallBanner, setShowInstallBanner] = useState(false)
   const [pullToRefreshState, setPullToRefreshState] = useState({
     isPulling: false,
@@ -106,7 +105,7 @@ export default function MobileLayout({
 
   // PWA install prompt handling
   useEffect(() => {
-    const handleBeforeInstallPrompt = (e: any) => {
+    const handleBeforeInstallPrompt = (e: Event & { prompt?: () => Promise<{ outcome: string }> }) => {
       e.preventDefault()
       setInstallPrompt(e)
       
@@ -175,9 +174,9 @@ export default function MobileLayout({
 
   // Install PWA handler
   const handleInstallPWA = useCallback(async () => {
-    if (!installPrompt) return
+    if (!installPrompt || typeof installPrompt !== 'object' || !('prompt' in installPrompt)) return
 
-    const result = await installPrompt.prompt()
+    const result = await (installPrompt as { prompt: () => Promise<{ outcome: string }> }).prompt()
     
     if (result.outcome === 'accepted') {
       setShowInstallBanner(false)
@@ -267,7 +266,7 @@ export default function MobileLayout({
           >
             <div className="flex items-center justify-center gap-2">
               <span>⚠️</span>
-              <span>You're offline. Some features may be limited.</span>
+              <span>You&apos;re offline. Some features may be limited.</span>
             </div>
           </motion.div>
         )}

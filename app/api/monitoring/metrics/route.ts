@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { logPatientDataAccess } from '@/lib/audit/hipaa-logger'
 
 interface PerformanceMetric {
   name: string
@@ -8,7 +7,7 @@ interface PerformanceMetric {
   unit: string
   timestamp: number
   tags?: Record<string, string>
-  context?: Record<string, any>
+  context?: Record<string, unknown>
 }
 
 interface MetricsPayload {
@@ -187,7 +186,7 @@ export async function GET(request: NextRequest) {
 }
 
 // Sanitize context data to remove sensitive information
-function sanitizeContext(context?: Record<string, any>): Record<string, any> {
+function sanitizeContext(context?: Record<string, unknown>): Record<string, unknown> {
   if (!context) return {}
   
   const sanitized = { ...context }
@@ -222,7 +221,7 @@ function sanitizeUserAgent(userAgent: string): string {
 }
 
 // Process critical metrics for alerting
-async function processCriticalMetrics(metrics: any[], supabase: any) {
+async function processCriticalMetrics(metrics: Record<string, unknown>[], supabase: unknown) {
   const criticalThresholds = {
     'web_vitals.cls': 0.25, // Poor CLS threshold
     'web_vitals.lcp': 4000, // Poor LCP threshold (4s)
@@ -269,7 +268,7 @@ function getSeverity(metricName: string, value: number, threshold: number): 'low
 }
 
 // Process metrics for analytics dashboard
-function processMetricsForAnalytics(metrics: any[]) {
+function processMetricsForAnalytics(metrics: Record<string, unknown>[]) {
   const analytics = {
     webVitals: {
       cls: [] as number[],
@@ -291,8 +290,8 @@ function processMetricsForAnalytics(metrics: any[]) {
       statusCodes: {} as Record<string, number>
     },
     resources: {
-      slowResources: [] as any[],
-      largeResources: [] as any[],
+      slowResources: [] as Record<string, unknown>[],
+      largeResources: [] as Record<string, unknown>[],
       cacheHitRate: 0
     },
     memory: {
@@ -311,12 +310,12 @@ function processMetricsForAnalytics(metrics: any[]) {
   let totalRequests = 0
 
   metrics.forEach(metric => {
-    const name = metric.metric_name
-    const value = metric.metric_value
-    const tags = metric.metric_tags || {}
+    const name = metric.metric_name as string
+    const value = metric.metric_value as number
+    const tags = (metric.metric_tags as Record<string, unknown>) || {}
 
     // Web Vitals
-    if (name.startsWith('web_vitals.')) {
+    if (name && name.startsWith('web_vitals.')) {
       const vitalType = name.split('.')[1] as keyof typeof analytics.webVitals
       if (analytics.webVitals[vitalType]) {
         analytics.webVitals[vitalType].push(value)
@@ -324,7 +323,7 @@ function processMetricsForAnalytics(metrics: any[]) {
     }
 
     // Navigation timing
-    if (name.startsWith('navigation.')) {
+    if (name && name.startsWith('navigation.')) {
       const navType = name.split('.')[1]
       if (navType === 'total') {
         analytics.pageLoads.totalTime.push(value)
@@ -342,29 +341,29 @@ function processMetricsForAnalytics(metrics: any[]) {
         cachedRequests++
       }
       
-      const statusClass = tags.status_class || 'unknown'
+      const statusClass = (tags.status_class as string) || 'unknown'
       analytics.apiCalls.statusCodes[statusClass] = (analytics.apiCalls.statusCodes[statusClass] || 0) + 1
     }
 
     // Resources
     if (name === 'resource.slow_resource') {
       analytics.resources.slowResources.push({
-        name: tags.resource_name,
+        name: tags.resource_name as string,
         duration: value,
-        type: tags.type
+        type: tags.type as string
       })
     }
 
     if (name === 'resource.large_resource') {
       analytics.resources.largeResources.push({
-        name: tags.resource_name,
+        name: tags.resource_name as string,
         size: value,
-        type: tags.type
+        type: tags.type as string
       })
     }
 
     // Memory
-    if (name.startsWith('memory.')) {
+    if (name && name.startsWith('memory.')) {
       const memType = name.split('.')[1]
       if (memType === 'used_heap') {
         analytics.memory.usedHeap.push(value)
@@ -374,7 +373,7 @@ function processMetricsForAnalytics(metrics: any[]) {
     }
 
     // User interactions
-    if (name.startsWith('interaction.')) {
+    if (name && name.startsWith('interaction.')) {
       const interactionType = name.split('.')[1]
       if (interactionType === 'click') {
         analytics.userInteractions.clicks.push(value)

@@ -39,7 +39,7 @@ export default function OfflinePage() {
       if (response.ok) {
         window.location.href = '/portal'
       }
-    } catch (error) {
+    } catch {
       console.log('Still offline, retry failed')
     }
   }
@@ -76,7 +76,7 @@ export default function OfflinePage() {
               animate={{ rotate: [0, -10, 10, 0] }}
               transition={{ duration: 2, repeat: Infinity }}
             >
-              📡
+●
             </motion.span>
           </div>
         </motion.div>
@@ -88,7 +88,7 @@ export default function OfflinePage() {
           transition={{ delay: 0.2 }}
         >
           <h1 className="text-2xl font-bold text-white mb-4">
-            {isOnline ? 'Back Online!' : 'You\'re Offline'}
+{isOnline ? 'Back Online!' : 'You&apos;re Offline'}
           </h1>
           
           <p className="text-slate-400 mb-8 leading-relaxed">
@@ -147,7 +147,7 @@ export default function OfflinePage() {
             
             <div className="grid gap-4 text-left">
               <div className="flex items-start gap-3 p-4 bg-slate-800/30 rounded-lg">
-                <span className="text-2xl">📊</span>
+                <div className="w-6 h-6 bg-cyan-500 rounded flex items-center justify-center"><span className="text-white text-sm">●</span></div>
                 <div>
                   <h3 className="font-medium text-white mb-1">Cached Dashboard</h3>
                   <p className="text-sm text-slate-400">
@@ -157,7 +157,7 @@ export default function OfflinePage() {
               </div>
               
               <div className="flex items-start gap-3 p-4 bg-slate-800/30 rounded-lg">
-                <span className="text-2xl">📋</span>
+                <div className="w-6 h-6 bg-emerald-500 rounded flex items-center justify-center"><span className="text-white text-sm">+</span></div>
                 <div>
                   <h3 className="font-medium text-white mb-1">Test Results</h3>
                   <p className="text-sm text-slate-400">
@@ -167,7 +167,7 @@ export default function OfflinePage() {
               </div>
               
               <div className="flex items-start gap-3 p-4 bg-slate-800/30 rounded-lg">
-                <span className="text-2xl">📅</span>
+                <div className="w-6 h-6 bg-blue-500 rounded flex items-center justify-center"><span className="text-white text-sm">→</span></div>
                 <div>
                   <h3 className="font-medium text-white mb-1">Appointment History</h3>
                   <p className="text-sm text-slate-400">
@@ -215,12 +215,12 @@ export default function OfflinePage() {
             className="mt-8 p-4 bg-amber-900/20 border border-amber-700/50 rounded-lg"
           >
             <h3 className="text-amber-300 font-medium mb-2 flex items-center gap-2">
-              <span>💡</span>
+              <div className="w-4 h-4 bg-amber-400 rounded-full flex items-center justify-center"><span className="text-amber-900 text-xs">!</span></div>
               Offline Tips
             </h3>
             <ul className="text-sm text-amber-200 space-y-1 text-left">
               <li>• Your data is securely cached on this device</li>
-              <li>• Changes will sync when you're back online</li>
+              <li>• Changes will sync when you&apos;re back online</li>
               <li>• Critical features work without internet</li>
               <li>• Install the app for better offline experience</li>
             </ul>

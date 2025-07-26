@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect, useMemo } from 'react'
+import React, { useState, useEffect, useMemo, useCallback } from 'react'
 import { motion } from 'framer-motion'
 import { usePerformanceMonitoring } from '@/lib/monitoring/performance'
 import { trackCustomMetric } from '@/lib/monitoring/performance'
@@ -68,7 +68,7 @@ export default function MonitoringDashboard() {
   useEffect(() => {
     trackRender('initial_load')
     fetchMonitoringData()
-  }, [timeRange, selectedMetricType])
+  }, [timeRange, selectedMetricType, trackRender])
 
   useEffect(() => {
     if (!autoRefresh) return
@@ -78,9 +78,9 @@ export default function MonitoringDashboard() {
     }, 30000) // Refresh every 30 seconds
 
     return () => clearInterval(interval)
-  }, [autoRefresh, timeRange, selectedMetricType])
+  }, [autoRefresh, timeRange, selectedMetricType, fetchMonitoringData])
 
-  const fetchMonitoringData = async () => {
+  const fetchMonitoringData = useCallback(async () => {
     try {
       setLoading(true)
       setError(null)
@@ -124,7 +124,7 @@ export default function MonitoringDashboard() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [timeRange, selectedMetricType])
 
   const webVitalsRatings = useMemo(() => {
     if (!data?.webVitals) return { good: 0, needs_improvement: 0, poor: 0 }

@@ -17,7 +17,7 @@ interface LocationInfo {
   name: string
   address: string
   phone: string
-  hours: any
+  hours: Record<string, unknown>
 }
 
 interface AppointmentWithOrder {
@@ -27,7 +27,7 @@ interface AppointmentWithOrder {
   status: string
   appointment_type: string
   location_id?: string
-  metadata: any
+  metadata: Record<string, unknown>
   created_at: string
   updated_at: string
   order: OrderInfo | null
@@ -37,7 +37,7 @@ interface AppointmentWithOrder {
 interface AppointmentIntegrationCardProps {
   appointment: AppointmentWithOrder
   onCancel?: (appointmentId: string, reason: string) => void
-  onRescheduleRequest?: (appointmentId: string, data: any) => void
+  onRescheduleRequest?: (appointmentId: string, data: Record<string, unknown>) => void
   className?: string
 }
 
@@ -71,7 +71,7 @@ export default function AppointmentIntegrationCard({
   const statusColor = statusColors[appointment.status as keyof typeof statusColors] || 'slate'
   const appointmentDate = new Date(appointment.appointment_date)
   const now = new Date()
-  const isPast = appointmentDate < now
+  // isPast variable removed - not used
   const isToday = appointmentDate.toDateString() === now.toDateString()
   const hoursUntilAppointment = (appointmentDate.getTime() - now.getTime()) / (1000 * 60 * 60)
   
@@ -86,8 +86,8 @@ export default function AppointmentIntegrationCard({
       await onCancel(appointment.id, cancelReason)
       setShowCancelDialog(false)
       setCancelReason('')
-    } catch (error) {
-      console.error('Cancel error:', error)
+    } catch (_error) {
+      console.error('Cancel error:', _error)
     } finally {
       setIsProcessing(false)
     }
@@ -101,8 +101,8 @@ export default function AppointmentIntegrationCard({
       await onRescheduleRequest(appointment.id, {
         reason: 'Patient requested reschedule'
       })
-    } catch (error) {
-      console.error('Reschedule error:', error)
+    } catch (_error) {
+      console.error('Reschedule error:', _error)
     } finally {
       setIsProcessing(false)
     }
@@ -253,7 +253,7 @@ export default function AppointmentIntegrationCard({
                 <span className="text-xs font-medium text-orange-400">RESCHEDULE REQUESTED</span>
               </div>
               <div className="text-sm text-orange-200">
-                Your reschedule request is being processed. We'll contact you soon.
+                Your reschedule request is being processed. We&apos;ll contact you soon.
               </div>
             </div>
           )}
@@ -262,10 +262,10 @@ export default function AppointmentIntegrationCard({
             <div className="bg-amber-900/20 rounded-lg p-3 border border-amber-700/30">
               <div className="flex items-center gap-2 mb-1">
                 <div className="w-2 h-2 bg-amber-400 rounded-full animate-pulse" />
-                <span className="text-xs font-medium text-amber-400">TODAY'S APPOINTMENT</span>
+                <span className="text-xs font-medium text-amber-400">TODAY&apos;S APPOINTMENT</span>
               </div>
               <div className="text-sm text-amber-200">
-                Don't forget your appointment today! Please arrive 15 minutes early.
+                Don&apos;t forget your appointment today! Please arrive 15 minutes early.
               </div>
             </div>
           )}
@@ -343,7 +343,7 @@ export default function AppointmentIntegrationCard({
                   onChange={(e) => setCancelReason(e.target.value)}
                   className="w-full px-3 py-2 bg-slate-700/50 border border-slate-600/50 text-white rounded-lg focus:border-cyan-400/50 focus:ring-2 focus:ring-cyan-400/20 focus:outline-none transition-colors resize-none"
                   rows={3}
-                  placeholder="Please let us know why you're cancelling..."
+                  placeholder="Please let us know why you&apos;re cancelling..."
                 />
               </div>
               

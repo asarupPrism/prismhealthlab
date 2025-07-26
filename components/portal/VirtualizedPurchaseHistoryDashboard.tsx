@@ -1,14 +1,14 @@
 'use client'
 
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import VirtualizedList, { useVirtualizedList } from '@/components/ui/VirtualizedList'
-import VirtualizedPurchaseHistoryCard, { useVirtualizedCardInteractions } from './VirtualizedPurchaseHistoryCard'
+import VirtualizedPurchaseHistoryCard from './VirtualizedPurchaseHistoryCard'
 import PurchaseStatistics from './PurchaseStatistics'
 import PurchaseFilters from './PurchaseFilters'
 
 interface PurchaseHistoryData {
-  orders: any[]
+  orders: Record<string, unknown>[]
   summary: {
     totalOrders: number
     totalSpent: number
@@ -52,7 +52,7 @@ export default function VirtualizedPurchaseHistoryDashboard({
   itemHeight = 240,
   containerHeight = 600,
   enablePerformanceMode = true,
-  preloadPages = 2
+  // preloadPages removed - not used
 }: VirtualizedPurchaseHistoryDashboardProps) {
   const [summary, setSummary] = useState<PurchaseHistoryData['summary'] | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -84,10 +84,7 @@ export default function VirtualizedPurchaseHistoryDashboard({
     error: listError,
     loadMore,
     refresh,
-    addItems,
-    updateItem,
-    removeItem,
-    isEmpty,
+    // addItems, updateItem, removeItem, isEmpty removed - not used
     totalCount
   } = useVirtualizedList({
     pageSize: filters.limit,
@@ -124,7 +121,7 @@ export default function VirtualizedPurchaseHistoryDashboard({
     toggleExpanded,
     setLoading: setCardLoading,
     isExpanded,
-    isLoading: isCardLoading,
+    // isLoading renamed to avoid unused variable warning
     clearAll: clearExpandedCards,
     expandedCount
   } = useVirtualizedCardInteractions()
@@ -141,7 +138,7 @@ export default function VirtualizedPurchaseHistoryDashboard({
       
       // Monitor memory usage
       if ('memory' in performance) {
-        metrics.memoryUsage = (performance as any).memory.usedJSHeapSize
+        metrics.memoryUsage = (performance as { memory: { usedJSHeapSize: number } }).memory.usedJSHeapSize
       }
     }
   })
@@ -204,7 +201,7 @@ export default function VirtualizedPurchaseHistoryDashboard({
   }, [isExpanded, toggleExpanded, setCardLoading])
 
   // Render optimized item function
-  const renderOrderItem = useCallback((order: any, index: number, isVisible: boolean) => {
+  const renderOrderItem = useCallback((order: PurchaseOrder, index: number, isVisible: boolean) => {
     return (
       <VirtualizedPurchaseHistoryCard
         key={order.id}
@@ -392,7 +389,7 @@ export default function VirtualizedPurchaseHistoryDashboard({
               <input
                 type="checkbox"
                 checked={enablePerformanceMode}
-                onChange={(e) => window.location.reload()} // Simple toggle for demo
+                onChange={() => window.location.reload()} // Simple toggle for demo
                 className="rounded"
               />
               <span className="text-slate-400">Performance Mode</span>

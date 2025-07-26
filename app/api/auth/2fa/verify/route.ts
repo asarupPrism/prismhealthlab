@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
     }
     
     // For login purpose, get user ID from session/request
-    let userId = user?.id
+    const userId = user?.id
     if (purpose === 'login' && !userId) {
       // In a real implementation, you'd get the user ID from the login session
       // For now, we'll require authentication for all purposes

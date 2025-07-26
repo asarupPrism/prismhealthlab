@@ -64,7 +64,7 @@ export class CacheInvalidationService {
     this.isProcessing = true
     let processed = 0
     let errors = 0
-    let skipped = 0
+    const skipped = 0
 
     try {
       const supabase = await createClient()
@@ -202,7 +202,7 @@ export class CacheInvalidationService {
         generateCacheKey('analytics', item.user_id) + '*'
       ]
       
-      let success = true
+      const success = true
       for (const pattern of patterns) {
         const deleted = await cacheManager.deletePattern(pattern)
         if (deleted === 0) {

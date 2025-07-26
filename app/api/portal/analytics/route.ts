@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { cacheUserData, generateCacheKey } from '@/lib/cache/redis'
+import { cacheUserData } from '@/lib/cache/redis'
 import { logPatientDataAccess } from '@/lib/audit/hipaa-logger'
 
 interface AnalyticsQuery {
@@ -73,7 +73,7 @@ export async function GET(request: NextRequest) {
     // Parse query parameters
     const { searchParams } = new URL(request.url)
     const query: AnalyticsQuery = {
-      timeRange: (searchParams.get('timeRange') as any) || '6m',
+      timeRange: (searchParams.get('timeRange') as AnalyticsQuery['timeRange']) || '6m',
       refresh: searchParams.get('refresh') === 'true'
     }
 
@@ -146,7 +146,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
-async function fetchPurchaseHistoryAnalytics(supabase: any, userId: string, startDate: Date) {
+async function fetchPurchaseHistoryAnalytics(supabase: unknown, userId: string, startDate: Date) {
   // Monthly spending data
   const { data: monthlyData, error: monthlyError } = await supabase
     .from('orders')
@@ -192,7 +192,7 @@ async function fetchPurchaseHistoryAnalytics(supabase: any, userId: string, star
   }
 }
 
-async function fetchHealthMetricsAnalytics(supabase: any, userId: string, startDate: Date) {
+async function fetchHealthMetricsAnalytics(supabase: unknown, userId: string, startDate: Date) {
   // Fetch test results with biomarker data
   const { data: resultsData, error: resultsError } = await supabase
     .from('test_results')
@@ -223,7 +223,7 @@ async function fetchHealthMetricsAnalytics(supabase: any, userId: string, startD
   }
 }
 
-async function fetchAppointmentsAnalytics(supabase: any, userId: string, startDate: Date) {
+async function fetchAppointmentsAnalytics(supabase: unknown, userId: string, startDate: Date) {
   // Fetch appointments data
   const { data: appointmentsData, error: appointmentsError } = await supabase
     .from('appointments')
@@ -256,13 +256,13 @@ async function fetchAppointmentsAnalytics(supabase: any, userId: string, startDa
   }
 }
 
-function processMonthlySpending(orders: any[]) {
+function processMonthlySpending(orders: Record<string, unknown>[]) {
   const monthlyMap = new Map<string, { amount: number; orderCount: number }>()
 
   orders.forEach(order => {
     const date = new Date(order.created_at)
     const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
-    const monthLabel = date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
+    // monthLabel not used in this function
 
     const existing = monthlyMap.get(monthKey) || { amount: 0, orderCount: 0 }
     existing.amount += order.total_amount || 0
@@ -280,16 +280,17 @@ function processMonthlySpending(orders: any[]) {
   }).sort((a, b) => a.month.localeCompare(b.month))
 }
 
-function processTestCategories(orders: any[]) {
+function processTestCategories(orders: Record<string, unknown>[]) {
   const categoryMap = new Map<string, { count: number; totalSpent: number }>()
 
   orders.forEach(order => {
-    (order.order_tests || []).forEach((test: any) => {
+    const orderTests = (order.order_tests as Array<Record<string, unknown>>) || []
+    orderTests.forEach((test: Record<string, unknown>) => {
       // Categorize tests based on test name (simplified logic)
-      const category = categorizeTest(test.test_name)
+      const category = categorizeTest(test.test_name as string)
       const existing = categoryMap.get(category) || { count: 0, totalSpent: 0 }
       existing.count += 1
-      existing.totalSpent += test.total || 0
+      existing.totalSpent += (test.total as number) || 0
       categoryMap.set(category, existing)
     })
   })
@@ -300,11 +301,11 @@ function processTestCategories(orders: any[]) {
   }))
 }
 
-function processStatusDistribution(orders: any[]) {
+function processStatusDistribution(orders: Record<string, unknown>[]) {
   const statusMap = new Map<string, number>()
   
   orders.forEach(order => {
-    const status = order.status || 'unknown'
+    const status = (order.status as string) || 'unknown'
     statusMap.set(status, (statusMap.get(status) || 0) + 1)
   })
 
@@ -316,24 +317,26 @@ function processStatusDistribution(orders: any[]) {
   }))
 }
 
-function processBiomarkerTrends(results: any[]): any[] {
-  const biomarkerMap = new Map<string, any[]>()
+function processBiomarkerTrends(results: Record<string, unknown>[]): Array<Record<string, unknown>> {
+  const biomarkerMap = new Map<string, Array<Record<string, unknown>>>()
 
   results.forEach(result => {
-    if (result.biomarker_data) {
-      Object.entries(result.biomarker_data).forEach(([biomarkerName, data]: [string, any]) => {
+    const biomarkerData = result.biomarker_data as Record<string, unknown>
+    if (biomarkerData) {
+      Object.entries(biomarkerData).forEach(([biomarkerName, data]: [string, unknown]) => {
         if (!biomarkerMap.has(biomarkerName)) {
           biomarkerMap.set(biomarkerName, [])
         }
         
+        const biomarkerPoint = data as Record<string, unknown>
         biomarkerMap.get(biomarkerName)!.push({
-          date: result.result_date,
-          value: data.value,
-          status: data.status || 'normal',
-          referenceRange: data.reference_range,
+          date: result.result_date as string,
+          value: biomarkerPoint.value as number,
+          status: (biomarkerPoint.status as string) || 'normal',
+          referenceRange: biomarkerPoint.reference_range as Record<string, unknown>,
           testName: biomarkerName,
-          unit: data.unit || '',
-          notes: data.notes
+          unit: (biomarkerPoint.unit as string) || '',
+          notes: biomarkerPoint.notes as string
         })
       })
     }
@@ -341,28 +344,29 @@ function processBiomarkerTrends(results: any[]): any[] {
 
   return Array.from(biomarkerMap.entries()).map(([name, data]) => ({
     name,
-    data: data.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+    data: data.sort((a, b) => new Date(a.date as string).getTime() - new Date(b.date as string).getTime())
   }))
 }
 
-function calculateOverallHealthScore(results: any[]): any {
+function calculateOverallHealthScore(results: Record<string, unknown>[]): Record<string, unknown> {
   if (results.length === 0) {
     return { current: 85, previous: 85, trend: 'stable' as const }
   }
 
   const sortedResults = results.sort((a, b) => 
-    new Date(b.result_date).getTime() - new Date(a.result_date).getTime()
+    new Date(b.result_date as string).getTime() - new Date(a.result_date as string).getTime()
   )
 
   const latest = sortedResults[0]
   const previous = sortedResults[1]
 
   // Calculate score based on biomarker status (simplified)
-  const calculateScore = (result: any) => {
-    if (!result.biomarker_data) return 85
+  const calculateScore = (result: Record<string, unknown>) => {
+    const biomarkerData = result.biomarker_data as Record<string, unknown>
+    if (!biomarkerData) return 85
 
-    const biomarkers = Object.values(result.biomarker_data) as any[]
-    const normalCount = biomarkers.filter(b => b.status === 'normal').length
+    const biomarkers = Object.values(biomarkerData) as Array<Record<string, unknown>>
+    const normalCount = biomarkers.filter(b => (b.status as string) === 'normal').length
     const totalCount = biomarkers.length
 
     return Math.round((normalCount / totalCount) * 100)
@@ -381,16 +385,16 @@ function calculateOverallHealthScore(results: any[]): any {
   }
 }
 
-function processMonthlyBookings(appointments: any[]) {
+function processMonthlyBookings(appointments: Record<string, unknown>[]) {
   const monthlyMap = new Map<string, { appointments: number; completed: number }>()
 
   appointments.forEach(apt => {
-    const date = new Date(apt.created_at)
+    const date = new Date(apt.created_at as string)
     const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
     
     const existing = monthlyMap.get(monthKey) || { appointments: 0, completed: 0 }
     existing.appointments += 1
-    if (apt.status === 'completed') {
+    if ((apt.status as string) === 'completed') {
       existing.completed += 1
     }
     monthlyMap.set(monthKey, existing)

@@ -64,7 +64,7 @@ export class CacheManager {
   }
 
   // Set cache with automatic TTL and compression for large objects
-  async set(key: string, value: any, ttl?: number): Promise<boolean> {
+  async set(key: string, value: unknown, ttl?: number): Promise<boolean> {
     try {
       const serializedValue = JSON.stringify({
         data: value,
@@ -233,17 +233,17 @@ export class CacheManager {
   }
 
   // Bulk operations for efficiency
-  async mget(keys: string[]): Promise<Record<string, any>> {
+  async mget(keys: string[]): Promise<Record<string, unknown>> {
     try {
       const values = await redis.mget(...keys)
-      const result: Record<string, any> = {}
+      const result: Record<string, unknown> = {}
       
       for (let i = 0; i < keys.length; i++) {
         if (values[i]) {
           try {
             const parsed = JSON.parse(values[i] as string)
             result[keys[i]] = parsed.data
-          } catch (e) {
+          } catch {
             console.warn('Failed to parse cached value:', keys[i])
           }
         }
@@ -256,7 +256,7 @@ export class CacheManager {
     }
   }
 
-  async mset(entries: Array<{ key: string; value: any; ttl?: number }>): Promise<boolean> {
+  async mset(entries: Array<{ key: string; value: unknown; ttl?: number }>): Promise<boolean> {
     try {
       const pipeline = redis.pipeline()
       
@@ -338,7 +338,7 @@ export class CacheManager {
     return match ? match[1].trim() : 'unknown'
   }
 
-  private async logCacheOperation(operation: string, key: string, metadata: any) {
+  private async logCacheOperation(operation: string, key: string, metadata: Record<string, unknown>) {
     try {
       // Log to Supabase for monitoring (non-blocking)
       const supabase = await createClient()
@@ -356,7 +356,7 @@ export class CacheManager {
     }
   }
 
-  private async logCacheError(operation: string, key: string, error: any) {
+  private async logCacheError(operation: string, key: string, error: unknown) {
     try {
       const supabase = await createClient()
       await supabase

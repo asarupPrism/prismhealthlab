@@ -6,11 +6,6 @@ import { motion } from 'framer-motion'
 
 // Common auth guard patterns with consistent styling
 
-interface AuthGuardProps {
-  children: React.ReactNode
-  fallback?: React.ReactNode
-}
-
 // Loading state component
 export function AuthLoadingState() {
   return (
@@ -71,7 +66,7 @@ export function AdminRequiredState() {
         </div>
         <h2 className="text-xl font-semibold text-white mb-3">Admin Access Required</h2>
         <p className="text-slate-400 mb-6">
-          You don't have administrator permissions to access this page. 
+          You don&apos;t have administrator permissions to access this page. 
           Contact your system administrator if you believe this is an error.
         </p>
         <motion.a

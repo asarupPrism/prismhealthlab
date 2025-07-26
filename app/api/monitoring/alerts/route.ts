@@ -185,7 +185,7 @@ export async function POST(request: NextRequest) {
 }
 
 // Calculate alert statistics
-function calculateAlertStats(alerts: any[]) {
+function calculateAlertStats(alerts: Record<string, unknown>[]) {
   const stats = {
     total: alerts.length,
     bySeverity: {
@@ -201,16 +201,20 @@ function calculateAlertStats(alerts: any[]) {
 
   alerts.forEach(alert => {
     // Count by severity
-    if (stats.bySeverity[alert.severity as keyof typeof stats.bySeverity] !== undefined) {
-      stats.bySeverity[alert.severity as keyof typeof stats.bySeverity]++
+    const severity = alert.severity as keyof typeof stats.bySeverity
+    if (severity && stats.bySeverity[severity] !== undefined) {
+      stats.bySeverity[severity]++
     }
 
     // Count by metric type
-    const metricType = alert.metric_name.split('.')[0]
-    stats.byMetric[metricType] = (stats.byMetric[metricType] || 0) + 1
+    const metricName = alert.metric_name as string
+    if (metricName) {
+      const metricType = metricName.split('.')[0]
+      stats.byMetric[metricType] = (stats.byMetric[metricType] || 0) + 1
+    }
 
     // Count by page
-    const page = alert.page_path || 'unknown'
+    const page = (alert.page_path as string) || 'unknown'
     stats.byPage[page] = (stats.byPage[page] || 0) + 1
   })
 
@@ -219,7 +223,7 @@ function calculateAlertStats(alerts: any[]) {
   const oneHourAgo = new Date(now.getTime() - 60 * 60 * 1000)
   
   const recentAlerts = alerts.filter(alert => 
-    new Date(alert.recorded_at) > oneHourAgo
+    new Date(alert.recorded_at as string) > oneHourAgo
   ).length
   
   const olderAlerts = alerts.length - recentAlerts

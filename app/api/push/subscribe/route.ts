@@ -107,9 +107,9 @@ export async function POST(request: NextRequest) {
 }
 
 // Send welcome notification after subscription
-async function sendWelcomeNotification(userId: string, subscription: any) {
+async function sendWelcomeNotification(userId: string, subscription: Record<string, unknown>) {
   try {
-    const webpush = require('web-push')
+    const webpush = await import('web-push')
     
     // Configure web-push (in production, store these as environment variables)
     webpush.setVapidDetails(
@@ -138,7 +138,7 @@ async function sendWelcomeNotification(userId: string, subscription: any) {
       requireInteraction: false
     })
 
-    await webpush.sendNotification(subscription, payload)
+    await webpush.default.sendNotification(subscription, payload)
     console.log('Welcome notification sent to user:', userId)
 
   } catch (error) {

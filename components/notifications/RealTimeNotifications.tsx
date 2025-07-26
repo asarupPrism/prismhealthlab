@@ -3,14 +3,14 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { usePatientWebSocket } from '@/lib/websocket/client'
-import { createClient } from '@/lib/supabase/client'
+// createClient import removed - not used
 
 interface Notification {
   id: string
   type: 'order_update' | 'appointment_update' | 'result_available' | 'system_notification'
   title: string
   message: string
-  data?: any
+  data?: Record<string, unknown>
   timestamp: string
   read: boolean
   priority: 'low' | 'medium' | 'high' | 'urgent'
@@ -34,7 +34,7 @@ export default function RealTimeNotifications({
   className = ''
 }: RealTimeNotificationsProps) {
   const [notifications, setNotifications] = useState<Notification[]>([])
-  const [isVisible, setIsVisible] = useState(true)
+  // isVisible and setIsVisible state removed - not used
   const [soundEnabled, setSoundEnabled] = useState(enableSound)
   const [unreadCount, setUnreadCount] = useState(0)
 
@@ -52,8 +52,8 @@ export default function RealTimeNotifications({
         setNotifications(parsed.notifications || [])
         setUnreadCount(parsed.unreadCount || 0)
       }
-    } catch (error) {
-      console.error('Failed to load persisted notifications:', error)
+    } catch (_error) {
+      console.error('Failed to load persisted notifications:', _error)
     }
   }, [enablePersistence, persistenceKey])
 
@@ -66,8 +66,8 @@ export default function RealTimeNotifications({
         notifications: notifications.slice(-maxNotifications),
         unreadCount
       }))
-    } catch (error) {
-      console.error('Failed to persist notifications:', error)
+    } catch (_error) {
+      console.error('Failed to persist notifications:', _error)
     }
   }, [notifications, unreadCount, enablePersistence, persistenceKey, maxNotifications])
 
@@ -97,8 +97,8 @@ export default function RealTimeNotifications({
       }
       
       audioRef.current.play().catch(console.error)
-    } catch (error) {
-      console.error('Failed to play notification sound:', error)
+    } catch (_error) {
+      console.error('Failed to play notification sound:', _error)
     }
   }, [soundEnabled])
 
@@ -168,7 +168,7 @@ export default function RealTimeNotifications({
   }, [])
 
   // WebSocket event handlers
-  const handleOrderUpdate = useCallback((data: any) => {
+  const handleOrderUpdate = useCallback((data: Record<string, unknown>) => {
     const statusMessages = {
       processing: 'Your order is being processed',
       completed: 'Your order has been completed',
@@ -186,7 +186,7 @@ export default function RealTimeNotifications({
     })
   }, [addNotification])
 
-  const handleAppointmentUpdate = useCallback((data: any) => {
+  const handleAppointmentUpdate = useCallback((data: Record<string, unknown>) => {
     const statusMessages = {
       scheduled: 'Your appointment has been scheduled',
       confirmed: 'Your appointment has been confirmed',
@@ -205,7 +205,7 @@ export default function RealTimeNotifications({
     })
   }, [addNotification])
 
-  const handleResultAvailable = useCallback((data: any) => {
+  const handleResultAvailable = useCallback((data: Record<string, unknown>) => {
     addNotification({
       type: 'result_available',
       title: 'Test Results Available',
@@ -217,7 +217,7 @@ export default function RealTimeNotifications({
     })
   }, [addNotification])
 
-  const handleSystemNotification = useCallback((data: any) => {
+  const handleSystemNotification = useCallback((data: Record<string, unknown>) => {
     addNotification({
       type: 'system_notification',
       title: data.title || 'System Notification',
@@ -240,8 +240,8 @@ export default function RealTimeNotifications({
     onDisconnect: () => {
       console.log('Real-time notifications disconnected')
     },
-    onError: (error) => {
-      console.error('Real-time notifications error:', error)
+    onError: (_error) => {
+      console.error('Real-time notifications error:', _error)
     }
   })
 
@@ -440,13 +440,13 @@ export function useNotificationPreferences() {
     if (saved) {
       try {
         setPreferences(prev => ({ ...prev, ...JSON.parse(saved) }))
-      } catch (error) {
-        console.error('Failed to load notification preferences:', error)
+      } catch (_error) {
+        console.error('Failed to load notification preferences:', _error)
       }
     }
   }, [])
 
-  const updatePreference = useCallback((key: string, value: any) => {
+  const updatePreference = useCallback((key: string, value: unknown) => {
     setPreferences(prev => {
       const updated = { ...prev, [key]: value }
       localStorage.setItem('notification-preferences', JSON.stringify(updated))

@@ -4,7 +4,7 @@ import { cacheManager } from '@/lib/cache/redis'
 import { cacheInvalidationService } from '@/lib/cache/invalidation-service'
 
 // GET /api/admin/cache/health - Cache system health check and monitoring
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const supabase = await createClient()
     
@@ -137,7 +137,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const { action } = body
 
-    let result: any = {}
+    let result: Record<string, unknown> = {}
 
     switch (action) {
       case 'process_queue':
@@ -211,14 +211,14 @@ export async function POST(request: NextRequest) {
 }
 
 // Calculate performance metrics from recent operations
-async function calculatePerformanceMetrics(supabase: any) {
+async function calculatePerformanceMetrics(supabase: Awaited<ReturnType<typeof createClient>>) {
   try {
     const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString()
     
     // Get operations in the last hour
     const { data: operations } = await supabase
       .from('cache_operation_logs')
-      .select('operation, metadata, timestamp')
+      .select('operation, metadata, timestamp, cache_key')
       .gte('timestamp', oneHourAgo)
     
     if (!operations || operations.length === 0) {
@@ -236,7 +236,7 @@ async function calculatePerformanceMetrics(supabase: any) {
     
     // Calculate most accessed cache key patterns
     const keyPatterns: Record<string, number> = {}
-    operations.forEach(op => {
+    operations.forEach((op: { cache_key?: string; operation: string; metadata: Record<string, unknown> }) => {
       const pattern = op.cache_key?.split(':').slice(0, 2).join(':') || 'unknown'
       keyPatterns[pattern] = (keyPatterns[pattern] || 0) + 1
     })

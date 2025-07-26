@@ -8,7 +8,7 @@ interface SwellWebhookEvent {
   type: string
   data: {
     id: string
-    [key: string]: any
+    [key: string]: unknown
   }
   created: string
 }
@@ -52,13 +52,13 @@ interface OrderWebhookData {
     product_id: string
     product: {
       name: string
-      [key: string]: any
+      [key: string]: unknown
     }
     quantity: number
     price: number
     variant_id?: string
   }>
-  metadata?: Record<string, any>
+  metadata?: Record<string, unknown>
   date_created: string
   date_updated: string
 }
@@ -448,9 +448,9 @@ async function handleOrderPaid(orderData: OrderWebhookData) {
 
 // Process appointment data from order metadata
 async function processAppointmentFromMetadata(
-  supabase: any,
-  appointmentData: any,
-  orderRecord: any,
+  supabase: unknown,
+  appointmentData: unknown,
+  orderRecord: unknown,
   userId: string
 ) {
   try {
@@ -509,21 +509,7 @@ async function processAppointmentFromMetadata(
 }
 
 // Enhanced cache invalidation with order-specific targeting
-async function invalidateOrderRelatedCache(orderId: string, userId?: string) {
-  try {
-    // Invalidate order-specific cache
-    await queueCacheInvalidation('order_details', orderId, userId)
-    
-    // Invalidate user-related caches if user is known
-    if (userId) {
-      await queueCacheInvalidation('purchase_history', userId, userId)
-      await queueCacheInvalidation('analytics', userId, userId)
-      await queueCacheInvalidation('appointments', userId, userId)
-    }
-  } catch (error) {
-    console.error('Error queuing cache invalidation:', error)
-  }
-}
+// Removed unused function invalidateOrderRelatedCache
 
 // POST /api/webhooks/swell - Enhanced webhook handler
 export async function POST(request: NextRequest) {
