@@ -79,6 +79,7 @@ export default function HomePage() {
     <div className="min-h-screen bg-slate-950">
       {/* SEO-critical content remains server-side */}
       <StructuredData type="homepage" />
+      {/* Force deployment refresh - Navigation & Footer should be visible */}
       
       {/* Hero Section - Dynamic with Error Boundary and Suspense */}
       <DynamicHeroSection pricingPanels={pricingPanels} />
