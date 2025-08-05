@@ -56,6 +56,7 @@ export default function RootLayout({
           <main id="main-content" className="pt-16">
             {children}
           </main>
+          {/* Medical-Grade Footer */}
           <PublicFooter />
           <AccessibilityEnhancer />
         </Providers>
