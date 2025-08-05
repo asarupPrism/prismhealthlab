@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { SupabaseClient } from '@supabase/supabase-js'
 
 interface PerformanceMetric {
   name: string
@@ -30,7 +31,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const supabase = createClient()
+    const supabase = await createClient()
     
     // Get user context (optional - metrics can be anonymous)
     let userId: string | null = null
@@ -89,7 +90,7 @@ export async function POST(request: NextRequest) {
 // GET /api/monitoring/metrics - Get performance analytics (admin only)
 export async function GET(request: NextRequest) {
   try {
-    const supabase = createClient()
+    const supabase = await createClient()
     
     // Verify admin authentication
     const { data: { user }, error: authError } = await supabase.auth.getUser()
@@ -221,7 +222,7 @@ function sanitizeUserAgent(userAgent: string): string {
 }
 
 // Process critical metrics for alerting
-async function processCriticalMetrics(metrics: Record<string, unknown>[], supabase: unknown) {
+async function processCriticalMetrics(metrics: Record<string, unknown>[], supabase: SupabaseClient) {
   const criticalThresholds = {
     'web_vitals.cls': 0.25, // Poor CLS threshold
     'web_vitals.lcp': 4000, // Poor LCP threshold (4s)
@@ -236,7 +237,7 @@ async function processCriticalMetrics(metrics: Record<string, unknown>[], supaba
   for (const metric of metrics) {
     const threshold = criticalThresholds[metric.metric_name as keyof typeof criticalThresholds]
     
-    if (threshold && metric.metric_value > threshold) {
+    if (threshold && (metric.metric_value as number) > threshold) {
       alerts.push({
         metric_name: metric.metric_name,
         metric_value: metric.metric_value,
@@ -245,7 +246,7 @@ async function processCriticalMetrics(metrics: Record<string, unknown>[], supaba
         session_id: metric.session_id,
         recorded_at: metric.recorded_at,
         alert_type: 'performance_degradation',
-        severity: getSeverity(metric.metric_name, metric.metric_value, threshold)
+        severity: getSeverity(metric.metric_name as string, metric.metric_value as number, threshold)
       })
     }
   }

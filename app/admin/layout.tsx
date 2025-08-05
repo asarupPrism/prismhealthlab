@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { AdminAuthServer } from '@/lib/admin-server'
 import AdminSidebar from '@/components/admin/AdminSidebar'
 import AdminHeader from '@/components/admin/AdminHeader'
+import { AdminFooter } from '@/components/layout/Footer'
 
 interface AdminLayoutProps {
   children: React.ReactNode
@@ -49,6 +50,9 @@ export default async function AdminLayout({ children }: AdminLayoutProps) {
         <main className="p-6 lg:p-8">
           {children}
         </main>
+        
+        {/* Admin Footer */}
+        <AdminFooter />
       </div>
     </div>
   )

@@ -6,6 +6,7 @@ import AppointmentCard from '@/components/portal/AppointmentCard'
 import RecentResultsCard from '@/components/portal/RecentResultsCard'
 import QuickActionsCard from '@/components/portal/QuickActionsCard'
 import HealthOverviewCard from '@/components/portal/HealthOverviewCard'
+import { Appointment } from '@/types/shared'
 
 export default async function PortalDashboard() {
   const supabase = await createClient()
@@ -140,10 +141,10 @@ export default async function PortalDashboard() {
               
               {upcomingAppointments && upcomingAppointments.length > 0 ? (
                 <div className="space-y-4">
-                  {upcomingAppointments.map((appointment) => (
+                  {upcomingAppointments.map((appointment: { id: string }) => (
                     <AppointmentCard 
                       key={appointment.id} 
-                      appointment={appointment} 
+                      appointment={appointment as unknown as Appointment} 
                     />
                   ))}
                 </div>

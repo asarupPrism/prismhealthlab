@@ -5,7 +5,7 @@ import { logPatientDataAccess } from '@/lib/audit/hipaa-logger'
 // POST /api/push/unsubscribe - Unsubscribe user from push notifications
 export async function POST(request: NextRequest) {
   try {
-    const supabase = createClient()
+    const supabase = await createClient()
     
     // Get authenticated user
     const { data: { user }, error: authError } = await supabase.auth.getUser()

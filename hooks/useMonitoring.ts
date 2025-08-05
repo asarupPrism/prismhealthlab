@@ -214,7 +214,7 @@ export function useFormMonitoring(formName: string) {
       success: success.toString(),
       duration: duration.toString(),
       interactions: totalInteractions.toString(),
-      error_type: errorType
+      error_type: errorType || 'none'
     })
     
     trackCustomMetric(`form.${formName}.duration`, duration, 'ms', {
@@ -225,7 +225,7 @@ export function useFormMonitoring(formName: string) {
       trackBusinessMetric(`form.completed.${formName}`, 1, 'count')
     } else {
       trackBusinessMetric(`form.failed.${formName}`, 1, 'count', {
-        error_type: errorType
+        error_type: errorType || 'none'
       })
     }
   }, [formName])
@@ -237,11 +237,11 @@ export function useFormMonitoring(formName: string) {
     trackCustomMetric(`form.${formName}.abandoned`, 1, 'count', {
       duration: duration.toString(),
       interactions: totalInteractions.toString(),
-      last_field: lastField
+      last_field: lastField || 'none'
     })
     
     trackBusinessMetric(`form.abandoned.${formName}`, 1, 'count', {
-      last_field: lastField
+      last_field: lastField || 'none'
     })
   }, [formName])
 
@@ -350,7 +350,7 @@ export function useCheckoutMonitoring() {
     trackCustomMetric('checkout.funnel.completed', 1, 'count', {
       success: success.toString(),
       total_duration: totalDuration.toString(),
-      error_type: errorType
+      error_type: errorType || 'none'
     })
     
     if (success) {
@@ -360,7 +360,7 @@ export function useCheckoutMonitoring() {
     } else {
       trackBusinessMetric('checkout.abandoned', 1, 'count', {
         last_step: funnelStep.current,
-        error_type: errorType
+        error_type: errorType || 'none'
       })
     }
   }, [])

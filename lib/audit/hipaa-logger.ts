@@ -310,6 +310,7 @@ export class HIPAAAuditLogger {
         resource_id: log.resource_id,
         action_taken: log.action_taken,
         outcome: log.outcome,
+        risk_level: 'risk_level' in log ? (log as HIPAAAuditEvent).risk_level : RISK_LEVELS.LOW,
         metadata: log.metadata
       })
       
@@ -384,10 +385,10 @@ export class HIPAAAuditLogger {
       // Calculate summary statistics
       const summary = {
         total_events: events?.length || 0,
-        high_risk_events: events?.filter(e => e.risk_level >= RISK_LEVELS.HIGH).length || 0,
-        phi_access_events: events?.filter(e => e.phi_accessed).length || 0,
-        failed_events: events?.filter(e => e.outcome === 'failure').length || 0,
-        unique_users: new Set(events?.map(e => e.user_id).filter(Boolean)).size || 0
+        high_risk_events: events?.filter((e: HIPAAAuditEvent) => e.risk_level >= RISK_LEVELS.HIGH).length || 0,
+        phi_access_events: events?.filter((e: HIPAAAuditEvent) => e.phi_accessed).length || 0,
+        failed_events: events?.filter((e: HIPAAAuditEvent) => e.outcome === 'failure').length || 0,
+        unique_users: new Set(events?.map((e: HIPAAAuditEvent) => e.user_id).filter(Boolean)).size || 0
       }
       
       return {

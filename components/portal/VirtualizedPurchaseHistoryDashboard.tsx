@@ -7,8 +7,74 @@ import VirtualizedPurchaseHistoryCard from './VirtualizedPurchaseHistoryCard'
 import PurchaseStatistics from './PurchaseStatistics'
 import PurchaseFilters from './PurchaseFilters'
 
+// Mock hook for missing useVirtualizedCardInteractions
+function useVirtualizedCardInteractions() {
+  const [expandedCards, setExpandedCards] = useState<Set<string>>(new Set())
+  
+  return {
+    expandedCards,
+    toggleCard: (id: string) => {
+      setExpandedCards(prev => {
+        const newSet = new Set(prev)
+        if (newSet.has(id)) {
+          newSet.delete(id)
+        } else {
+          newSet.add(id)
+        }
+        return newSet
+      })
+    },
+    toggleExpanded: (id: string) => {
+      setExpandedCards(prev => {
+        const newSet = new Set(prev)
+        if (newSet.has(id)) {
+          newSet.delete(id)
+        } else {
+          newSet.add(id)
+        }
+        return newSet
+      })
+    },
+    isExpanded: (id: string) => expandedCards.has(id),
+    clearAll: () => setExpandedCards(new Set()),
+    expandedCount: expandedCards.size
+  }
+}
+
+interface TestItem {
+  test_id: string
+  test_name: string
+  quantity: number
+  price: number
+  total: number
+  variant_id?: string
+}
+
+interface Appointment {
+  id: string
+  appointment_date: string
+  appointment_time: string
+  status: string
+  location_name?: string
+  staff_name?: string
+}
+
+interface PurchaseOrder {
+  id: string
+  total_amount: number
+  discount_amount: number
+  currency: string
+  status: string
+  billing_info: Record<string, unknown>
+  metadata: Record<string, unknown>
+  created_at: string
+  updated_at: string
+  order_tests: TestItem[]
+  appointments: Appointment[]
+}
+
 interface PurchaseHistoryData {
-  orders: Record<string, unknown>[]
+  orders: PurchaseOrder[]
   summary: {
     totalOrders: number
     totalSpent: number
@@ -108,7 +174,7 @@ export default function VirtualizedPurchaseHistoryDashboard({
       }
 
       return {
-        items: result.data.orders || [],
+        items: (result.data.orders || []) as unknown as PurchaseOrder[],
         hasNextPage: result.data.pagination?.hasNext || false
       }
     }, [filters]),
@@ -119,7 +185,6 @@ export default function VirtualizedPurchaseHistoryDashboard({
   // Card interaction management
   const {
     toggleExpanded,
-    setLoading: setCardLoading,
     isExpanded,
     // isLoading renamed to avoid unused variable warning
     clearAll: clearExpandedCards,
@@ -187,18 +252,14 @@ export default function VirtualizedPurchaseHistoryDashboard({
       return
     }
 
-    setCardLoading(orderId, true)
-    
     try {
       // Simulate loading detailed data (in real app, fetch additional data)
       await new Promise(resolve => setTimeout(resolve, 300))
       toggleExpanded(orderId)
     } catch (err) {
       console.error('Error expanding order:', err)
-    } finally {
-      setCardLoading(orderId, false)
     }
-  }, [isExpanded, toggleExpanded, setCardLoading])
+  }, [isExpanded, toggleExpanded])
 
   // Render optimized item function
   const renderOrderItem = useCallback((order: PurchaseOrder, index: number, isVisible: boolean) => {

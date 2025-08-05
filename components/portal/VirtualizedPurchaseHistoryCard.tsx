@@ -238,7 +238,7 @@ const VirtualizedPurchaseHistoryCard = memo<VirtualizedPurchaseHistoryCardProps>
       new Date(`${apt.appointment_date} ${apt.appointment_time}`) > new Date() &&
       apt.status === 'scheduled'
     )
-    const hasResults = order.status === 'completed' && order.metadata?.results_available
+    const hasResults = order.status === 'completed' && Boolean(order.metadata?.results_available)
     const needsAttention = order.status === 'pending' || !!upcomingAppointment
     
     return {

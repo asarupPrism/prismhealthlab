@@ -91,7 +91,7 @@ export default function HomePage() {
               Why Choose Prism Health Lab?
             </h2>
             <p className="text-xl text-slate-300 leading-relaxed">
-              We're redefining healthcare accessibility with cutting-edge diagnostics and patient-centric service.
+              We&apos;re redefining healthcare accessibility with cutting-edge diagnostics and patient-centric service.
             </p>
           </div>
 
@@ -163,7 +163,7 @@ export default function HomePage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-            {pricingPanels.map((panel, index) => (
+            {pricingPanels.map((panel) => (
               <div
                 key={panel.name}
                 className="backdrop-blur-sm bg-slate-800/40 border border-slate-700/50 rounded-2xl p-6 hover:bg-slate-800/60 hover:border-slate-600/60 transition-all duration-300 shadow-xl shadow-slate-900/50 relative group"
@@ -191,87 +191,6 @@ export default function HomePage() {
 
       {/* Newsletter Section - Dynamic */}
       <DynamicEmailSignup />
-
-      {/* Footer - Server-rendered for SEO */}
-      <footer className="bg-slate-900/50 py-16 px-6 border-t border-slate-800/50">
-        <div className="max-w-6xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
-            {/* Company Info */}
-            <div className="md:col-span-2">
-              <Link href="/" className="text-2xl font-bold text-white mb-4 block">
-                Prism Health Lab
-              </Link>
-              <p className="text-slate-400 mb-6 leading-relaxed">
-                Lab-grade diagnostics simplified. Your comprehensive health partner for actionable insights, preventive care, and optimized wellness.
-              </p>
-              <div className="flex items-center gap-4">
-                <div className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse"></div>
-                <span className="text-slate-500 text-sm">CLIA-Certified Excellence</span>
-              </div>
-            </div>
-
-            {/* Quick Links */}
-            <div>
-              <h4 className="text-lg font-semibold text-white mb-6 flex items-center gap-2">
-                <div className="w-2 h-2 bg-emerald-400 rounded-full"></div>
-                Quick Links
-              </h4>
-              <div className="space-y-3">
-                {['Diagnostic Panels', 'Schedule Appointment', 'Patient Portal', 'Test Results'].map((link) => (
-                  <div key={link}>
-                    <Link href={link === 'Patient Portal' ? '/portal' : '/products'} className="text-slate-400 hover:text-slate-300 transition-colors text-sm">
-                      {link}
-                    </Link>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Support & Legal */}
-            <div>
-              <h4 className="text-lg font-semibold text-white mb-6 flex items-center gap-2">
-                <div className="w-2 h-2 bg-amber-400 rounded-full"></div>
-                Support & Legal
-              </h4>
-              <div className="space-y-3">
-                {['Contact Us', 'Privacy Policy', 'Terms of Service', 'HIPAA Compliance'].map((link) => (
-                  <div key={link}>
-                    <a href="#" className="text-slate-400 hover:text-slate-300 transition-colors text-sm">
-                      {link}
-                    </a>
-                  </div>
-                ))}
-                <div>
-                  <Link href="/login?redirect=/admin" className="text-slate-400 hover:text-cyan-300 transition-colors text-sm">
-                    Admin Portal
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Bottom section */}
-          <div className="pt-8 border-t border-slate-700/50 flex flex-col md:flex-row justify-between items-center">
-            <div className="text-slate-500 text-sm mb-4 md:mb-0">
-              © 2025 Prism Health Lab. All rights reserved.
-            </div>
-            
-            {/* Social links */}
-            <div className="flex items-center gap-6">
-              {['LinkedIn', 'Instagram', 'Facebook', 'Twitter'].map((social) => (
-                <a
-                  key={social}
-                  href="#"
-                  className="text-slate-400 hover:text-slate-300 transition-colors text-sm flex items-center gap-2"
-                >
-                  <div className="w-3 h-3 bg-slate-600 rounded-sm"></div>
-                  {social}
-                </a>
-              ))}
-            </div>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }

@@ -2,7 +2,7 @@
 
 import React, { useMemo } from 'react'
 import { motion } from 'framer-motion'
-import AccessibleChart from './AccessibleChart'
+import AccessibleChart, { useChartAccessibility } from './AccessibleChart'
 
 interface HealthDataPoint {
   date: string
@@ -55,7 +55,7 @@ export default function HealthTrendChart({
   height = 400,
   className = ''
 }: HealthTrendChartProps) {
-  // preferences removed - not used
+  const { preferences } = useChartAccessibility()
 
   // Process health data for chart consumption
   const chartData = useMemo(() => {

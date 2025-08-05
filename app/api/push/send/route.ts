@@ -4,12 +4,32 @@ import { logPatientDataAccess } from '@/lib/audit/hipaa-logger'
 
 import webpush from 'web-push'
 
-// Configure web-push
-webpush.setVapidDetails(
-  'mailto:notifications@prismhealthlab.com',
-  process.env.VAPID_PUBLIC_KEY || 'BEl62iUYgUivxIkv69yViEuiBIa40HI80NjsHn96YE',
-  process.env.VAPID_PRIVATE_KEY || 'your-private-vapid-key'
-)
+// Configure web-push with proper validation
+function initializeWebPush() {
+  try {
+    const vapidPublicKey = process.env.VAPID_PUBLIC_KEY
+    const vapidPrivateKey = process.env.VAPID_PRIVATE_KEY
+    
+    // Only configure if both keys are present and valid
+    if (vapidPublicKey && vapidPrivateKey && vapidPublicKey.length === 88) {
+      webpush.setVapidDetails(
+        'mailto:notifications@prismhealthlab.com',
+        vapidPublicKey,
+        vapidPrivateKey
+      )
+      return true
+    } else {
+      console.warn('Push notifications disabled: Invalid or missing VAPID keys')
+      return false
+    }
+  } catch (error) {
+    console.warn('Push notifications disabled: VAPID configuration error', error)
+    return false
+  }
+}
+
+// Initialize web-push configuration
+const isPushConfigured = initializeWebPush()
 
 interface PushNotificationPayload {
   userId: string
@@ -30,7 +50,15 @@ interface PushNotificationPayload {
 // POST /api/push/send - Send push notification to user
 export async function POST(request: NextRequest) {
   try {
-    const supabase = createClient()
+    // Check if push notifications are properly configured
+    if (!isPushConfigured) {
+      return NextResponse.json(
+        { error: 'Push notifications are not configured. Please set VAPID keys.' },
+        { status: 503 }
+      )
+    }
+
+    const supabase = await createClient()
     
     // Verify admin or system authentication
     const authHeader = request.headers.get('Authorization')
@@ -257,7 +285,7 @@ function getTTL(priority: string): number {
 
 async function deactivateExpiredSubscription(error: Record<string, unknown>) {
   try {
-    const supabase = createClient()
+    const supabase = await createClient()
     
     // Extract endpoint from error if possible
     const endpoint = error.endpoint as string
@@ -279,7 +307,7 @@ async function deactivateExpiredSubscription(error: Record<string, unknown>) {
 // GET /api/push/send - Get push notification statistics (admin only)
 export async function GET() {
   try {
-    const supabase = createClient()
+    const supabase = await createClient()
     
     // Verify admin authentication
     const { data: { user }, error: authError } = await supabase.auth.getUser()
@@ -322,7 +350,7 @@ export async function GET() {
       recentActivity: stats?.slice(-10) || []
     }
 
-    stats?.forEach(notification => {
+    stats?.forEach((notification: { notification_type: string; priority: string; status: string }) => {
       const notificationType = notification.notification_type as string
       const priority = notification.priority as string
       const status = notification.status as string

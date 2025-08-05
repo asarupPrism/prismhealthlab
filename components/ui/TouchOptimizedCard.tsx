@@ -1,8 +1,8 @@
 'use client'
 
 import React, { useState, useRef, useCallback } from 'react'
-import { motion, useMotionValue, useTransform } from 'framer-motion'
-import { useDeviceCapabilities } from '@/hooks/useTouchInteractions'
+import { motion, useMotionValue, useTransform, PanInfo } from 'framer-motion'
+import { useTouchInteractions, useDeviceCapabilities } from '@/hooks/useTouchInteractions'
 
 interface TouchOptimizedCardProps {
   children: React.ReactNode
@@ -72,25 +72,29 @@ export default function TouchOptimizedCard({
     [0.5, 0.8, 1, 0.8, 0.5]
   )
 
-  // Touch interaction handlers
-  const { touchHandlers, touchState } = useTouchInteractions({
+  // Touch interaction handlers with enhanced haptic patterns
+  const { touchHandlers, touchState, triggerHaptic } = useTouchInteractions({
     onTap: () => {
       if (!disabled && onTap) {
+        triggerHaptic('selection')
         onTap()
       }
     },
     onSwipeLeft: () => {
       if (!disabled && onSwipeLeft) {
+        triggerHaptic('swipe')
         onSwipeLeft()
       }
     },
     onSwipeRight: () => {
       if (!disabled && onSwipeRight) {
+        triggerHaptic('swipe')
         onSwipeRight()
       }
     },
     onLongPress: () => {
       if (!disabled && onLongPress) {
+        triggerHaptic('longPress')
         onLongPress()
       }
     },
@@ -136,9 +140,9 @@ export default function TouchOptimizedCard({
         x.set(120)
         rightAction.action()
         
-        // Haptic feedback for successful action
+        // Enhanced haptic feedback for successful action
         if (hapticFeedback && capabilities.supportsHaptics) {
-          navigator.vibrate([100, 50, 100])
+          triggerHaptic('confirmation')
         }
       } else if (offset.x < 0 && leftAction) {
         // Animate to reveal left action
@@ -146,7 +150,7 @@ export default function TouchOptimizedCard({
         leftAction.action()
         
         if (hapticFeedback && capabilities.supportsHaptics) {
-          navigator.vibrate([100, 50, 100])
+          triggerHaptic('confirmation')
         }
       }
     }
@@ -166,7 +170,8 @@ export default function TouchOptimizedCard({
     leftAction, 
     x, 
     hapticFeedback, 
-    capabilities.supportsHaptics
+    capabilities.supportsHaptics,
+    triggerHaptic
   ])
 
   // Ripple effect handler
@@ -196,14 +201,16 @@ export default function TouchOptimizedCard({
 
   // Combine touch and mouse handlers
   const eventHandlers = {
-    ...(capabilities.hasTouch ? touchHandlers : {}),
-    onMouseDown: !capabilities.hasTouch ? (e: React.MouseEvent) => {
-      handleRipple(e)
-      setIsPressed(true)
-    } : undefined,
-    onMouseUp: !capabilities.hasTouch ? () => setIsPressed(false) : undefined,
-    onMouseLeave: !capabilities.hasTouch ? () => setIsPressed(false) : undefined,
-    onClick: !capabilities.hasTouch ? onTap : undefined
+    ...(capabilities.hasTouch ? (touchHandlers as never) : {}),
+    ...((!capabilities.hasTouch && onTap) ? { onClick: onTap } : {}),
+    ...(!capabilities.hasTouch ? {
+      onMouseDown: (e: React.MouseEvent) => {
+        handleRipple(e)
+        setIsPressed(true)
+      },
+      onMouseUp: () => setIsPressed(false),
+      onMouseLeave: () => setIsPressed(false)
+    } : {})
   }
 
   return (
@@ -319,7 +326,10 @@ export default function TouchOptimizedCard({
         {capabilities.hasTouch && (
           <div 
             className="absolute inset-0 z-20 bg-transparent"
-            style={{ minHeight: '44px', minWidth: '44px' }} // iOS touch target minimum
+            style={{ minHeight: '44px', minWidth: '44px' }} // iOS Human Interface Guidelines minimum
+            role="button"
+            tabIndex={disabled ? -1 : 0}
+            aria-label="Touch target for card interaction"
           />
         )}
 
@@ -363,17 +373,26 @@ export function PurchaseHistoryTouchCard({
   onViewResults?: () => void
   className?: string
 }) {
+  // Type cast order data for easier access
+  const orderData = order as {
+    id: string
+    status: string
+    created_at: string
+    total_amount: number
+    discount_amount: number
+    order_tests?: Array<{ test_name: string }>
+  }
   const capabilities = useDeviceCapabilities()
 
   const leftAction = onViewResults ? {
-    icon: '📋',
+    icon: '→',
     color: 'emerald',
     label: 'Results',
     action: onViewResults
   } : undefined
 
   const rightAction = onViewDetails ? {
-    icon: '👁️',
+    icon: '↗',
     color: 'blue',
     label: 'Details',
     action: onViewDetails
@@ -397,26 +416,26 @@ export function PurchaseHistoryTouchCard({
             <div className="flex items-center gap-3 mb-2">
               <div className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse" />
               <h3 className="text-lg font-semibold text-white">
-                Order #{order.id.slice(-8).toUpperCase()}
+                Order #{orderData.id.slice(-8).toUpperCase()}
               </h3>
               <div className="px-2 py-1 text-xs font-medium rounded-full bg-cyan-900/30 text-cyan-300 border border-cyan-700/50">
-                {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                {orderData.status.charAt(0).toUpperCase() + orderData.status.slice(1)}
               </div>
             </div>
             
             <div className="flex items-center gap-4 text-sm text-slate-400">
-              <span>{new Date(order.created_at).toLocaleDateString()}</span>
-              <span>{order.order_tests?.length || 0} test{(order.order_tests?.length || 0) !== 1 ? 's' : ''}</span>
+              <span>{new Date(orderData.created_at).toLocaleDateString()}</span>
+              <span>{orderData.order_tests?.length || 0} test{(orderData.order_tests?.length || 0) !== 1 ? 's' : ''}</span>
             </div>
           </div>
           
           <div className="text-right">
             <div className="text-lg font-semibold text-white">
-              ${order.total_amount.toFixed(2)}
+              ${orderData.total_amount.toFixed(2)}
             </div>
-            {order.discount_amount > 0 && (
+            {orderData.discount_amount > 0 && (
               <div className="text-sm text-emerald-400">
-                -${order.discount_amount.toFixed(2)} saved
+                -${orderData.discount_amount.toFixed(2)} saved
               </div>
             )}
           </div>
@@ -425,9 +444,9 @@ export function PurchaseHistoryTouchCard({
         {/* Compact test summary */}
         <div className="bg-slate-900/30 rounded-lg p-3 mb-4">
           <div className="text-sm text-white">
-            {order.order_tests?.slice(0, 2).map((test: { test_name: string }) => test.test_name).join(', ')}
-            {(order.order_tests?.length || 0) > 2 && (
-              <span className="text-slate-400"> +{(order.order_tests?.length || 0) - 2} more</span>
+            {orderData.order_tests?.slice(0, 2).map((test: { test_name: string }) => test.test_name).join(', ')}
+            {(orderData.order_tests?.length || 0) > 2 && (
+              <span className="text-slate-400"> +{(orderData.order_tests?.length || 0) - 2} more</span>
             )}
           </div>
         </div>

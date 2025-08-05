@@ -1,6 +1,30 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 
+interface DbOrder {
+  id: string
+  total_amount: number
+  status: string
+  order_tests: Array<{
+    test_name: string
+    quantity: number
+  }>
+}
+
+interface RawAppointmentData {
+  id: string
+  appointment_date: string
+  appointment_time: string
+  status: string
+  appointment_type: string
+  location_id?: string
+  metadata: Record<string, unknown>
+  created_at: string
+  updated_at: string
+  order_id?: string
+  orders?: DbOrder
+}
+
 interface AppointmentWithOrder {
   id: string
   appointment_date: string
@@ -114,8 +138,8 @@ export async function GET(request: NextRequest) {
     // Get location information for appointments
     const locationIds = [...new Set(
       appointments
-        ?.filter(apt => apt.location_id)
-        .map(apt => apt.location_id)
+        ?.filter((apt) => apt.location_id)
+        .map((apt) => apt.location_id)
     )] as string[]
 
     let locations: Record<string, unknown>[] = []
@@ -131,7 +155,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Process appointments with enhanced data
-    const processedAppointments: AppointmentWithOrder[] = (appointments || []).map(apt => {
+    const processedAppointments: AppointmentWithOrder[] = (appointments || []).map((apt) => {
       const location = locations.find(loc => loc.id === apt.location_id)
       
       return {
@@ -142,17 +166,17 @@ export async function GET(request: NextRequest) {
         appointment_type: apt.appointment_type || 'blood_draw',
         location_id: apt.location_id,
         metadata: {
-          ...(apt.metadata as Record<string, unknown>),
-          location_name: (apt.metadata as Record<string, unknown>)?.location_name || location?.name,
-          staff_name: (apt.metadata as Record<string, unknown>)?.staff_name
+          ...apt.metadata,
+          location_name: apt.metadata?.location_name || location?.name,
+          staff_name: apt.metadata?.staff_name
         },
         created_at: apt.created_at,
         updated_at: apt.updated_at,
-        order: apt.orders ? {
-          id: apt.orders.id,
-          total_amount: apt.orders.total_amount,
-          status: apt.orders.status,
-          order_tests: apt.orders.order_tests || []
+        order: (apt.orders && apt.orders[0]) ? {
+          id: apt.orders[0].id,
+          total_amount: apt.orders[0].total_amount,
+          status: apt.orders[0].status,
+          order_tests: apt.orders[0].order_tests || []
         } : null,
         location_info: location ? {
           name: location.name as string,
@@ -326,7 +350,7 @@ export async function PUT(request: NextRequest) {
           .update({
             status: 'cancelled',
             metadata: {
-              ...(appointment.metadata as Record<string, unknown>),
+              ...((appointment as unknown as RawAppointmentData).metadata || {}),
               cancelled_at: new Date().toISOString(),
               cancelled_by: 'patient',
               cancellation_reason: updateData.reason || 'Patient request'
@@ -348,7 +372,7 @@ export async function PUT(request: NextRequest) {
           .from('appointments')
           .update({
             metadata: {
-              ...(appointment.metadata as Record<string, unknown>),
+              ...((appointment as unknown as RawAppointmentData).metadata || {}),
               reschedule_requested: true,
               reschedule_requested_at: new Date().toISOString(),
               requested_date: updateData.requestedDate,

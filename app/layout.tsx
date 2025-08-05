@@ -1,8 +1,12 @@
 import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
+import "../styles/accessibility.css";
 import Navigation from "./components/Navigation";
 import Providers from './providers';
+import WebVitals from '@/components/performance/WebVitals';
+import AccessibilityEnhancer from '@/components/accessibility/AccessibilityEnhancer';
+import { PublicFooter } from '@/components/layout/Footer';
 
 const inter = Inter({
   variable: "--font-inter",
@@ -47,10 +51,13 @@ export default function RootLayout({
         className={`${inter.variable} ${jetbrainsMono.variable} antialiased bg-slate-950 text-slate-50`}
       >
         <Providers>
+          <WebVitals />
           <Navigation />
-          <main className="pt-16">
+          <main id="main-content" className="pt-16">
             {children}
           </main>
+          <PublicFooter />
+          <AccessibilityEnhancer />
         </Providers>
       </body>
     </html>

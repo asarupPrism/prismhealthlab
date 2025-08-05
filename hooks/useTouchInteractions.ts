@@ -65,15 +65,29 @@ export function useTouchInteractions(options: TouchInteractionOptions = {}) {
     initialDistance: 0
   })
 
-  const longPressTimerRef = useRef<NodeJS.Timeout>()
+  const longPressTimerRef = useRef<NodeJS.Timeout | undefined>(undefined)
   const touchesRef = useRef<Touch[]>([])
 
-  // Haptic feedback helper
-  const triggerHaptic = useCallback((pattern: number | number[] = 50) => {
+  // Enhanced haptic feedback helper with medical-grade patterns
+  const triggerHaptic = useCallback((pattern: number | number[] = [50]) => {
     if (enableHapticFeedback && 'vibrate' in navigator) {
-      navigator.vibrate(pattern)
+      navigator.vibrate(typeof pattern === 'number' ? [pattern] : pattern)
     }
   }, [enableHapticFeedback])
+
+  // Medical-grade haptic patterns
+  const hapticPatterns = {
+    tap: [25],                    // Light tap feedback
+    selection: [50],              // Standard selection
+    confirmation: [100],          // Confirmation action
+    success: [50, 50, 100],       // Success pattern
+    warning: [100, 50, 100],      // Warning pattern
+    error: [150, 50, 150, 50, 150], // Error pattern
+    longPress: [100, 50, 100],    // Long press pattern
+    swipe: [75],                  // Swipe gesture
+    medicalAlert: [200, 100, 200], // Critical medical alert
+    dataUpdate: [30, 30, 60],     // Subtle data refresh
+  }
 
   // Calculate distance between two points
   const getDistance = useCallback((point1: TouchPoint, point2: TouchPoint) => {
@@ -134,7 +148,7 @@ export function useTouchInteractions(options: TouchInteractionOptions = {}) {
     if (onLongPress && event.touches.length === 1) {
       longPressTimerRef.current = setTimeout(() => {
         setTouchState(prev => ({ ...prev, gesture: 'longpress' }))
-        triggerHaptic([100, 50, 100]) // Double pulse for long press
+        triggerHaptic(hapticPatterns.longPress)
         onLongPress()
       }, longPressThreshold)
     }
@@ -239,7 +253,7 @@ export function useTouchInteractions(options: TouchInteractionOptions = {}) {
 
       // Handle completed gestures
       if (gesture === 'swipe' && distance > swipeThreshold) {
-        triggerHaptic(75) // Medium haptic for swipe
+        triggerHaptic(hapticPatterns.swipe)
 
         switch (direction) {
           case 'left':
@@ -257,7 +271,7 @@ export function useTouchInteractions(options: TouchInteractionOptions = {}) {
         }
       } else if (gesture === 'none' && distance <= tapThreshold) {
         // This was a tap
-        triggerHaptic(50) // Light haptic for tap
+        triggerHaptic(hapticPatterns.tap)
         onTap?.()
       }
 
@@ -306,7 +320,16 @@ export function useTouchInteractions(options: TouchInteractionOptions = {}) {
     direction: touchState.direction,
     distance: touchState.distance,
     velocity: touchState.velocity,
-    scale: touchState.scale
+    scale: touchState.scale,
+    // Expose haptic patterns for external use
+    hapticPatterns,
+    triggerHaptic: (pattern: keyof typeof hapticPatterns | number | number[]) => {
+      if (typeof pattern === 'string') {
+        triggerHaptic(hapticPatterns[pattern])
+      } else {
+        triggerHaptic(pattern)
+      }
+    }
   }
 }
 

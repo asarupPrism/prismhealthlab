@@ -6,8 +6,40 @@ import PurchaseHistoryCard from './PurchaseHistoryCard'
 import PurchaseStatistics from './PurchaseStatistics'
 import PurchaseFilters from './PurchaseFilters'
 
+interface TestItem {
+  test_id: string
+  test_name: string
+  quantity: number
+  price: number
+  total: number
+  variant_id?: string
+}
+
+interface Appointment {
+  id: string
+  appointment_date: string
+  appointment_time: string
+  status: string
+  location_name?: string
+  staff_name?: string
+}
+
+interface PurchaseOrder {
+  id: string
+  total_amount: number
+  discount_amount: number
+  currency: string
+  status: string
+  billing_info: Record<string, unknown>
+  metadata: Record<string, unknown>
+  created_at: string
+  updated_at: string
+  order_tests: TestItem[]
+  appointments: Appointment[]
+}
+
 interface PurchaseHistoryData {
-  orders: Record<string, unknown>[]
+  orders: PurchaseOrder[]
   summary: {
     totalOrders: number
     totalSpent: number

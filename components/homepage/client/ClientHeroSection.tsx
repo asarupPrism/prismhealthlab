@@ -10,7 +10,7 @@
 
 import React from 'react'
 import Link from 'next/link'
-import { motion } from 'framer-motion'
+import { motion, Variants } from 'framer-motion'
 import { useAnimationTrigger } from '@/hooks/useViewportTrigger'
 import { SECTION_PRESETS } from '@/lib/animations/variants'
 import ScrollButton from '@/components/homepage/ScrollButton'
@@ -23,8 +23,8 @@ interface ClientHeroSectionProps {
   }>
 }
 
-export default function ClientHeroSection({ pricingPanels }: ClientHeroSectionProps) {
-  const { ref, isInView, reducedMotion } = useAnimationTrigger({
+export default function ClientHeroSection({ }: ClientHeroSectionProps) {
+  const { ref, isInView } = useAnimationTrigger({
     threshold: 0.1,
     triggerOnce: true,
   })
@@ -45,13 +45,13 @@ export default function ClientHeroSection({ pricingPanels }: ClientHeroSectionPr
 
       <div className="relative max-w-6xl mx-auto text-center z-10">
         <motion.div
-          variants={SECTION_PRESETS.hero.container}
+          variants={SECTION_PRESETS.hero.container as Variants}
           initial="hidden"
           animate={isInView ? "visible" : "hidden"}
           className="mb-8"
         >
           <motion.h1 
-            variants={SECTION_PRESETS.hero.title}
+            variants={SECTION_PRESETS.hero.title as Variants}
             className="text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-8 leading-tight"
           >
             Your Health,{' '}
@@ -62,7 +62,7 @@ export default function ClientHeroSection({ pricingPanels }: ClientHeroSectionPr
           </motion.h1>
           
           <motion.p 
-            variants={SECTION_PRESETS.hero.subtitle}
+            variants={SECTION_PRESETS.hero.subtitle as Variants}
             className="text-lg md:text-xl text-slate-300 mb-12 leading-relaxed max-w-3xl mx-auto"
           >
             Lab-grade diagnostics simplified. Get actionable health insights faster, easier, and more affordably than ever—with{' '}
@@ -71,7 +71,7 @@ export default function ClientHeroSection({ pricingPanels }: ClientHeroSectionPr
           </motion.p>
 
           <motion.div 
-            variants={SECTION_PRESETS.hero.cta}
+            variants={SECTION_PRESETS.hero.cta as Variants}
             className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center max-w-lg mx-auto"
           >
             <Link href="/products" className="group flex-1">

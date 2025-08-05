@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useReducer, useCallback, useMemo } from 'react'
+import React, { useEffect, useState, useReducer, useCallback, useMemo, useContext } from 'react'
 import { User, Session, AuthError } from '@supabase/supabase-js'
 import { createClient } from '@/lib/supabase/client'
 import type { Profile } from '@/types/database'
@@ -211,6 +211,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         if (profileError) {
           console.error('Error creating profile:', profileError)
+          // Return a more helpful error message for common issues
+          if (profileError.code === '42P01') {
+            return { 
+              error: { 
+                message: 'Database table missing. Please contact support - profiles table needs to be created.',
+                code: 'PROFILES_TABLE_MISSING'
+              } as AuthError 
+            }
+          }
+          // Return the profile creation error instead of just auth error
+          return { 
+            error: { 
+              message: `Profile creation failed: ${profileError.message}`,
+              code: profileError.code 
+            } as AuthError 
+          }
         }
       }
 

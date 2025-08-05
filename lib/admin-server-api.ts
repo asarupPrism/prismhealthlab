@@ -49,8 +49,8 @@ export class AdminServerAPI {
         .gte('created_at', monthStart)
 
       // Calculate revenue
-      const todayRevenue = todayOrders?.reduce((sum, order) => sum + (order.total || 0), 0) || 0
-      const monthlyRevenue = monthlyOrders?.reduce((sum, order) => sum + (order.total || 0), 0) || 0
+      const todayRevenue = todayOrders?.reduce((sum: number, order: { total?: number }) => sum + (order.total || 0), 0) || 0
+      const monthlyRevenue = monthlyOrders?.reduce((sum: number, order: { total?: number }) => sum + (order.total || 0), 0) || 0
 
       // Get recent orders count
       const { count: recentOrders } = await this.supabase

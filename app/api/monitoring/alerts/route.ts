@@ -4,7 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 // GET /api/monitoring/alerts - Get performance alerts (admin only)
 export async function GET(request: NextRequest) {
   try {
-    const supabase = createClient()
+    const supabase = await createClient()
     
     // Verify admin authentication
     const { data: { user }, error: authError } = await supabase.auth.getUser()
@@ -107,7 +107,7 @@ export async function GET(request: NextRequest) {
 // POST /api/monitoring/alerts - Create performance alert (system only)
 export async function POST(request: NextRequest) {
   try {
-    const supabase = createClient()
+    const supabase = await createClient()
     
     // Verify system/service role authentication
     const { data: { user }, error: authError } = await supabase.auth.getUser()
@@ -238,7 +238,7 @@ function calculateAlertStats(alerts: Record<string, unknown>[]) {
 // DELETE /api/monitoring/alerts - Clean up old alerts (admin only)
 export async function DELETE(request: NextRequest) {
   try {
-    const supabase = createClient()
+    const supabase = await createClient()
     
     // Verify admin authentication
     const { data: { user }, error: authError } = await supabase.auth.getUser()

@@ -41,7 +41,7 @@ export async function GET() {
         isLocked: !!isLocked,
         lockedUntil: profile?.locked_until,
         failedAttempts: profile?.failed_2fa_attempts || 0,
-        recentAttempts: recentAttempts?.map(attempt => ({
+        recentAttempts: recentAttempts?.map((attempt: { attempt_type: string; success: boolean; created_at: string }) => ({
           type: attempt.attempt_type,
           success: attempt.success,
           timestamp: attempt.created_at

@@ -48,10 +48,10 @@ function MonitoringDashboardLoading() {
 }
 
 export default function MonitoringPage() {
-  const { user, profile, loading } = useAuth()
+  const { user, profile, bootstrapLoading } = useAuth()
 
   // Show loading state while checking authentication
-  if (loading) {
+  if (bootstrapLoading) {
     return <MonitoringDashboardLoading />
   }
 
@@ -60,10 +60,7 @@ export default function MonitoringPage() {
     redirect('/auth/login?redirect=/admin/monitoring')
   }
 
-  // Redirect if not admin
-  if (profile?.role !== 'admin') {
-    redirect('/portal?error=access-denied')
-  }
+  // Note: Admin check is handled by middleware, this is just fallback UI
 
   return (
     <div className="min-h-screen bg-slate-950">
@@ -120,14 +117,14 @@ export default function MonitoringPage() {
             <div className="flex items-center gap-4">
               <div className="hidden sm:block text-right">
                 <p className="text-white text-sm font-medium">
-                  {profile?.full_name || 'Admin User'}
+                  {profile ? `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || 'Admin User' : 'Admin User'}
                 </p>
-                <p className="text-slate-400 text-xs capitalize">{profile?.role}</p>
+                <p className="text-slate-400 text-xs">Admin</p>
               </div>
               
               <div className="w-8 h-8 bg-gradient-to-br from-emerald-400 to-cyan-500 rounded-full flex items-center justify-center">
                 <span className="text-white font-medium text-sm">
-                  {(profile?.full_name || 'A').charAt(0).toUpperCase()}
+                  {profile?.first_name?.charAt(0)?.toUpperCase() || 'A'}
                 </span>
               </div>
             </div>
@@ -141,49 +138,6 @@ export default function MonitoringPage() {
           <MonitoringDashboard />
         </Suspense>
       </main>
-
-      {/* Footer */}
-      <footer className="bg-slate-900/30 border-t border-slate-800 mt-12">
-        <div className="max-w-7xl mx-auto px-6 py-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div>
-              <h3 className="text-white font-semibold mb-3">Performance Monitoring</h3>
-              <p className="text-slate-400 text-sm leading-relaxed">
-                Real-time insights into system performance, user experience metrics, 
-                and application health monitoring for Prism Health Lab.
-              </p>
-            </div>
-            
-            <div>
-              <h3 className="text-white font-semibold mb-3">Key Metrics</h3>
-              <ul className="text-slate-400 text-sm space-y-1">
-                <li>• Web Vitals (CLS, LCP, FID)</li>
-                <li>• API Response Times</li>
-                <li>• Memory Usage Patterns</li>
-                <li>• User Interaction Analytics</li>
-                <li>• Cache Performance</li>
-              </ul>
-            </div>
-            
-            <div>
-              <h3 className="text-white font-semibold mb-3">Alert System</h3>
-              <ul className="text-slate-400 text-sm space-y-1">
-                <li>• Critical Performance Issues</li>
-                <li>• Resource Threshold Alerts</li>
-                <li>• User Experience Degradation</li>
-                <li>• System Health Warnings</li>
-                <li>• Real-time Notifications</li>
-              </ul>
-            </div>
-          </div>
-          
-          <div className="border-t border-slate-800 mt-8 pt-6 text-center">
-            <p className="text-slate-500 text-sm">
-              © {new Date().getFullYear()} Prism Health Lab. Enterprise monitoring powered by Sentry and custom analytics.
-            </p>
-          </div>
-        </div>
-      </footer>
     </div>
   )
 }

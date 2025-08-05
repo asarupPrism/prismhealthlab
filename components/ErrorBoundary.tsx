@@ -53,8 +53,10 @@ export default class ErrorBoundary extends Component<Props, State> {
     // Log to monitoring service (Sentry, etc.)
     if (typeof window !== 'undefined' && window.gtag) {
       window.gtag('event', 'exception', {
-        description: error.message,
-        fatal: false,
+        event_category: 'Error',
+        event_label: error.message,
+        value: 1,
+        non_interaction: true,
       })
     }
   }

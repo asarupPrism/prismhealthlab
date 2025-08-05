@@ -224,7 +224,7 @@ async function handleOrderCreated(orderData: OrderWebhookData) {
     // Process appointment if in metadata
     if (orderData.metadata?.appointment && userId) {
       await processAppointmentFromMetadata(
-        supabase, 
+        supabase as never, 
         orderData.metadata.appointment, 
         insertedOrder, 
         userId
@@ -448,9 +448,9 @@ async function handleOrderPaid(orderData: OrderWebhookData) {
 
 // Process appointment data from order metadata
 async function processAppointmentFromMetadata(
-  supabase: unknown,
-  appointmentData: unknown,
-  orderRecord: unknown,
+  supabase: { from: (table: string) => { insert: (data: unknown) => { select: () => { single: () => Promise<{ data: unknown; error: unknown }> } } } },
+  appointmentData: { selectedDate?: string; selectedTime?: string; locationId?: string; locationName?: string; staffName?: string },
+  orderRecord: { id: string; total_amount?: number },
   userId: string
 ) {
   try {
@@ -487,7 +487,7 @@ async function processAppointmentFromMetadata(
       return
     }
     
-    console.log('Appointment created from webhook:', appointment.id)
+    console.log('Appointment created from webhook:', (appointment as { id: string }).id)
     
     // Log appointment creation
     await supabase
@@ -496,7 +496,7 @@ async function processAppointmentFromMetadata(
         user_id: userId,
         action: 'appointment_created_via_webhook',
         resource: 'appointments',
-        resource_id: appointment.id,
+        resource_id: (appointment as { id: string }).id,
         metadata: {
           appointment_date: appointmentData.selectedDate,
           location_name: appointmentData.locationName,
@@ -541,17 +541,17 @@ export async function POST(request: NextRequest) {
     // Route webhook to appropriate handler
     switch (event.type) {
       case 'order.created':
-        success = await handleOrderCreated(event.data as OrderWebhookData)
+        success = await handleOrderCreated(event.data as unknown as OrderWebhookData)
         break
         
       case 'order.updated':
       case 'order.status_changed':
-        success = await handleOrderUpdated(event.data as OrderWebhookData)
+        success = await handleOrderUpdated(event.data as unknown as OrderWebhookData)
         break
         
       case 'order.paid':
       case 'payment.success':
-        success = await handleOrderPaid(event.data as OrderWebhookData)
+        success = await handleOrderPaid(event.data as unknown as OrderWebhookData)
         break
         
       case 'customer.created':

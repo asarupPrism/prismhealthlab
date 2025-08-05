@@ -294,7 +294,7 @@ export function usePatientWebSocket(userId: string, options: UseWebSocketOptions
       clientRef.current?.disconnect()
       clientRef.current = null
     }
-  }, [userId, autoConnect, enhancedOptions, ...dependencies])
+  }, [userId, autoConnect, enhancedOptions, dependencies])
 
   // Manual connection control
   const connect = useCallback(() => {

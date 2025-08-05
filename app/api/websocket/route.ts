@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
 
   try {
     // Verify authentication token
-    const supabase = createClient()
+    const supabase = await createClient()
     const { data: { user }, error } = await supabase.auth.getUser(token)
     
     if (error || !user || user.id !== userId) {
@@ -38,7 +38,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Upgrade to WebSocket
-    const { socket: ws, response } = upgradeWebSocket(request)
+    const { socket: ws, response } = upgradeWebSocket()
 
     if (!ws) {
       return new Response('WebSocket upgrade failed', { status: 500 })
@@ -125,7 +125,7 @@ function upgradeWebSocket() {
   // 3. Integrate with your deployment platform's WebSocket support
   
   return {
-    socket: null, // Would be the actual WebSocket instance
+    socket: null as WebSocket | null, // Would be the actual WebSocket instance
     response: new Response('WebSocket upgrade not implemented in this environment', { 
       status: 501,
       headers: {
@@ -144,7 +144,7 @@ async function setupUserSubscriptions(connectionId: string, userId: string) {
   if (!connection) return
 
   try {
-    const supabase = createClient()
+    const supabase = await createClient()
 
     // Subscribe to order updates
     supabase
@@ -154,7 +154,7 @@ async function setupUserSubscriptions(connectionId: string, userId: string) {
         schema: 'public',
         table: 'orders',
         filter: `user_id=eq.${userId}`
-      }, (payload) => {
+      }, (payload: { new?: unknown; old?: unknown }) => {
         broadcastToUser(userId, {
           type: 'order_update',
           payload: payload.new || payload.old,
@@ -172,7 +172,7 @@ async function setupUserSubscriptions(connectionId: string, userId: string) {
         schema: 'public',
         table: 'appointments',
         filter: `user_id=eq.${userId}`
-      }, (payload) => {
+      }, (payload: { new?: unknown; old?: unknown }) => {
         broadcastToUser(userId, {
           type: 'appointment_update',
           payload: payload.new || payload.old,
@@ -190,7 +190,7 @@ async function setupUserSubscriptions(connectionId: string, userId: string) {
         schema: 'public',
         table: 'test_results',
         filter: `user_id=eq.${userId}`
-      }, (payload) => {
+      }, (payload: { new?: unknown; old?: unknown }) => {
         broadcastToUser(userId, {
           type: 'result_available',
           payload: payload.new,

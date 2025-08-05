@@ -366,7 +366,7 @@ export function useMobileLayout() {
     // Virtual keyboard detection
     const handleResize = () => {
       if (capabilities.hasTouch) {
-        const heightDiff = window.screen.height - window.visualViewport?.height || 0
+        const heightDiff = window.screen.height - (window.visualViewport?.height || window.innerHeight)
         const keyboardHeight = heightDiff > 150 ? heightDiff : 0
         
         setLayoutState(prev => ({

@@ -241,11 +241,11 @@ export function usePWA() {
     if (!swRegistrationRef.current) return false
 
     try {
-      const registration = await swRegistrationRef.current.update()
+      await swRegistrationRef.current.update()
       
-      if (registration.waiting) {
+      if (swRegistrationRef.current && swRegistrationRef.current.waiting) {
         // Post message to skip waiting
-        registration.waiting.postMessage({ type: 'SKIP_WAITING' })
+        swRegistrationRef.current.waiting.postMessage({ type: 'SKIP_WAITING' })
         setState(prev => ({ ...prev, isUpdateAvailable: false }))
         return true
       }
@@ -351,7 +351,14 @@ export function usePWA() {
     if (!capabilities.backgroundSync || !swRegistrationRef.current) return false
 
     try {
-      await swRegistrationRef.current.sync.register('background-sync')
+      // Background sync is experimental and not available in all browsers
+      const registration = swRegistrationRef.current as ServiceWorkerRegistration & {
+        sync?: { register: (tag: string) => Promise<void> }
+      }
+      
+      if (registration.sync) {
+        await registration.sync.register('background-sync')
+      }
       return true
     } catch (error) {
       console.error('Background sync failed:', error)
@@ -371,10 +378,13 @@ export function usePWA() {
           resolve(event.data.success)
         }
 
-        swRegistrationRef.current!.active?.postMessage({
-          type: 'CACHE_URLS',
-          payload: { urls }
-        }, [messageChannel.port2])
+        const worker = swRegistrationRef.current!.active
+        if (worker) {
+          worker.postMessage({
+            type: 'CACHE_URLS',
+            payload: { urls }
+          }, [messageChannel.port2])
+        }
       })
     } catch (error) {
       console.error('Failed to cache URLs:', error)
@@ -394,9 +404,12 @@ export function usePWA() {
           resolve(event.data.success)
         }
 
-        swRegistrationRef.current!.active?.postMessage({
-          type: 'CLEAR_CACHE'
-        }, [messageChannel.port2])
+        const worker = swRegistrationRef.current!.active
+        if (worker) {
+          worker.postMessage({
+            type: 'CLEAR_CACHE'
+          }, [messageChannel.port2])
+        }
       })
     } catch (error) {
       console.error('Failed to clear cache:', error)

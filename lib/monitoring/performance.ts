@@ -77,7 +77,7 @@ class PerformanceMonitor {
 
   private initWebVitals() {
     // Dynamic import to avoid SSR issues
-    import('web-vitals').then(({ onCLS, onFID, onFCP, onLCP, onTTFB, onINP }) => {
+    import('web-vitals').then(({ onCLS, onFCP, onLCP, onTTFB, onINP }) => {
       const reportWebVital = (metric: WebVitalsMetric) => {
         this.recordMetric({
           name: `web_vitals.${metric.name.toLowerCase()}`,
@@ -101,7 +101,6 @@ class PerformanceMonitor {
 
       // Register all Web Vitals metrics
       onCLS(reportWebVital)
-      onFID(reportWebVital)
       onFCP(reportWebVital)
       onLCP(reportWebVital)
       onTTFB(reportWebVital)
@@ -318,7 +317,7 @@ class PerformanceMonitor {
           'navigation.response': navigation.responseEnd - navigation.responseStart,
           'navigation.dom_processing': navigation.domContentLoadedEventEnd - navigation.responseEnd,
           'navigation.load_complete': navigation.loadEventEnd - navigation.loadEventStart,
-          'navigation.total': navigation.loadEventEnd - navigation.navigationStart
+          'navigation.total': navigation.loadEventEnd - (navigation as PerformanceNavigationTiming & { navigationStart: number }).navigationStart
         }
         
         Object.entries(metrics).forEach(([name, value]) => {

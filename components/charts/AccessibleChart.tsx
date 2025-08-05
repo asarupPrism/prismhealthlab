@@ -113,6 +113,14 @@ export default function AccessibleChart({
     return color
   }, [highContrastMode])
 
+  // Voice announcement helper
+  const announceDataPoint = useCallback((dataPoint: DataPoint, index: number) => {
+    if (!enableVoiceAnnouncements) return
+    
+    const announcement = `Data point ${index + 1} of ${data.length}. ${dataPoint.label}: ${dataPoint.value}${dataPoint.description ? `. ${dataPoint.description}` : ''}`
+    setAnnounceText(announcement)
+  }, [enableVoiceAnnouncements, data.length])
+
   // Keyboard navigation handler
   const handleKeyDown = useCallback((event: React.KeyboardEvent) => {
     if (!enableKeyboardNavigation) return
@@ -160,15 +168,7 @@ export default function AccessibleChart({
     }
 
     event.preventDefault()
-  }, [focusedIndex, data, enableKeyboardNavigation, enableVoiceAnnouncements, isTableView])
-
-  // Voice announcement helper
-  const announceDataPoint = useCallback((dataPoint: DataPoint, index: number) => {
-    if (!enableVoiceAnnouncements) return
-    
-    const announcement = `Data point ${index + 1} of ${data.length}. ${dataPoint.label}: ${dataPoint.value}${dataPoint.description ? `. ${dataPoint.description}` : ''}`
-    setAnnounceText(announcement)
-  }, [enableVoiceAnnouncements, data.length])
+  }, [focusedIndex, data, enableKeyboardNavigation, enableVoiceAnnouncements, isTableView, announceDataPoint])
 
   // Chart rendering functions
   const renderBarChart = () => {

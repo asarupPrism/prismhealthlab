@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react'
 import { usePatientWebSocket } from '@/lib/websocket/client'
 import { createClient } from '@/lib/supabase/client'
+import { User } from '@supabase/supabase-js'
 import RealTimeNotifications from '@/components/notifications/RealTimeNotifications'
 
 interface WebSocketContextValue {
@@ -34,7 +35,7 @@ export function WebSocketProvider({
   enableNotifications = true,
   enableRealTimeUpdates = true 
 }: WebSocketProviderProps) {
-  const [user, setUser] = useState<Record<string, unknown> | null>(null)
+  const [user, setUser] = useState<User | null>(null)
   const [orders, setOrders] = useState<Record<string, unknown>[]>([])
   const [appointments, setAppointments] = useState<Record<string, unknown>[]>([])
   const [results, setResults] = useState<Record<string, unknown>[]>([])
@@ -44,59 +45,62 @@ export function WebSocketProvider({
     const getUser = async () => {
       const supabase = createClient()
       const { data: { user } } = await supabase.auth.getUser()
-      setUser(user)
+      setUser(user as User | null)
     }
 
     getUser()
 
     const supabase = createClient()
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      setUser(session?.user || null)
+      setUser((session?.user as User) || null)
     })
 
     return () => subscription.unsubscribe()
   }, [])
 
   // WebSocket event handlers
-  const handleOrderUpdate = useCallback((orderData: Record<string, unknown>) => {
+  const handleOrderUpdate = useCallback((orderData: unknown) => {
     if (!enableRealTimeUpdates) return
+    const data = orderData as Record<string, unknown>
 
     setOrders(prev => {
-      const existing = prev.find(o => o.id === orderData.id)
+      const existing = prev.find(o => o.id === data.id)
       if (existing) {
-        return prev.map(o => o.id === orderData.id ? { ...o, ...orderData } : o)
+        return prev.map(o => o.id === data.id ? { ...o, ...data } : o)
       } else {
-        return [orderData, ...prev]
+        return [data, ...prev]
       }
     })
   }, [enableRealTimeUpdates])
 
-  const handleAppointmentUpdate = useCallback((appointmentData: Record<string, unknown>) => {
+  const handleAppointmentUpdate = useCallback((appointmentData: unknown) => {
     if (!enableRealTimeUpdates) return
+    const data = appointmentData as Record<string, unknown>
 
     setAppointments(prev => {
-      const existing = prev.find(a => a.id === appointmentData.id)
+      const existing = prev.find(a => a.id === data.id)
       if (existing) {
-        return prev.map(a => a.id === appointmentData.id ? { ...a, ...appointmentData } : a)
+        return prev.map(a => a.id === data.id ? { ...a, ...data } : a)
       } else {
-        return [appointmentData, ...prev]
+        return [data, ...prev]
       }
     })
   }, [enableRealTimeUpdates])
 
-  const handleResultAvailable = useCallback((resultData: Record<string, unknown>) => {
+  const handleResultAvailable = useCallback((resultData: unknown) => {
     if (!enableRealTimeUpdates) return
+    const data = resultData as Record<string, unknown>
 
     setResults(prev => {
-      const existing = prev.find(r => r.id === resultData.id)
+      const existing = prev.find(r => r.id === data.id)
       if (!existing) {
-        return [resultData, ...prev]
+        return [data, ...prev]
       }
       return prev
     })
   }, [enableRealTimeUpdates])
 
-  const handleSystemNotification = useCallback((data: Record<string, unknown>) => {
+  const handleSystemNotification = useCallback((data: unknown) => {
     console.log('System notification received:', data)
   }, [])
 
@@ -107,7 +111,7 @@ export function WebSocketProvider({
     lastMessage,
     reconnectAttempt,
     send
-  } = usePatientWebSocket(user?.id, {
+  } = usePatientWebSocket(user?.id as string, {
     onOrderUpdate: handleOrderUpdate,
     onAppointmentUpdate: handleAppointmentUpdate,
     onResultAvailable: handleResultAvailable,
@@ -142,7 +146,7 @@ export function WebSocketProvider({
   const contextValue: WebSocketContextValue = {
     isConnected,
     connectionState,
-    lastMessage,
+    lastMessage: (lastMessage as unknown) as Record<string, unknown>,
     reconnectAttempt,
     sendMessage: send,
     orders,
@@ -160,7 +164,7 @@ export function WebSocketProvider({
       {/* Real-time notifications overlay */}
       {enableNotifications && user?.id && (
         <RealTimeNotifications
-          userId={user.id}
+          userId={user.id as string}
           enableSound={true}
           enablePersistence={true}
           maxNotifications={5}
@@ -181,17 +185,17 @@ export function useWebSocket() {
 
 // Specialized hooks for specific data types
 export function useRealTimeOrders() {
-  const { orders, updateOrder } = useWebSocket()
+  const { orders, updateOrder, isConnected } = useWebSocket()
   return { orders, updateOrder, isConnected }
 }
 
 export function useRealTimeAppointments() {
-  const { appointments, updateAppointment } = useWebSocket()
+  const { appointments, updateAppointment, isConnected } = useWebSocket()
   return { appointments, updateAppointment, isConnected }
 }
 
 export function useRealTimeResults() {
-  const { results, addResult } = useWebSocket()
+  const { results, addResult, isConnected } = useWebSocket()
   return { results, addResult, isConnected }
 }
 

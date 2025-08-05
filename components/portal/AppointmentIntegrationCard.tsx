@@ -72,8 +72,14 @@ export default function AppointmentIntegrationCard({
   const appointmentDate = new Date(appointment.appointment_date)
   const now = new Date()
   // isPast variable removed - not used
-  const isToday = appointmentDate.toDateString() === now.toDateString()
+  const isToday: boolean = appointmentDate.toDateString() === now.toDateString()
   const hoursUntilAppointment = (appointmentDate.getTime() - now.getTime()) / (1000 * 60 * 60)
+  
+  // Extract conditional logic for TypeScript clarity
+  const showTodayIndicator: boolean = isToday && appointment.status === 'scheduled'
+  const showRescheduleIndicator: boolean = Boolean(appointment.metadata?.reschedule_requested)
+  const showLocationName: boolean = Boolean(appointment.metadata?.location_name)
+  const showStaffName: boolean = Boolean(appointment.metadata?.staff_name)
   
   const canCancel = appointment.status === 'scheduled' && hoursUntilAppointment > 24
   const canReschedule = appointment.status === 'scheduled' && !appointment.metadata?.reschedule_requested
@@ -140,12 +146,11 @@ export default function AppointmentIntegrationCard({
         {/* Status Indicator Bar */}
         <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-${statusColor}-400 to-${statusColor}-600`} />
         
-        {/* Urgency Indicators */}
-        {isToday && appointment.status === 'scheduled' && (
+        {showTodayIndicator && (
           <div className="absolute top-3 right-3 w-3 h-3 bg-amber-400 rounded-full animate-pulse shadow-lg shadow-amber-400/50" />
         )}
         
-        {appointment.metadata?.reschedule_requested && (
+        {showRescheduleIndicator && (
           <div className="absolute top-3 right-3 w-3 h-3 bg-orange-400 rounded-full animate-pulse shadow-lg shadow-orange-400/50" />
         )}
 
@@ -167,9 +172,9 @@ export default function AppointmentIntegrationCard({
                 {formatTime(appointment.appointment_time)}
               </div>
               
-              {appointment.metadata?.location_name && (
+              {showLocationName && (
                 <div className="text-sm text-slate-400">
-                  📍 {appointment.metadata.location_name}
+                  📍 {appointment.metadata.location_name as string}
                 </div>
               )}
             </div>
@@ -235,18 +240,18 @@ export default function AppointmentIntegrationCard({
           )}
 
           {/* Staff Information */}
-          {appointment.metadata?.staff_name && (
+          {showStaffName && (
             <div className="bg-slate-900/30 rounded-lg p-3 border border-slate-700/30 mb-4">
               <div className="flex items-center gap-2 mb-1">
                 <div className="w-2 h-2 bg-emerald-400 rounded-full" />
                 <span className="text-xs font-medium text-slate-400">ASSIGNED STAFF</span>
               </div>
-              <div className="text-sm text-white">{appointment.metadata.staff_name}</div>
+              <div className="text-sm text-white">{appointment.metadata.staff_name as string}</div>
             </div>
           )}
 
           {/* Special Messages */}
-          {appointment.metadata?.reschedule_requested && (
+          {showRescheduleIndicator && (
             <div className="bg-orange-900/20 rounded-lg p-3 border border-orange-700/30 mb-4">
               <div className="flex items-center gap-2 mb-1">
                 <div className="w-2 h-2 bg-orange-400 rounded-full animate-pulse" />
@@ -258,7 +263,7 @@ export default function AppointmentIntegrationCard({
             </div>
           )}
 
-          {isToday && appointment.status === 'scheduled' && (
+          {showTodayIndicator && (
             <div className="bg-amber-900/20 rounded-lg p-3 border border-amber-700/30">
               <div className="flex items-center gap-2 mb-1">
                 <div className="w-2 h-2 bg-amber-400 rounded-full animate-pulse" />

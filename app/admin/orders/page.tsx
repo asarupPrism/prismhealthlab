@@ -40,10 +40,10 @@ export default async function AdminOrdersPage() {
     ...swellOrders.map((order: any) => ({
       ...order,
       source: 'swell' as const,
-      supabase_data: supabaseOrders.data?.find(so => so.swell_order_id === order.id)
+      supabase_data: supabaseOrders.data?.find((so: { swell_order_id: string }) => so.swell_order_id === order.id)
     })),
     ...(supabaseOrders.data || [])
-      .filter(order => !order.swell_order_id)
+      .filter((order: { swell_order_id?: string }) => !order.swell_order_id)
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       .map((order: any) => ({
         ...order,
@@ -135,7 +135,7 @@ export default async function AdminOrdersPage() {
             <div className="flex justify-between items-center">
               <span className="text-slate-300 text-sm">With Appointments</span>
               <span className="text-white font-semibold">
-                {supabaseOrders.data?.filter(o => o.appointments?.length > 0).length || 0}
+                {supabaseOrders.data?.filter((o: { appointments?: unknown[] }) => o.appointments?.length && o.appointments.length > 0).length || 0}
               </span>
             </div>
             <div className="flex justify-between items-center">

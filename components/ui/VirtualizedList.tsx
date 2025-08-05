@@ -47,13 +47,14 @@ export default function VirtualizedList<T>({
 }: VirtualizedListProps<T>) {
   const [scrollTop, setScrollTop] = useState(0)
   const [lastScrollDirection, setLastScrollDirection] = useState<'up' | 'down'>('down')
+  const [itemHeights] = useState(() => new Map<number, number>())
   
   const containerRef = useRef<HTMLDivElement>(null)
   const scrollElementRef = useRef<HTMLDivElement>(null)
   const lastScrollTop = useRef(0)
-  const resizeObserver = useRef<ResizeObserver>()
+  const resizeObserver = useRef<ResizeObserver | undefined>(undefined)
   const isScrolling = useRef(false)
-  const scrollTimeout = useRef<NodeJS.Timeout>()
+  const scrollTimeout = useRef<NodeJS.Timeout | undefined>(undefined)
 
   // Calculate virtual items based on scroll position
   const virtualItems = useMemo(() => {
@@ -99,7 +100,7 @@ export default function VirtualizedList<T>({
     }
 
     return virtualItems
-  }, [items.length, scrollTop, containerHeight, itemHeight, overscan, itemHeights, estimatedItemHeight])
+  }, [items.length, scrollTop, containerHeight, itemHeight, overscan, estimatedItemHeight, itemHeights])
 
   // Calculate total height
   const totalHeight = useMemo(() => {
@@ -109,7 +110,7 @@ export default function VirtualizedList<T>({
       }, 0)
     }
     return items.length * itemHeight
-  }, [items.length, itemHeight, itemHeights, estimatedItemHeight])
+  }, [items, itemHeight, estimatedItemHeight, itemHeights])
 
   // Handle scroll events
   const handleScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
@@ -147,10 +148,11 @@ export default function VirtualizedList<T>({
   }, [onLoadMore, hasNextPage, isLoading, totalHeight, containerHeight, itemHeight, onScroll, lastScrollDirection])
 
   // Handle item height measurement for estimated heights
-  const measureItemHeight = useCallback(() => {
-    // This would be used for dynamic height calculations
-    // Currently simplified for basic virtualization
-  }, [])
+  const measureItemHeight = useCallback((index: number, height: number) => {
+    if (estimatedItemHeight) {
+      itemHeights.set(index, height)
+    }
+  }, [estimatedItemHeight, itemHeights])
 
   // Resize observer for container width
   useEffect(() => {
@@ -204,7 +206,7 @@ export default function VirtualizedList<T>({
         const height = itemRef.current.offsetHeight
         measureItemHeight(virtualItem.index, height)
       }
-    }, [virtualItem.index, item, estimatedItemHeight, measureItemHeight])
+    }, [virtualItem.index, item])
 
     return (
       <div

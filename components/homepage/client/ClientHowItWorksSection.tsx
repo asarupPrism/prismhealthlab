@@ -11,7 +11,7 @@
 import React from 'react'
 import { motion } from 'framer-motion'
 import { useAnimationTrigger } from '@/hooks/useViewportTrigger'
-import { SECTION_PRESETS, staggerContainer, medicalDataReveal } from '@/lib/animations/variants'
+import { staggerContainer, medicalDataReveal } from '@/lib/animations/variants'
 
 const steps = [
   {

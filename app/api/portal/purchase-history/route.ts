@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { cacheUserData, cacheManager } from '@/lib/cache/redis'
+import { cacheUserData, cacheManager, generateCacheKey } from '@/lib/cache/redis'
 import { processInvalidationQueueOnDemand } from '@/lib/cache/invalidation-service'
 import { logPatientDataAccess } from '@/lib/audit/hipaa-logger'
 
@@ -180,14 +180,14 @@ export async function GET(request: NextRequest) {
         }
 
         // Process orders and format appointment data
-        const processedOrders: OrderWithTests[] = (orders || []).map(order => ({
+        const processedOrders = (orders || []).map((order: Record<string, unknown> & { appointments?: Record<string, unknown>[] }) => ({
           ...order,
           appointments: (order.appointments || []).map((apt: Record<string, unknown>) => ({
             ...apt,
             location_name: (apt.metadata as Record<string, unknown>)?.location_name as string,
             staff_name: (apt.metadata as Record<string, unknown>)?.staff_name as string
           }))
-        }))
+        })) as OrderWithTests[]
 
         // Calculate summary statistics
         const summary = calculateOrderSummary(processedOrders, totalOrders || 0)

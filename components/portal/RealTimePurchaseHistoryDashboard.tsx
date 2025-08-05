@@ -8,6 +8,24 @@ import { useRealTimeOrders, WebSocketStatus } from '@/components/providers/WebSo
 import { PurchaseHistoryTouchCard } from '@/components/ui/TouchOptimizedCard'
 import { useResponsiveBreakpoints } from '@/hooks/useTouchInteractions'
 
+interface TestItem {
+  test_id: string
+  test_name: string
+  quantity: number
+  price: number
+  total: number
+  variant_id?: string
+}
+
+interface Appointment {
+  id: string
+  appointment_date: string
+  appointment_time: string
+  status: string
+  location_name?: string
+  staff_name?: string
+}
+
 interface PurchaseHistoryData {
   orders: Record<string, unknown>[]
   summary: {
@@ -74,7 +92,7 @@ export default function RealTimePurchaseHistoryDashboard({
   })
 
   const breakpoints = useResponsiveBreakpoints()
-  const updateTimeoutRef = useRef<NodeJS.Timeout>()
+  const updateTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined)
 
   // Real-time WebSocket integration
   const { orders: realTimeOrders, isConnected } = useRealTimeOrders()
@@ -137,18 +155,23 @@ export default function RealTimePurchaseHistoryDashboard({
     const merged = [...orders]
     
     realTimeOrders.forEach(realTimeOrder => {
-      const existingIndex = merged.findIndex(order => order.id === realTimeOrder.id)
+      const orderData = realTimeOrder as Record<string, unknown>
+      const existingIndex = merged.findIndex(order => (order as Record<string, unknown>).id === orderData.id)
       
       if (existingIndex >= 0) {
         // Update existing order
-        merged[existingIndex] = { ...merged[existingIndex], ...realTimeOrder }
+        merged[existingIndex] = { ...(merged[existingIndex] as Record<string, unknown>), ...orderData }
       } else {
         // Add new order at the beginning
-        merged.unshift(realTimeOrder)
+        merged.unshift(orderData)
       }
     })
 
-    return merged.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+    return merged.sort((a, b) => {
+      const aData = a as Record<string, unknown>
+      const bData = b as Record<string, unknown>
+      return new Date(bData.created_at as string).getTime() - new Date(aData.created_at as string).getTime()
+    })
   }, [orders, realTimeOrders, enableRealTimeUpdates])
 
   // Handle real-time order updates
@@ -156,7 +179,8 @@ export default function RealTimePurchaseHistoryDashboard({
     if (!enableRealTimeUpdates || realTimeOrders.length === 0) return
 
     const newUpdates = realTimeOrders.filter(order => {
-      const orderTime = new Date(order.updated_at || order.created_at).getTime()
+      const orderData = order as Record<string, unknown>
+      const orderTime = new Date((orderData.updated_at as string) || (orderData.created_at as string)).getTime()
       return orderTime > lastRefresh.getTime()
     })
 
@@ -251,13 +275,13 @@ export default function RealTimePurchaseHistoryDashboard({
   }, [isExpanded, toggleExpanded, setCardLoading])
 
   // Render optimized item function with touch support
-  const renderOrderItem = useCallback((order: PurchaseOrder, index: number, isVisible: boolean) => {
+  const renderOrderItem = useCallback((order: Record<string, unknown>, index: number, isVisible: boolean) => {
     if (breakpoints.isMobile) {
       return (
         <PurchaseHistoryTouchCard
-          key={order.id}
+          key={order.id as string}
           order={order}
-          onExpand={() => handleOrderExpand(order.id)}
+          onExpand={() => handleOrderExpand(order.id as string)}
           onViewDetails={() => window.location.href = `/portal/orders/${order.id}`}
           onViewResults={order.status === 'completed' ? 
             () => window.location.href = `/portal/results?order=${order.id}` : 
@@ -270,8 +294,20 @@ export default function RealTimePurchaseHistoryDashboard({
 
     return (
       <VirtualizedPurchaseHistoryCard
-        key={order.id}
-        order={order}
+        key={order.id as string}
+        order={order as unknown as {
+          id: string
+          total_amount: number
+          discount_amount: number
+          currency: string
+          status: string
+          billing_info: Record<string, unknown>
+          metadata: Record<string, unknown>
+          created_at: string
+          updated_at: string
+          order_tests: TestItem[]
+          appointments: Appointment[]
+        }}
         index={index}
         isVisible={isVisible}
         onExpand={handleOrderExpand}
@@ -451,7 +487,7 @@ export default function RealTimePurchaseHistoryDashboard({
         </div>
 
         <VirtualizedList
-          items={mergedOrders}
+          items={mergedOrders as Record<string, unknown>[]}
           itemHeight={itemHeight}
           containerHeight={containerHeight}
           renderItem={renderOrderItem}
@@ -459,7 +495,7 @@ export default function RealTimePurchaseHistoryDashboard({
           hasNextPage={hasNextPage}
           isLoading={loading}
           overscan={enablePerformanceMode ? 3 : 5}
-          itemKey={(order) => order.id}
+          itemKey={(order) => (order as Record<string, unknown>).id as string}
           estimatedItemHeight={!enablePerformanceMode}
           maintainScrollPosition={true}
           className="rounded-lg border border-slate-700/30"

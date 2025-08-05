@@ -5,6 +5,7 @@ import { motion } from 'framer-motion'
 import { usePerformanceMonitoring } from '@/lib/monitoring/performance'
 import { trackCustomMetric } from '@/lib/monitoring/performance'
 import { trackBusinessMetric } from '@/lib/monitoring/sentry'
+import { useMobilePerformance, useDeviceCapabilities } from '@/hooks/useTouchInteractions'
 
 interface MetricsSummary {
   avgPageLoadTime: number
@@ -64,21 +65,8 @@ export default function MonitoringDashboard() {
   const [autoRefresh, setAutoRefresh] = useState(true)
 
   const { trackRender } = usePerformanceMonitoring('MonitoringDashboard')
-
-  useEffect(() => {
-    trackRender('initial_load')
-    fetchMonitoringData()
-  }, [timeRange, selectedMetricType, trackRender])
-
-  useEffect(() => {
-    if (!autoRefresh) return
-
-    const interval = setInterval(() => {
-      fetchMonitoringData()
-    }, 30000) // Refresh every 30 seconds
-
-    return () => clearInterval(interval)
-  }, [autoRefresh, timeRange, selectedMetricType, fetchMonitoringData])
+  const mobileMetrics = useMobilePerformance()
+  const deviceCapabilities = useDeviceCapabilities()
 
   const fetchMonitoringData = useCallback(async () => {
     try {
@@ -125,6 +113,21 @@ export default function MonitoringDashboard() {
       setLoading(false)
     }
   }, [timeRange, selectedMetricType])
+
+  useEffect(() => {
+    trackRender('initial_load')
+    fetchMonitoringData()
+  }, [timeRange, selectedMetricType, trackRender, fetchMonitoringData])
+
+  useEffect(() => {
+    if (!autoRefresh) return
+
+    const interval = setInterval(() => {
+      fetchMonitoringData()
+    }, 30000) // Refresh every 30 seconds
+
+    return () => clearInterval(interval)
+  }, [autoRefresh, fetchMonitoringData])
 
   const webVitalsRatings = useMemo(() => {
     if (!data?.webVitals) return { good: 0, needs_improvement: 0, poor: 0 }
@@ -317,11 +320,11 @@ export default function MonitoringDashboard() {
             status={data?.summary.cacheHitRate && data.summary.cacheHitRate > 80 ? 'good' : 'warning'}
           />
           <MetricCard
-            title="API Response"
-            value={`${data?.summary.avgApiDuration || 0}ms`}
-            change="-12.4%"
-            trend="down"
-            status={data?.summary.avgApiDuration && data.summary.avgApiDuration < 1000 ? 'good' : 'warning'}
+            title="Mobile FPS"
+            value={`${mobileMetrics.fps}`}
+            change={`${mobileMetrics.fps >= 55 ? '+' : ''}${(mobileMetrics.fps - 50).toFixed(1)}%`}
+            trend={mobileMetrics.fps >= 55 ? 'up' : 'down'}
+            status={mobileMetrics.fps >= 55 ? 'good' : mobileMetrics.fps >= 30 ? 'warning' : 'poor'}
           />
         </div>
 
@@ -369,6 +372,28 @@ export default function MonitoringDashboard() {
           >
             <h3 className="text-lg font-semibold text-white mb-4">User Interactions</h3>
             <InteractionsChart interactions={data?.userInteractions} />
+          </motion.div>
+
+          {/* Mobile Performance Metrics */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+            className="bg-slate-800/40 backdrop-blur-sm rounded-xl p-6 border border-slate-700/50"
+          >
+            <h3 className="text-lg font-semibold text-white mb-4">Mobile Performance</h3>
+            <MobilePerformanceChart metrics={mobileMetrics} deviceCapabilities={deviceCapabilities} />
+          </motion.div>
+
+          {/* Device Capabilities Overview */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6 }}
+            className="bg-slate-800/40 backdrop-blur-sm rounded-xl p-6 border border-slate-700/50"
+          >
+            <h3 className="text-lg font-semibold text-white mb-4">Device Capabilities</h3>
+            <DeviceCapabilitiesChart capabilities={deviceCapabilities} />
           </motion.div>
         </div>
 
@@ -688,6 +713,154 @@ function AlertsTable({ alerts }: AlertsTableProps) {
           ))}
         </tbody>
       </table>
+    </div>
+  )
+}
+
+// Mobile Performance Chart Component
+interface MobilePerformanceChartProps {
+  metrics: {
+    renderTime: number
+    memoryUsage: number
+    fps: number
+    batteryLevel: number
+    isLowPowerMode: boolean
+  }
+  deviceCapabilities: {
+    hasTouch: boolean
+    hasHover: boolean
+    hasPointer: boolean
+    isHighDensity: boolean
+    supportsHaptics: boolean
+    prefersReducedMotion: boolean
+    prefersHighContrast: boolean
+    supportsPWA: boolean
+    isStandalone: boolean
+  }
+}
+
+function MobilePerformanceChart({ metrics, deviceCapabilities }: MobilePerformanceChartProps) {
+  // Use deviceCapabilities to avoid unused parameter warning - will be used for feature detection
+  void deviceCapabilities
+  const performanceIndicators = [
+    { 
+      name: 'Frame Rate', 
+      value: metrics.fps, 
+      unit: 'FPS', 
+      target: 60, 
+      color: metrics.fps >= 55 ? 'bg-emerald-500' : metrics.fps >= 30 ? 'bg-amber-500' : 'bg-rose-500' 
+    },
+    { 
+      name: 'Memory Usage', 
+      value: Math.round(metrics.memoryUsage / (1024 * 1024)), 
+      unit: 'MB', 
+      target: 100, 
+      color: metrics.memoryUsage < 50000000 ? 'bg-emerald-500' : metrics.memoryUsage < 100000000 ? 'bg-amber-500' : 'bg-rose-500' 
+    },
+    { 
+      name: 'Battery Level', 
+      value: Math.round(metrics.batteryLevel * 100), 
+      unit: '%', 
+      target: 100, 
+      color: metrics.batteryLevel > 0.5 ? 'bg-emerald-500' : metrics.batteryLevel > 0.2 ? 'bg-amber-500' : 'bg-rose-500' 
+    }
+  ]
+
+  return (
+    <div className="space-y-4">
+      {performanceIndicators.map((indicator) => {
+        const percentage = Math.min((indicator.value / indicator.target) * 100, 100)
+        return (
+          <div key={indicator.name} className="space-y-2">
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-slate-300">{indicator.name}</span>
+              <span className="text-sm font-medium text-white">
+                {indicator.value} {indicator.unit}
+              </span>
+            </div>
+            <div className="h-2 bg-slate-700 rounded-full overflow-hidden">
+              <div 
+                className={`h-full ${indicator.color} transition-all duration-1000`}
+                style={{ width: `${percentage}%` }}
+              ></div>
+            </div>
+          </div>
+        )
+      })}
+
+      {/* Battery status indicator */}
+      {metrics.isLowPowerMode && (
+        <div className="mt-4 p-3 bg-amber-900/20 border border-amber-500/50 rounded-lg">
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 bg-amber-400 rounded-full animate-pulse"></div>
+            <span className="text-amber-300 text-sm">Low Power Mode Active</span>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+// Device Capabilities Chart Component
+interface DeviceCapabilitiesChartProps {
+  capabilities: {
+    hasTouch: boolean
+    hasHover: boolean
+    hasPointer: boolean
+    isHighDensity: boolean
+    supportsHaptics: boolean
+    prefersReducedMotion: boolean
+    prefersHighContrast: boolean
+    supportsPWA: boolean
+    isStandalone: boolean
+  }
+}
+
+function DeviceCapabilitiesChart({ capabilities }: DeviceCapabilitiesChartProps) {
+  const capabilityItems = [
+    { name: 'Touch Support', value: capabilities.hasTouch, icon: '→' },
+    { name: 'Hover Support', value: capabilities.hasHover, icon: '↗' },
+    { name: 'Fine Pointer', value: capabilities.hasPointer, icon: '↑' },
+    { name: 'High Density', value: capabilities.isHighDensity, icon: '◉' },
+    { name: 'Haptic Feedback', value: capabilities.supportsHaptics, icon: '≋' },
+    { name: 'PWA Support', value: capabilities.supportsPWA, icon: '⚡' },
+    { name: 'Standalone Mode', value: capabilities.isStandalone, icon: '▣' },
+    { name: 'Reduced Motion', value: capabilities.prefersReducedMotion, icon: '⊘' },
+    { name: 'High Contrast', value: capabilities.prefersHighContrast, icon: '◐' }
+  ]
+
+  const supportedCount = capabilityItems.filter(item => item.value).length
+  const supportPercentage = (supportedCount / capabilityItems.length) * 100
+
+  return (
+    <div className="space-y-4">
+      {/* Overall support indicator */}
+      <div className="text-center mb-4">
+        <div className="text-2xl font-bold text-white">{supportPercentage.toFixed(0)}%</div>
+        <div className="text-sm text-slate-400">Feature Support</div>
+      </div>
+
+      {/* Feature grid */}
+      <div className="grid grid-cols-3 gap-3">
+        {capabilityItems.map((item) => (
+          <div 
+            key={item.name}
+            className={`p-3 rounded-lg border text-center ${
+              item.value 
+                ? 'bg-emerald-900/20 border-emerald-500/50 text-emerald-300' 
+                : 'bg-slate-800/50 border-slate-700/50 text-slate-500'
+            }`}
+          >
+            <div className="text-lg mb-1">{item.icon}</div>
+            <div className="text-xs font-medium">{item.name}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Support summary */}
+      <div className="mt-4 text-xs text-slate-400 text-center">
+        {supportedCount} of {capabilityItems.length} features supported
+      </div>
     </div>
   )
 }

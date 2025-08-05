@@ -2,6 +2,7 @@ import React from 'react'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import PortalNavigation from '@/components/portal/PortalNavigation'
+import { PortalFooter } from '@/components/layout/Footer'
 
 export const metadata = {
   title: 'Patient Portal - Prism Health Lab',
@@ -40,6 +41,7 @@ export default async function PortalLayout({
           <div className="min-h-screen">
             {children}
           </div>
+          <PortalFooter />
         </main>
       </div>
     </div>

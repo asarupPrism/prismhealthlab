@@ -39,8 +39,8 @@ export default function TwoFactorManagement() {
         const data = await response.json()
         setSettings(data)
       }
-    } catch {
-      console.error('Failed to load 2FA settings:', _error)
+    } catch (error) {
+      console.error('Failed to load 2FA settings:', error)
     }
   }
 

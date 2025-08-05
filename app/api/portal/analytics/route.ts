@@ -2,6 +2,27 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { cacheUserData } from '@/lib/cache/redis'
 import { logPatientDataAccess } from '@/lib/audit/hipaa-logger'
+import { SupabaseClient } from '@supabase/supabase-js'
+
+interface OrderData {
+  created_at: string
+  total_amount: number
+  status: string
+  order_tests?: TestData[]
+}
+
+interface TestData {
+  test_name: string
+  price: number
+  total: number
+}
+
+interface AppointmentData {
+  appointment_date: string
+  appointment_time: string
+  status: string
+  created_at: string
+}
 
 interface AnalyticsQuery {
   timeRange: '3m' | '6m' | '1y' | 'all'
@@ -109,10 +130,9 @@ export async function GET(request: NextRequest) {
           purchaseHistory: purchaseHistoryData,
           healthMetrics: healthMetricsData,
           appointments: appointmentsData
-        }
+        } as AnalyticsData
       },
-      query.timeRange,
-      600 // 10 minute cache
+      query.timeRange
     )
 
     // HIPAA-compliant audit logging
@@ -146,7 +166,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
-async function fetchPurchaseHistoryAnalytics(supabase: unknown, userId: string, startDate: Date) {
+async function fetchPurchaseHistoryAnalytics(supabase: SupabaseClient, userId: string, startDate: Date) {
   // Monthly spending data
   const { data: monthlyData, error: monthlyError } = await supabase
     .from('orders')
@@ -180,7 +200,7 @@ async function fetchPurchaseHistoryAnalytics(supabase: unknown, userId: string, 
     throw new Error('Failed to fetch test categories data')
   }
 
-  const testCategories = processTestCategories(categoryData || [])
+  const testCategories = processTestCategories((categoryData || []) as OrderData[])
 
   // Status distribution
   const statusDistribution = processStatusDistribution(monthlyData || [])
@@ -192,7 +212,7 @@ async function fetchPurchaseHistoryAnalytics(supabase: unknown, userId: string, 
   }
 }
 
-async function fetchHealthMetricsAnalytics(supabase: unknown, userId: string, startDate: Date) {
+async function fetchHealthMetricsAnalytics(supabase: SupabaseClient, userId: string, startDate: Date) {
   // Fetch test results with biomarker data
   const { data: resultsData, error: resultsError } = await supabase
     .from('test_results')
@@ -223,7 +243,7 @@ async function fetchHealthMetricsAnalytics(supabase: unknown, userId: string, st
   }
 }
 
-async function fetchAppointmentsAnalytics(supabase: unknown, userId: string, startDate: Date) {
+async function fetchAppointmentsAnalytics(supabase: SupabaseClient, userId: string, startDate: Date) {
   // Fetch appointments data
   const { data: appointmentsData, error: appointmentsError } = await supabase
     .from('appointments')
@@ -237,12 +257,12 @@ async function fetchAppointmentsAnalytics(supabase: unknown, userId: string, sta
   }
 
   const now = new Date()
-  const upcomingCount = (appointmentsData || []).filter(apt => 
+  const upcomingCount = (appointmentsData || []).filter((apt: AppointmentData) => 
     new Date(`${apt.appointment_date} ${apt.appointment_time}`) > now &&
     apt.status === 'scheduled'
   ).length
 
-  const completedCount = (appointmentsData || []).filter(apt => 
+  const completedCount = (appointmentsData || []).filter((apt: AppointmentData) => 
     apt.status === 'completed'
   ).length
 
@@ -256,7 +276,7 @@ async function fetchAppointmentsAnalytics(supabase: unknown, userId: string, sta
   }
 }
 
-function processMonthlySpending(orders: Record<string, unknown>[]) {
+function processMonthlySpending(orders: OrderData[]) {
   const monthlyMap = new Map<string, { amount: number; orderCount: number }>()
 
   orders.forEach(order => {
@@ -280,17 +300,17 @@ function processMonthlySpending(orders: Record<string, unknown>[]) {
   }).sort((a, b) => a.month.localeCompare(b.month))
 }
 
-function processTestCategories(orders: Record<string, unknown>[]) {
+function processTestCategories(orders: OrderData[]) {
   const categoryMap = new Map<string, { count: number; totalSpent: number }>()
 
   orders.forEach(order => {
-    const orderTests = (order.order_tests as Array<Record<string, unknown>>) || []
-    orderTests.forEach((test: Record<string, unknown>) => {
+    const orderTests = order.order_tests || []
+    orderTests.forEach((test: TestData) => {
       // Categorize tests based on test name (simplified logic)
-      const category = categorizeTest(test.test_name as string)
+      const category = categorizeTest(test.test_name)
       const existing = categoryMap.get(category) || { count: 0, totalSpent: 0 }
       existing.count += 1
-      existing.totalSpent += (test.total as number) || 0
+      existing.totalSpent += test.total || 0
       categoryMap.set(category, existing)
     })
   })
@@ -301,11 +321,11 @@ function processTestCategories(orders: Record<string, unknown>[]) {
   }))
 }
 
-function processStatusDistribution(orders: Record<string, unknown>[]) {
+function processStatusDistribution(orders: OrderData[]) {
   const statusMap = new Map<string, number>()
   
   orders.forEach(order => {
-    const status = (order.status as string) || 'unknown'
+    const status = order.status || 'unknown'
     statusMap.set(status, (statusMap.get(status) || 0) + 1)
   })
 
@@ -317,7 +337,7 @@ function processStatusDistribution(orders: Record<string, unknown>[]) {
   }))
 }
 
-function processBiomarkerTrends(results: Record<string, unknown>[]): Array<Record<string, unknown>> {
+function processBiomarkerTrends(results: Record<string, unknown>[]) {
   const biomarkerMap = new Map<string, Array<Record<string, unknown>>>()
 
   results.forEach(result => {
@@ -348,7 +368,7 @@ function processBiomarkerTrends(results: Record<string, unknown>[]): Array<Recor
   }))
 }
 
-function calculateOverallHealthScore(results: Record<string, unknown>[]): Record<string, unknown> {
+function calculateOverallHealthScore(results: Record<string, unknown>[]) {
   if (results.length === 0) {
     return { current: 85, previous: 85, trend: 'stable' as const }
   }
@@ -385,16 +405,16 @@ function calculateOverallHealthScore(results: Record<string, unknown>[]): Record
   }
 }
 
-function processMonthlyBookings(appointments: Record<string, unknown>[]) {
+function processMonthlyBookings(appointments: AppointmentData[]) {
   const monthlyMap = new Map<string, { appointments: number; completed: number }>()
 
   appointments.forEach(apt => {
-    const date = new Date(apt.created_at as string)
+    const date = new Date(apt.created_at)
     const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
     
     const existing = monthlyMap.get(monthKey) || { appointments: 0, completed: 0 }
     existing.appointments += 1
-    if ((apt.status as string) === 'completed') {
+    if (apt.status === 'completed') {
       existing.completed += 1
     }
     monthlyMap.set(monthKey, existing)

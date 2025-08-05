@@ -38,7 +38,7 @@ export default function RealTimeNotifications({
   const [soundEnabled, setSoundEnabled] = useState(enableSound)
   const [unreadCount, setUnreadCount] = useState(0)
 
-  const audioRef = useRef<HTMLAudioElement>()
+  const audioRef = useRef<HTMLAudioElement>(null)
   const persistenceKey = `notifications_${userId}`
 
   // Load persisted notifications on mount
@@ -102,6 +102,11 @@ export default function RealTimeNotifications({
     }
   }, [soundEnabled])
 
+  // Remove notification
+  const removeNotification = useCallback((id: string) => {
+    setNotifications(prev => prev.filter(n => n.id !== id))
+  }, [])
+
   // Add new notification
   const addNotification = useCallback((notification: Omit<Notification, 'id' | 'read'>) => {
     const newNotification: Notification = {
@@ -140,12 +145,7 @@ export default function RealTimeNotifications({
       const pattern = notification.priority === 'urgent' ? [200, 100, 200] : [100]
       navigator.vibrate(pattern)
     }
-  }, [maxNotifications, playNotificationSound])
-
-  // Remove notification
-  const removeNotification = useCallback((id: string) => {
-    setNotifications(prev => prev.filter(n => n.id !== id))
-  }, [])
+  }, [maxNotifications, playNotificationSound, removeNotification])
 
   // Mark notification as read
   const markAsRead = useCallback((id: string) => {
@@ -168,7 +168,8 @@ export default function RealTimeNotifications({
   }, [])
 
   // WebSocket event handlers
-  const handleOrderUpdate = useCallback((data: Record<string, unknown>) => {
+  const handleOrderUpdate = useCallback((data: unknown) => {
+    const orderData = data as Record<string, unknown>
     const statusMessages = {
       processing: 'Your order is being processed',
       completed: 'Your order has been completed',
@@ -179,14 +180,14 @@ export default function RealTimeNotifications({
     addNotification({
       type: 'order_update',
       title: 'Order Update',
-      message: statusMessages[data.status as keyof typeof statusMessages] || 'Your order status has changed',
-      data,
+      message: statusMessages[orderData.status as keyof typeof statusMessages] || 'Your order status has changed',
+      data: orderData,
       timestamp: new Date().toISOString(),
-      priority: data.status === 'completed' ? 'high' : 'medium'
+      priority: orderData.status === 'completed' ? 'high' : 'medium'
     })
   }, [addNotification])
 
-  const handleAppointmentUpdate = useCallback((data: Record<string, unknown>) => {
+  const handleAppointmentUpdate = useCallback((data: unknown) => {
     const statusMessages = {
       scheduled: 'Your appointment has been scheduled',
       confirmed: 'Your appointment has been confirmed',
@@ -195,36 +196,39 @@ export default function RealTimeNotifications({
       completed: 'Your appointment has been completed'
     }
 
+    const appointmentData = data as Record<string, unknown>
     addNotification({
       type: 'appointment_update',
       title: 'Appointment Update',
-      message: statusMessages[data.status as keyof typeof statusMessages] || 'Your appointment status has changed',
-      data,
+      message: statusMessages[appointmentData.status as keyof typeof statusMessages] || 'Your appointment status has changed',
+      data: appointmentData,
       timestamp: new Date().toISOString(),
-      priority: data.status === 'cancelled' ? 'high' : 'medium'
+      priority: appointmentData.status === 'cancelled' ? 'high' : 'medium'
     })
   }, [addNotification])
 
-  const handleResultAvailable = useCallback((data: Record<string, unknown>) => {
+  const handleResultAvailable = useCallback((data: unknown) => {
+    const resultData = data as Record<string, unknown>
     addNotification({
       type: 'result_available',
       title: 'Test Results Available',
       message: 'Your test results are now available for review',
-      data,
+      data: resultData,
       timestamp: new Date().toISOString(),
       priority: 'high',
       autoHide: false // Don't auto-hide result notifications
     })
   }, [addNotification])
 
-  const handleSystemNotification = useCallback((data: Record<string, unknown>) => {
+  const handleSystemNotification = useCallback((data: unknown) => {
+    const systemData = data as Record<string, unknown>
     addNotification({
       type: 'system_notification',
-      title: data.title || 'System Notification',
-      message: data.message,
-      data: data.data,
+      title: (systemData.title as string) || 'System Notification',
+      message: (systemData.message as string) || '',
+      data: systemData.data as Record<string, unknown> | undefined,
       timestamp: new Date().toISOString(),
-      priority: data.priority || 'medium'
+      priority: (systemData.priority as 'low' | 'medium' | 'high' | 'urgent') || 'medium'
     })
   }, [addNotification])
 

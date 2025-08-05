@@ -1,11 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { logPatientDataAccess } from '@/lib/audit/hipaa-logger'
+import * as webpush from 'web-push'
+import type { PushSubscription } from 'web-push'
 
 // POST /api/push/subscribe - Subscribe user to push notifications
 export async function POST(request: NextRequest) {
   try {
-    const supabase = createClient()
+    const supabase = await createClient()
     
     // Get authenticated user
     const { data: { user }, error: authError } = await supabase.auth.getUser()
@@ -109,8 +111,6 @@ export async function POST(request: NextRequest) {
 // Send welcome notification after subscription
 async function sendWelcomeNotification(userId: string, subscription: Record<string, unknown>) {
   try {
-    const webpush = await import('web-push')
-    
     // Configure web-push (in production, store these as environment variables)
     webpush.setVapidDetails(
       'mailto:notifications@prismhealthlab.com',
@@ -138,7 +138,7 @@ async function sendWelcomeNotification(userId: string, subscription: Record<stri
       requireInteraction: false
     })
 
-    await webpush.default.sendNotification(subscription, payload)
+    await webpush.sendNotification(subscription as unknown as PushSubscription, payload)
     console.log('Welcome notification sent to user:', userId)
 
   } catch (error) {

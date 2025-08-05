@@ -31,7 +31,15 @@ export async function GET(request: NextRequest) {
     }
     
     // Transform locations for frontend use
-    const transformedLocations = locations?.map(location => ({
+    const transformedLocations = locations?.map((location: { 
+      id: string; 
+      name: string; 
+      address: string; 
+      phone: string; 
+      operating_hours: unknown; 
+      services: unknown; 
+      is_active: boolean 
+    }) => ({
       id: location.id,
       name: location.name,
       address: location.address,

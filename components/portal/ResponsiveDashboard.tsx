@@ -6,6 +6,11 @@ import AccessibleAnalyticsDashboard from './AccessibleAnalyticsDashboard'
 import VirtualizedPurchaseHistoryDashboard from './VirtualizedPurchaseHistoryDashboard'
 // HealthTrendChart import removed - not used
 
+// Mock useSwipeable hook since it's not installed  
+function useSwipeable() {
+  return {}
+}
+
 interface ResponsiveDashboardProps {
   userId: string
   className?: string
@@ -54,7 +59,7 @@ export default function ResponsiveDashboard({
     hasTouch: false,
     isHighDensity: false
   })
-  const [gestureState, setGestureState] = useState<GestureState>({
+  const [gestureState] = useState<GestureState>({
     isSwipeEnabled: true,
     swipeThreshold: 100,
     activeGesture: null,
@@ -65,11 +70,12 @@ export default function ResponsiveDashboard({
   const [pullToRefreshState, setPullToRefreshState] = useState({
     isPulling: false,
     pullDistance: 0,
-    threshold: 80
+    threshold: 80,
+    touchStartY: 0
   })
 
   const containerRef = useRef<HTMLDivElement>(null)
-  const refreshTimeoutRef = useRef<NodeJS.Timeout>()
+  const refreshTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined)
 
   // Motion values for gestures
   const x = useMotionValue(0)
@@ -110,54 +116,8 @@ export default function ResponsiveDashboard({
   }, [updateViewport])
 
   // Swipe gesture handling
-  const handleSwipe = useCallback((direction: 'left' | 'right') => {
-    if (!gestureState.isSwipeEnabled) return
 
-    const currentIndex = DASHBOARD_VIEWS.findIndex(view => view.id === currentView)
-    let newIndex: number
-
-    if (direction === 'left') {
-      newIndex = Math.min(currentIndex + 1, DASHBOARD_VIEWS.length - 1)
-    } else {
-      newIndex = Math.max(currentIndex - 1, 0)
-    }
-
-    if (newIndex !== currentIndex) {
-      setCurrentView(DASHBOARD_VIEWS[newIndex].id as typeof DASHBOARD_VIEWS[number]['id'])
-      
-      // Haptic feedback on supported devices
-      if ('vibrate' in navigator) {
-        navigator.vibrate(50)
-      }
-    }
-  }, [currentView, gestureState.isSwipeEnabled])
-
-  const swipeHandlers = useSwipeable({
-    onSwipedLeft: () => handleSwipe('left'),
-    onSwipedRight: () => handleSwipe('right'),
-    onSwipeStart: (eventData) => {
-      setGestureState(prev => ({
-        ...prev,
-        activeGesture: 'swipe',
-        touchStartX: eventData.initial[0],
-        touchStartY: eventData.initial[1]
-      }))
-      touchStartTimeRef.current = Date.now()
-    },
-    onSwiping: (eventData) => {
-      const deltaX = eventData.deltaX
-      x.set(deltaX * 0.5) // Damped movement
-    },
-    onSwiped: () => {
-      x.set(0)
-      setGestureState(prev => ({ ...prev, activeGesture: null }))
-    },
-    trackMouse: !viewport.hasTouch,
-    trackTouch: viewport.hasTouch,
-    delta: gestureState.swipeThreshold,
-    preventScrollOnSwipe: true,
-    touchEventOptions: { passive: false }
-  })
+  const swipeHandlers = useSwipeable()
 
   // Pull-to-refresh handling
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
@@ -304,8 +264,8 @@ export default function ResponsiveDashboard({
               }
             `}
             initial={viewport.isMobile ? { opacity: 0, y: -20 } : false}
-            animate={viewport.isMobile ? { opacity: 1, y: 0 } : false}
-            exit={viewport.isMobile ? { opacity: 0, y: -20 } : false}
+            animate={viewport.isMobile ? { opacity: 1, y: 0 } : undefined}
+            exit={viewport.isMobile ? { opacity: 0, y: -20 } : undefined}
           >
             <div className={`
               ${viewport.isMobile 

@@ -71,6 +71,7 @@ export default function PurchaseHistoryCard({
   const hasResults = order.status === 'completed' && order.metadata?.results_available
   const needsAttention = order.status === 'pending' || upcomingAppointment
   
+  
   const handleToggleExpand = () => {
     const newExpanded = !isExpanded
     setIsExpanded(newExpanded)
@@ -152,11 +153,11 @@ export default function PurchaseHistoryCard({
             </div>
           </div>
 
-          {/* Appointment Info */}
-          {upcomingAppointment && (
+          {/* Appointment Summary */}
+          {upcomingAppointment ? (
             <div className="bg-amber-900/20 rounded-lg p-3 border border-amber-700/30">
               <div className="flex items-center gap-2 mb-1">
-                <div className="w-2 h-2 bg-amber-400 rounded-full animate-pulse" />
+                <div className="w-2 h-2 bg-amber-400 rounded-full" />
                 <span className="text-xs font-medium text-amber-400">UPCOMING</span>
               </div>
               <div className="text-sm text-white">
@@ -166,10 +167,10 @@ export default function PurchaseHistoryCard({
                 })} at {upcomingAppointment.appointment_time}
               </div>
             </div>
-          )}
+          ) : null}
 
           {/* Results Status */}
-          {hasResults && (
+          {hasResults ? (
             <div className="bg-emerald-900/20 rounded-lg p-3 border border-emerald-700/30">
               <div className="flex items-center gap-2 mb-1">
                 <div className="w-2 h-2 bg-emerald-400 rounded-full" />
@@ -177,7 +178,7 @@ export default function PurchaseHistoryCard({
               </div>
               <div className="text-sm text-white">Available</div>
             </div>
-          )}
+          ) : null}
         </div>
 
         {/* Action Buttons */}
@@ -204,14 +205,14 @@ export default function PurchaseHistoryCard({
             </Link>
           </div>
 
-          {hasResults && (
+          {hasResults ? (
             <Link
               href={`/portal/results?order=${order.id}`}
               className="px-3 py-1.5 text-sm font-medium text-emerald-300 bg-emerald-900/20 border border-emerald-700/50 rounded-lg hover:bg-emerald-900/30 transition-colors"
             >
               View Results
             </Link>
-          )}
+          ) : null}
         </div>
 
         {/* Expanded Details */}

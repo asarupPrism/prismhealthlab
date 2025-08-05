@@ -1,6 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 
+interface RawOrderData {
+  id: string
+  total_amount: number
+  discount_amount: number
+  currency: string
+  status: string
+  billing_info: Record<string, unknown>
+  metadata: Record<string, unknown>
+  created_at: string
+  updated_at: string
+}
+
 interface DetailedOrderData {
   order: {
     id: string
@@ -124,7 +136,7 @@ export async function GET(
     }
 
     // Fetch test results for order tests if available
-    const testIds = order.order_tests?.map(test => test.test_id) || []
+    const testIds = order.order_tests?.map((test: { test_id: string }) => test.test_id) || []
     let testResults: Record<string, unknown>[] = []
 
     if (testIds.length > 0) {
@@ -152,16 +164,16 @@ export async function GET(
     }
 
     // Attach results to tests
-    const testsWithResults = order.order_tests?.map(test => ({
+    const testsWithResults = order.order_tests?.map((test: { test_id: string } & Record<string, unknown>) => ({
       ...test,
       test_results: testResults.filter(result => result.test_id === test.test_id)
     })) || []
 
     // Process appointments with location/staff data
-    const processedAppointments = order.appointments?.map(apt => ({
+    const processedAppointments = order.appointments?.map((apt: { metadata: Record<string, unknown> } & Record<string, unknown>) => ({
       ...apt,
-      location_name: (apt.metadata as Record<string, unknown>)?.location_name as string,
-      staff_name: (apt.metadata as Record<string, unknown>)?.staff_name as string
+      location_name: apt.metadata?.location_name as string,
+      staff_name: apt.metadata?.staff_name as string
     })) || []
 
     // Fetch payment history from metadata or transaction logs
@@ -187,8 +199,8 @@ export async function GET(
     const result: DetailedOrderData = {
       order: {
         ...order,
-        order_tests: testsWithResults,
-        appointments: processedAppointments,
+        order_tests: testsWithResults as never[],
+        appointments: processedAppointments as never[],
         payment_history: paymentHistory
       },
       timeline
@@ -381,7 +393,7 @@ export async function PUT(
           .update({
             status: 'cancelled',
             metadata: {
-              ...(order.metadata as Record<string, unknown>),
+              ...((order as unknown as RawOrderData).metadata || {}),
               cancelled_at: new Date().toISOString(),
               cancelled_by: 'patient'
             },
@@ -395,7 +407,7 @@ export async function PUT(
           .from('orders')
           .update({
             metadata: {
-              ...(order.metadata as Record<string, unknown>),
+              ...((order as unknown as RawOrderData).metadata || {}),
               results_delivery_requested: true,
               results_delivery_requested_at: new Date().toISOString()
             },

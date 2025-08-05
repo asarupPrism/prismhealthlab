@@ -8,6 +8,33 @@ import PurchaseHistoryDashboard from '@/components/portal/PurchaseHistoryDashboa
 import AppointmentIntegrationCard from '@/components/portal/AppointmentIntegrationCard'
 import TwoFactorManagement from '@/components/auth/TwoFactorManagement'
 
+interface AppointmentWithOrder {
+  id: string
+  appointment_date: string
+  appointment_time: string
+  status: string
+  appointment_type: string
+  location_id?: string
+  metadata: Record<string, unknown>
+  created_at: string
+  updated_at: string
+  order: {
+    id: string
+    total_amount: number
+    status: string
+    order_tests: Array<{
+      test_name: string
+      quantity: number
+    }>
+  } | null
+  location_info?: {
+    name: string
+    address: string
+    phone: string
+    hours: Record<string, unknown>
+  }
+}
+
 interface PortalTab {
   id: string
   title: string
@@ -28,17 +55,17 @@ interface DashboardData {
 }
 
 export default function PatientPortalDashboard() {
-  const { user, loading } = useAuth()
+  const { user, bootstrapLoading } = useAuth()
   const [activeTab, setActiveTab] = useState<string>('overview')
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null)
   const [loadingData, setLoadingData] = useState(true)
 
   // Redirect if not authenticated
   useEffect(() => {
-    if (!loading && !user) {
+    if (!bootstrapLoading && !user) {
       redirect('/auth/signin')
     }
-  }, [user, loading])
+  }, [user, bootstrapLoading])
 
   // Fetch dashboard overview data
   useEffect(() => {
@@ -79,7 +106,7 @@ export default function PatientPortalDashboard() {
     fetchDashboardData()
   }, [user])
 
-  if (loading || !user) {
+  if (bootstrapLoading || loadingData || !user) {
     return (
       <div className="min-h-screen bg-slate-950 flex items-center justify-center">
         <div className="w-8 h-8 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin"></div>
@@ -304,8 +331,8 @@ export default function PatientPortalDashboard() {
                   <div className="space-y-4">
                     {dashboardData.upcomingAppointments.map((appointment) => (
                       <AppointmentIntegrationCard
-                        key={appointment.id}
-                        appointment={appointment}
+                        key={(appointment as { id: string }).id}
+                        appointment={appointment as unknown as AppointmentWithOrder}
                         onCancel={handleAppointmentCancel}
                         onRescheduleRequest={handleAppointmentReschedule}
                       />
@@ -375,8 +402,8 @@ export default function PatientPortalDashboard() {
                 <div className="space-y-4">
                   {dashboardData.upcomingAppointments.map((appointment) => (
                     <AppointmentIntegrationCard
-                      key={appointment.id}
-                      appointment={appointment}
+                      key={(appointment as { id: string }).id}
+                      appointment={appointment as unknown as AppointmentWithOrder}
                       onCancel={handleAppointmentCancel}
                       onRescheduleRequest={handleAppointmentReschedule}
                     />

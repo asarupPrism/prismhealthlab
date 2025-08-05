@@ -2,11 +2,26 @@ import 'server-only'
 import { Redis } from '@upstash/redis'
 import { createClient } from '@/lib/supabase/server'
 
-// Redis connection configuration
-const redis = new Redis({
-  url: process.env.UPSTASH_REDIS_REST_URL!,
-  token: process.env.UPSTASH_REDIS_REST_TOKEN!,
-})
+// Redis connection configuration with fallback handling
+function createRedisClient() {
+  const url = process.env.UPSTASH_REDIS_REST_URL
+  const token = process.env.UPSTASH_REDIS_REST_TOKEN
+  
+  if (!url || !token) {
+    console.warn('Redis cache disabled: Missing UPSTASH_REDIS_REST_URL or UPSTASH_REDIS_REST_TOKEN')
+    return null
+  }
+  
+  try {
+    return new Redis({ url, token })
+  } catch (error) {
+    console.warn('Redis cache disabled: Connection error', error)
+    return null
+  }
+}
+
+const redis = createRedisClient()
+const isRedisAvailable = redis !== null
 
 // Cache key prefixes for organization
 export const CACHE_PREFIXES = {
@@ -66,6 +81,11 @@ export class CacheManager {
   // Set cache with automatic TTL and compression for large objects
   async set(key: string, value: unknown, ttl?: number): Promise<boolean> {
     try {
+      // Return false immediately if Redis is not available
+      if (!isRedisAvailable || !redis) {
+        return false
+      }
+
       const serializedValue = JSON.stringify({
         data: value,
         cached_at: new Date().toISOString(),
@@ -100,6 +120,11 @@ export class CacheManager {
   // Get cache with automatic decompression and validation
   async get<T>(key: string): Promise<T | null> {
     try {
+      // Return null immediately if Redis is not available
+      if (!isRedisAvailable || !redis) {
+        return null
+      }
+
       const rawValue = await redis.get(key)
       if (!rawValue) return null
       
@@ -134,6 +159,11 @@ export class CacheManager {
   // Delete single cache key
   async delete(key: string): Promise<boolean> {
     try {
+      // Return false immediately if Redis is not available
+      if (!isRedisAvailable || !redis) {
+        return false
+      }
+
       const result = await redis.del(key)
       
       await this.logCacheOperation('DELETE', key, {
@@ -151,6 +181,11 @@ export class CacheManager {
   // Delete multiple cache keys by pattern
   async deletePattern(pattern: string): Promise<number> {
     try {
+      // Return 0 immediately if Redis is not available
+      if (!isRedisAvailable || !redis) {
+        return 0
+      }
+
       const keys = await redis.keys(pattern)
       if (keys.length === 0) return 0
       
@@ -172,6 +207,11 @@ export class CacheManager {
   // Check if key exists
   async exists(key: string): Promise<boolean> {
     try {
+      // Return false immediately if Redis is not available
+      if (!isRedisAvailable || !redis) {
+        return false
+      }
+
       const result = await redis.exists(key)
       return result === 1
     } catch (error) {
@@ -183,6 +223,11 @@ export class CacheManager {
   // Get TTL for a key
   async getTTL(key: string): Promise<number> {
     try {
+      // Return -1 immediately if Redis is not available
+      if (!isRedisAvailable || !redis) {
+        return -1
+      }
+
       return await redis.ttl(key)
     } catch (error) {
       console.error('Cache TTL error:', { key, error })
@@ -193,6 +238,11 @@ export class CacheManager {
   // Set expiration for existing key
   async expire(key: string, ttl: number): Promise<boolean> {
     try {
+      // Return false immediately if Redis is not available
+      if (!isRedisAvailable || !redis) {
+        return false
+      }
+
       const result = await redis.expire(key, ttl)
       return result === 1
     } catch (error) {
@@ -209,8 +259,18 @@ export class CacheManager {
     error_rate: number
   }> {
     try {
+      // Return empty stats immediately if Redis is not available
+      if (!isRedisAvailable || !redis) {
+        return {
+          total_keys: 0,
+          memory_usage: 'unavailable',
+          hit_rate: 0,
+          error_rate: 1
+        }
+      }
+
       const keys = await redis.keys('*')
-      const info = await redis.info('memory')
+      const info = await (redis as unknown as { info: (section: string) => Promise<string> }).info('memory')
       
       // Calculate hit/error rates from logs (simplified)
       const stats = {
@@ -235,6 +295,11 @@ export class CacheManager {
   // Bulk operations for efficiency
   async mget(keys: string[]): Promise<Record<string, unknown>> {
     try {
+      // Return empty object immediately if Redis is not available
+      if (!isRedisAvailable || !redis) {
+        return {}
+      }
+
       const values = await redis.mget(...keys)
       const result: Record<string, unknown> = {}
       
@@ -258,6 +323,11 @@ export class CacheManager {
 
   async mset(entries: Array<{ key: string; value: unknown; ttl?: number }>): Promise<boolean> {
     try {
+      // Return false immediately if Redis is not available
+      if (!isRedisAvailable || !redis) {
+        return false
+      }
+
       const pipeline = redis.pipeline()
       
       for (const entry of entries) {
@@ -275,7 +345,7 @@ export class CacheManager {
       }
       
       const results = await pipeline.exec()
-      return results.every(result => result[1] === 'OK')
+      return (results as [unknown, unknown][])?.every((result) => result?.[1] === 'OK') || false
     } catch (error) {
       console.error('Cache MSET error:', { entries: entries.length, error })
       return false
@@ -291,6 +361,14 @@ export class CacheManager {
     const startTime = Date.now()
     
     try {
+      // Return unhealthy immediately if Redis is not available
+      if (!isRedisAvailable || !redis) {
+        return {
+          status: 'unhealthy',
+          latency: Date.now() - startTime,
+          error: 'Redis connection not available'
+        }
+      }
       // Test basic operations
       const testKey = 'health:check:' + Date.now()
       const testValue = { timestamp: new Date().toISOString() }

@@ -230,8 +230,8 @@ async function calculatePerformanceMetrics(supabase: Awaited<ReturnType<typeof c
       }
     }
     
-    const hits = operations.filter(op => op.operation === 'GET' && op.metadata.hit).length
-    const misses = operations.filter(op => op.operation === 'GET' && !op.metadata.hit).length
+    const hits = operations.filter((op: { operation: string; metadata: { hit?: boolean } }) => op.operation === 'GET' && op.metadata.hit).length
+    const misses = operations.filter((op: { operation: string; metadata: { hit?: boolean } }) => op.operation === 'GET' && !op.metadata.hit).length
     const hitRate = hits + misses > 0 ? hits / (hits + misses) : 0
     
     // Calculate most accessed cache key patterns

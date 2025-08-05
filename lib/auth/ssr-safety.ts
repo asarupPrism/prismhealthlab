@@ -211,5 +211,5 @@ export function isBrowser(): boolean {
 
 // Type guard for checking if we're in a Node.js environment
 export function isNode(): boolean {
-  return isServer && typeof process !== 'undefined' && process.versions && process.versions.node
+  return isServer && typeof process !== 'undefined' && process.versions && !!process.versions.node
 }
