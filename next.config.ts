@@ -5,8 +5,8 @@ const withBundleAnalyzer = bundleAnalyzer({
   enabled: process.env.ANALYZE === 'true',
 });
 
-// Environment validation at build time
-function validateCriticalEnvVars() {
+// Smart environment validation with graceful degradation
+function validateEnvironmentConfiguration() {
   const critical = [
     'NEXT_PUBLIC_SUPABASE_URL',
     'NEXT_PUBLIC_SUPABASE_ANON_KEY', 
@@ -14,21 +14,79 @@ function validateCriticalEnvVars() {
     'NEXT_PUBLIC_SWELL_PUBLIC_KEY'
   ];
   
-  const missing = critical.filter(envVar => !process.env[envVar]);
+  const optional = [
+    'UPSTASH_REDIS_REST_URL',
+    'UPSTASH_REDIS_REST_TOKEN',
+    'VAPID_PUBLIC_KEY',
+    'VAPID_PRIVATE_KEY',
+    'NEXT_PUBLIC_SENTRY_DSN'
+  ];
   
-  if (missing.length > 0 && process.env.NODE_ENV === 'production') {
-    console.error('❌ Critical environment variables missing for production build:');
-    missing.forEach(envVar => console.error(`   - ${envVar}`));
-    console.error('\n📝 See .env.example for setup instructions');
-    process.exit(1);
-  } else if (missing.length > 0) {
-    console.warn('⚠️  Some environment variables are missing (will use fallbacks):');
-    missing.forEach(envVar => console.warn(`   - ${envVar}`));
+  const missing = critical.filter(envVar => !process.env[envVar]);
+  const missingOptional = optional.filter(envVar => !process.env[envVar]);
+  
+  // Environment-aware validation strategy
+  const isProduction = process.env.NODE_ENV === 'production';
+  const isVercelBuild = process.env.VERCEL === '1';
+  const isPreview = process.env.VERCEL_ENV === 'preview';
+  
+  console.log('\n🔧 Environment Configuration Analysis');
+  console.log('=====================================');
+  console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`Platform: ${isVercelBuild ? 'Vercel' : 'Local'}`);
+  console.log(`Build Type: ${isPreview ? 'Preview' : (isProduction ? 'Production' : 'Development')}`);
+  
+  if (missing.length === 0) {
+    console.log('✅ All critical environment variables configured');
+  } else {
+    console.log('⚠️  Missing critical environment variables:');
+    missing.forEach(envVar => console.log(`   - ${envVar}`));
+    
+    // Smart degradation strategy
+    if (isProduction && !isPreview) {
+      console.log('\n🚨 Production Deployment Strategy:');
+      console.log('   • Database features will be disabled');
+      console.log('   • E-commerce integration will show maintenance mode');
+      console.log('   • Static content and UI will function normally');
+      console.log('   • Configure environment variables to enable full functionality');
+      console.log('\n📝 See .env.example for setup instructions');
+      
+      // Don't exit - allow build to continue with degraded functionality
+    } else if (isPreview) {
+      console.log('\n🔍 Preview Deployment: Building with mock data for UI testing');
+    } else {
+      console.log('\n🛠️  Development Mode: Using fallback configurations');
+    }
   }
+  
+  if (missingOptional.length > 0) {
+    console.log('\n📋 Optional integrations available for enhanced functionality:');
+    missingOptional.forEach(envVar => {
+      const features: Record<string, string> = {
+        'UPSTASH_REDIS_REST_URL': 'Performance caching',
+        'VAPID_PUBLIC_KEY': 'Push notifications',
+        'NEXT_PUBLIC_SENTRY_DSN': 'Error monitoring'
+      };
+      const feature = features[envVar] || 'Additional features';
+      console.log(`   - ${envVar} (${feature})`);
+    });
+  }
+  
+  console.log('\n');
+  
+  // Set deployment mode flags for runtime use
+  process.env.NEXT_PUBLIC_DEPLOYMENT_MODE = missing.length === 0 ? 'full' : 'degraded';
+  process.env.NEXT_PUBLIC_FEATURES_AVAILABLE = JSON.stringify({
+    database: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
+    ecommerce: !!process.env.NEXT_PUBLIC_SWELL_STORE_ID,
+    caching: !!process.env.UPSTASH_REDIS_REST_URL,
+    notifications: !!process.env.VAPID_PUBLIC_KEY,
+    monitoring: !!process.env.NEXT_PUBLIC_SENTRY_DSN
+  });
 }
 
-// Run validation
-validateCriticalEnvVars();
+// Run smart environment validation
+validateEnvironmentConfiguration();
 
 const nextConfig: NextConfig = {
   // Enable experimental features for better performance

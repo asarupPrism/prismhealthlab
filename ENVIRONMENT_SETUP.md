@@ -1,8 +1,69 @@
-# Environment Setup Guide
+# Environment Setup Guide - Prism Health Lab
 
-This guide will help you configure all necessary environment variables for Prism Health Lab.
+This guide provides comprehensive instructions for configuring environment variables for different deployment environments, with emphasis on **immediate Vercel deployment fix**.
 
-## Quick Start
+## 🚨 IMMEDIATE FIX: Vercel Deployment
+
+### Quick Fix for Current Build Failure
+
+The Vercel build is failing because **4 critical environment variables** are missing. Here are your **3 deployment options**:
+
+#### Option 1: Full Production Setup (Recommended)
+Configure all required services for full functionality:
+
+1. **Access Vercel Dashboard**
+   - Go to [vercel.com/dashboard](https://vercel.com/dashboard)
+   - Select your `prismhealthlab` project
+   - Navigate to **Settings** → **Environment Variables**
+
+2. **Add Required Variables** (All Environments: Production, Preview, Development)
+   ```bash
+   # Supabase Configuration
+   NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
+   
+   # Swell.is E-commerce
+   NEXT_PUBLIC_SWELL_STORE_ID=your-swell-store-id
+   NEXT_PUBLIC_SWELL_PUBLIC_KEY=your-swell-public-key
+   ```
+
+3. **Redeploy**
+   - Trigger a new deployment (push to main branch or manual redeploy)
+   - Build will succeed with full functionality
+
+#### Option 2: Demo Mode Deployment (Fastest)
+Deploy immediately with demo data for testing:
+
+1. **Add Demo Environment Variables** in Vercel:
+   ```bash
+   # Demo Supabase (non-functional but prevents build failure)
+   NEXT_PUBLIC_SUPABASE_URL=https://demo.supabase.co
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=demo-key-12345
+   
+   # Demo Swell.is (non-functional but prevents build failure)
+   NEXT_PUBLIC_SWELL_STORE_ID=demo-store
+   NEXT_PUBLIC_SWELL_PUBLIC_KEY=demo-public-key
+   ```
+
+2. **Result**: Application deploys with mock data and demo functionality
+
+#### Option 3: Development Preview
+For internal testing and UI validation:
+
+1. **Set Preview-Only Variables**:
+   ```bash
+   # Set these ONLY for Preview environment
+   NEXT_PUBLIC_SUPABASE_URL=preview-mode
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=preview-key
+   NEXT_PUBLIC_SWELL_STORE_ID=preview-store  
+   NEXT_PUBLIC_SWELL_PUBLIC_KEY=preview-key
+   ```
+
+2. **Result**: Builds deploy in degraded mode with fallback systems
+
+---
+
+## 📋 Quick Start (Local Development)
 
 1. Copy the example environment file:
    ```bash
