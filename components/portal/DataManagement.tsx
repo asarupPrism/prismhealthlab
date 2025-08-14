@@ -7,7 +7,7 @@ interface DataManagementProps {
   userId: string
 }
 
-export default function DataManagement({ userId }: DataManagementProps) {
+export default function DataManagement({ }: DataManagementProps) {
   const [selectedDataTypes, setSelectedDataTypes] = useState<string[]>([])
   const [isExporting, setIsExporting] = useState(false)
   const [message, setMessage] = useState<string | null>(null)
@@ -52,7 +52,7 @@ export default function DataManagement({ userId }: DataManagementProps) {
       
       setMessage('Data export initiated. You will receive an email with download links within 24 hours.')
       setSelectedDataTypes([])
-    } catch (err) {
+    } catch (_err) {
       setMessage('Failed to export data. Please try again.')
     } finally {
       setIsExporting(false)
@@ -67,7 +67,7 @@ export default function DataManagement({ userId }: DataManagementProps) {
     try {
       // In production, this would delete the specified data type
       setMessage(`${dataType} data deletion request submitted. This will be processed within 48 hours.`)
-    } catch (err) {
+    } catch (_err) {
       setMessage('Failed to process deletion request.')
     }
   }

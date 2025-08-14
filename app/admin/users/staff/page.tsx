@@ -1,5 +1,4 @@
 import React from 'react'
-import { createClient } from '@/lib/supabase/server'
 import { getAdminClient } from '@/lib/supabase/admin'
 import CreateStaffForm from '@/components/admin/CreateStaffForm'
 import StaffList from '@/components/admin/StaffList'

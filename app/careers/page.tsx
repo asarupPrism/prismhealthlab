@@ -1,5 +1,5 @@
 import React from 'react';
-import { FadeIn, SlideIn, PulseIndicator, GlassCard } from '@/components/ui/motion';
+import { SlideIn, GlassCard } from '@/components/ui/motion';
 
 export default function CareersPage() {
   return (
@@ -37,14 +37,14 @@ export default function CareersPage() {
           </div>
           <div className="space-y-4 text-slate-300">
             <p>
-              We're on a mission to make healthcare more accessible and affordable. Join a team that's 
+              We&apos;re on a mission to make healthcare more accessible and affordable. Join a team that&apos;s 
               revolutionizing the diagnostic testing industry through technology, innovation, and a 
               commitment to patient-centered care.
             </p>
             <div className="grid md:grid-cols-2 gap-6 mt-6">
               <div>
                 <h3 className="text-lg font-semibold text-emerald-300 mb-3">Impact</h3>
-                <p className="text-sm">Make a difference in people's health journeys every day</p>
+                <p className="text-sm">Make a difference in people&apos;s health journeys every day</p>
               </div>
               <div>
                 <h3 className="text-lg font-semibold text-cyan-300 mb-3">Innovation</h3>
@@ -77,9 +77,9 @@ export default function CareersPage() {
                 <div className="w-2 h-2 bg-amber-400 rounded-full animate-pulse absolute top-4 left-1" style={{animationDelay: '0.6s'}}></div>
               </div>
             </div>
-            <h3 className="text-2xl font-semibold text-white mb-4">We're Growing!</h3>
+            <h3 className="text-2xl font-semibold text-white mb-4">We&apos;re Growing!</h3>
             <p className="text-slate-300 mb-6">
-              We're actively expanding our team. Check back soon for new opportunities or reach out 
+              We&apos;re actively expanding our team. Check back soon for new opportunities or reach out 
               to learn about upcoming positions.
             </p>
             <div className="space-y-4">
@@ -183,7 +183,7 @@ export default function CareersPage() {
           </div>
           <div className="space-y-4 text-slate-300">
             <p>
-              Interested in joining our team? We'd love to hear from you! Send us your resume and 
+              Interested in joining our team? We&apos;d love to hear from you! Send us your resume and 
               a note about what interests you about Prism Health Lab.
             </p>
             <div className="space-y-2">

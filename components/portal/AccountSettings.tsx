@@ -5,9 +5,23 @@ import { motion } from 'framer-motion'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 
+interface Profile {
+  id: string
+  first_name?: string
+  last_name?: string
+  email?: string
+  phone?: string
+}
+
+interface User {
+  id: string
+  email?: string
+  created_at?: string
+}
+
 interface AccountSettingsProps {
-  profile: any
-  user: any
+  profile: Profile
+  user: User
 }
 
 export default function AccountSettings({ profile, user }: AccountSettingsProps) {
@@ -44,7 +58,7 @@ export default function AccountSettings({ profile, user }: AccountSettingsProps)
       // Sign out
       await supabase.auth.signOut()
       router.push('/login')
-    } catch (err) {
+    } catch (_err) {
       setMessage({ type: 'error', text: 'Failed to deactivate account' })
     } finally {
       setIsLoading(false)
@@ -80,7 +94,7 @@ export default function AccountSettings({ profile, user }: AccountSettingsProps)
       // Sign out and redirect
       await supabase.auth.signOut()
       router.push('/login')
-    } catch (err) {
+    } catch (_err) {
       setMessage({ type: 'error', text: 'Failed to delete account' })
     } finally {
       setIsDeleting(false)
@@ -94,7 +108,7 @@ export default function AccountSettings({ profile, user }: AccountSettingsProps)
     try {
       // In production, this would generate a data export
       setMessage({ type: 'success', text: 'Data export request received. You will receive an email with your data within 24 hours.' })
-    } catch (err) {
+    } catch (_err) {
       setMessage({ type: 'error', text: 'Failed to request data export' })
     } finally {
       setIsLoading(false)

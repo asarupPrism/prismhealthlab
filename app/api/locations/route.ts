@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { getActiveLocations } from '@/lib/actions/locations';
 
 export async function GET() {

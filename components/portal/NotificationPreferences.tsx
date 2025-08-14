@@ -1,16 +1,21 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { motion } from 'framer-motion'
 import { createClient } from '@/lib/supabase/client'
 
+interface NotificationPreferences {
+  email_results: boolean
+  sms_reminders: boolean
+  push_notifications: boolean
+}
+
 interface NotificationPreferencesProps {
-  preferences: any
+  preferences: NotificationPreferences
   userId: string
 }
 
 export default function NotificationPreferences({ preferences, userId }: NotificationPreferencesProps) {
-  const [isLoading, setIsLoading] = useState(false)
   const [successMessage, setSuccessMessage] = useState('')
   
   const [notificationSettings, setNotificationSettings] = useState({

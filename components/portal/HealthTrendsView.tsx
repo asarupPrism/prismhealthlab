@@ -13,10 +13,8 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  Legend,
   ResponsiveContainer,
-  ReferenceLine,
-  Dot
+  ReferenceLine
 } from 'recharts'
 
 interface TestResult {

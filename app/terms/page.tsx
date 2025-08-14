@@ -141,7 +141,7 @@ export default function TermsPage() {
             </div>
             <div className="space-y-4 text-slate-300">
               <p>
-                Prism Health Lab's liability is limited to the cost of the diagnostic tests ordered. 
+                Prism Health Lab&apos;s liability is limited to the cost of the diagnostic tests ordered. 
                 We are not liable for any indirect, incidental, or consequential damages arising from 
                 the use of our services.
               </p>

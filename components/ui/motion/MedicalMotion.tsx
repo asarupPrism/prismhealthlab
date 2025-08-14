@@ -2,7 +2,6 @@
 
 import React, { useEffect, useState } from 'react'
 import dynamic from 'next/dynamic'
-import { motion } from 'framer-motion'
 
 // Dynamically import motion with SSR disabled
 const DynamicMotion = dynamic(
@@ -16,9 +15,9 @@ const DynamicMotion = dynamic(
 interface MedicalMotionProps {
   children: React.ReactNode
   className?: string
-  initial?: Record<string, any>
-  animate?: Record<string, any>
-  transition?: Record<string, any>
+  initial?: Record<string, string | number | boolean>
+  animate?: Record<string, string | number | boolean>
+  transition?: Record<string, string | number | boolean>
   delay?: number
   duration?: number
   type?: 'fade' | 'slide' | 'scale' | 'none'
