@@ -5,11 +5,19 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { generateSingleResultPDF, generateMultipleResultsPDF, downloadPDF, openPDFInNewTab } from '@/lib/pdf/generateResultsPDF'
 import { TestResult } from '@/types/shared'
 
+interface UserProfile {
+  id: string
+  first_name?: string
+  last_name?: string
+  email?: string
+  phone?: string
+}
+
 interface ResultsExportModalProps {
   isOpen: boolean
   onClose: () => void
   results: TestResult[]
-  profile: any
+  profile: UserProfile
 }
 
 export default function ResultsExportModal({ isOpen, onClose, results, profile }: ResultsExportModalProps) {

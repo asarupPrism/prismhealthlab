@@ -7,9 +7,16 @@ import RecentResultsCard from './RecentResultsCard'
 import ResultsExportModal from './ResultsExportModal'
 import { TestResult } from '@/types/shared'
 
+interface UserProfile {
+  id: string
+  first_name?: string
+  last_name?: string
+  email?: string
+}
+
 interface ResultsViewProps {
   results: TestResult[]
-  profile?: any
+  profile?: UserProfile
 }
 
 export default function ResultsView({ results, profile }: ResultsViewProps) {

@@ -4,18 +4,39 @@ import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
 
+interface OrderItem {
+  id: string
+  name: string
+  quantity: number
+  price: number
+}
+
+interface Address {
+  line_1?: string
+  line_2?: string
+  city?: string
+  state?: string
+  zip?: string
+}
+
+interface Appointment {
+  id: string
+  date: string
+  status: string
+}
+
 interface Order {
   id: string
   swell_order_number?: string
   customer_email: string
   total: number
   status: string
-  items?: any[]
+  items?: OrderItem[]
   created_at: string
   payment_method?: string
-  shipping_address?: any
-  billing_address?: any
-  appointments?: any[]
+  shipping_address?: Address
+  billing_address?: Address
+  appointments?: Appointment[]
 }
 
 interface OrderHistoryViewProps {

@@ -58,7 +58,7 @@ export default function AccountSettings({ profile, user }: AccountSettingsProps)
       // Sign out
       await supabase.auth.signOut()
       router.push('/login')
-    } catch (_err) {
+    } catch {
       setMessage({ type: 'error', text: 'Failed to deactivate account' })
     } finally {
       setIsLoading(false)
@@ -94,7 +94,7 @@ export default function AccountSettings({ profile, user }: AccountSettingsProps)
       // Sign out and redirect
       await supabase.auth.signOut()
       router.push('/login')
-    } catch (_err) {
+    } catch {
       setMessage({ type: 'error', text: 'Failed to delete account' })
     } finally {
       setIsDeleting(false)
@@ -108,7 +108,7 @@ export default function AccountSettings({ profile, user }: AccountSettingsProps)
     try {
       // In production, this would generate a data export
       setMessage({ type: 'success', text: 'Data export request received. You will receive an email with your data within 24 hours.' })
-    } catch (_err) {
+    } catch {
       setMessage({ type: 'error', text: 'Failed to request data export' })
     } finally {
       setIsLoading(false)

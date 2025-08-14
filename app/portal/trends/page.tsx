@@ -58,7 +58,7 @@ export default async function HealthTrendsPage() {
     improvementRate,
     mostRecentDate,
     normalResults,
-    testsWithTrends: Object.entries(groupedResults).filter(([_testName, tests]: [string, any[]]) => tests.length > 1).length
+    testsWithTrends: Object.entries(groupedResults).filter(([, tests]: [string, any[]]) => tests.length > 1).length
   }
 
   return (
