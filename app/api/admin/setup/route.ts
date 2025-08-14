@@ -111,9 +111,10 @@ async function executeSetupSections(adminClient: ReturnType<typeof getAdminClien
     } catch (accessError) {
       console.error('Setup API: Critical table access error:', accessError)
       
-      if (accessError.message?.includes('infinite recursion') || 
-          accessError.message?.includes('policy')) {
-        throw new Error(`Database RLS Issue Detected: ${accessError.message}. Please run the Gold Standard fix: /database/GOLD_STANDARD_RLS_FIX.sql`)
+      const errorMessage = accessError instanceof Error ? accessError.message : String(accessError)
+      if (errorMessage?.includes('infinite recursion') || 
+          errorMessage?.includes('policy')) {
+        throw new Error(`Database RLS Issue Detected: ${errorMessage}. Please run the Gold Standard fix: /database/GOLD_STANDARD_RLS_FIX.sql`)
       }
       
       throw accessError
@@ -221,9 +222,10 @@ async function executeSetupSections(adminClient: ReturnType<typeof getAdminClien
     console.error('Setup API: Sectioned execution failed:', error)
     
     // Provide helpful error messages for common issues
-    if (error.message?.includes('infinite recursion')) {
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    if (errorMessage?.includes('infinite recursion')) {
       throw new Error('Database RLS Configuration Issue: Infinite recursion detected. Please run the Gold Standard fix in your Supabase SQL editor: /database/GOLD_STANDARD_RLS_FIX.sql')
-    } else if (error.message?.includes('relation') && error.message?.includes('does not exist')) {
+    } else if (errorMessage?.includes('relation') && errorMessage?.includes('does not exist')) {
       throw new Error('Database Schema Issue: Required tables do not exist. Please run the schema migration first.')
     }
     

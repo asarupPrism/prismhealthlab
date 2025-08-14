@@ -89,8 +89,7 @@ export default async function AdminStaffPage() {
           hasDepartments={!!(departments && departments.length > 0)}
           errors={{
             roles: rolesError?.message,
-            departments: deptError?.message,
-            staff: staffError?.message
+            departments: deptError?.message
           }}
         />
       )}

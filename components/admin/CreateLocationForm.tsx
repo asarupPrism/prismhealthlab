@@ -8,11 +8,11 @@ interface StaffMember {
   id: string
   first_name: string | null
   last_name: string | null
-  profiles?: {
+  profiles?: Array<{
     first_name: string | null
     last_name: string | null
     email: string | null
-  }
+  }>
 }
 
 interface CreateLocationFormProps {
@@ -170,9 +170,10 @@ export default function CreateLocationForm({ staff }: CreateLocationFormProps) {
   }
 
   const getStaffDisplayName = (staffMember: StaffMember) => {
-    const firstName = staffMember.profiles?.first_name || staffMember.first_name || ''
-    const lastName = staffMember.profiles?.last_name || staffMember.last_name || ''
-    return `${firstName} ${lastName}`.trim() || staffMember.profiles?.email || 'Unknown'
+    const profile = staffMember.profiles?.[0] // Get first profile from array
+    const firstName = profile?.first_name || staffMember.first_name || ''
+    const lastName = profile?.last_name || staffMember.last_name || ''
+    return `${firstName} ${lastName}`.trim() || profile?.email || 'Unknown'
   }
 
   return (

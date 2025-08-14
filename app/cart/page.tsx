@@ -121,7 +121,7 @@ export default function CartPage() {
                         {item.product?.name || 'Diagnostic Test'}
                       </h3>
                       <p className="text-slate-400 text-sm mb-4">
-                        {item.product?.description || 'Professional diagnostic testing'}
+                        {(typeof item.product?.description === 'string' ? item.product.description : '') || 'Professional diagnostic testing'}
                       </p>
                       <div className="flex items-center gap-4">
                         <div className="flex items-center gap-2">
