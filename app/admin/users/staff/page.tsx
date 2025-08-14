@@ -6,7 +6,6 @@ import StaffList from '@/components/admin/StaffList'
 import AdminSetupCard from '@/components/admin/AdminSetupCard'
 
 export default async function AdminStaffPage() {
-  const supabase = await createClient()
   const adminClient = getAdminClient()
 
   // Get all staff members with their roles and departments using admin client
@@ -87,8 +86,8 @@ export default async function AdminStaffPage() {
       {(needsSetup || hasDataIssues) && (
         <AdminSetupCard 
           needsSetup={needsSetup}
-          hasRoles={roles && roles.length > 0}
-          hasDepartments={departments && departments.length > 0}
+          hasRoles={!!(roles && roles.length > 0)}
+          hasDepartments={!!(departments && departments.length > 0)}
           errors={{
             roles: rolesError?.message,
             departments: deptError?.message,

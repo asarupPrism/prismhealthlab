@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getActiveLocations } from '@/lib/actions/locations';
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     // Use the action to get locations
     const result = await getActiveLocations();

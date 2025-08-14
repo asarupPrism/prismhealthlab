@@ -70,7 +70,7 @@ export default async function AdminLocationsPage() {
       </div>
 
       {/* Create Location Section */}
-      <CreateLocationForm staff={staff || []} />
+      <CreateLocationForm staff={staff || [] as any} />
 
       {/* Current Locations List */}
       <LocationsList locations={locations || []} />

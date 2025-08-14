@@ -20,7 +20,7 @@ interface LocationsListProps {
 }
 
 export default function LocationsList({ locations }: LocationsListProps) {
-  const [selectedLocation] = useState<string | null>(null)
+  // const [selectedLocation] = useState<string | null>(null)
 
   const formatAddress = (location: Location) => {
     const parts = [
