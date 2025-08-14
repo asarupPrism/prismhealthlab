@@ -27,6 +27,11 @@ interface Location {
   name: string
   address: string
   available: boolean
+  phone?: string
+  operatingHours?: Record<string, unknown>
+  services?: string[]
+  capacity?: number
+  acceptsWalkIns?: boolean
 }
 
 interface AppointmentSchedulerProps {

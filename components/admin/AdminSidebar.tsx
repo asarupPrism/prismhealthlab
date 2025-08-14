@@ -102,6 +102,18 @@ export default function AdminSidebar({ adminProfile }: AdminSidebarProps) {
       ]
     },
     {
+      id: 'locations',
+      label: 'Locations',
+      href: '/admin/locations',
+      icon: (
+        <div className="w-6 h-6 bg-gradient-to-br from-rose-400 to-pink-500 rounded-lg flex items-center justify-center">
+          <div className="w-4 h-4 bg-white/20 rounded-lg flex items-center justify-center">
+            <div className="w-2 h-2 bg-white rounded-full"></div>
+          </div>
+        </div>
+      )
+    },
+    {
       id: 'results',
       label: 'Test Results',
       href: '/admin/results',
