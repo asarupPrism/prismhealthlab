@@ -16,11 +16,7 @@ export default function CareersPage() {
 
       <div className="relative max-w-4xl mx-auto px-6">
         {/* Header */}
-        <SlideIn className="div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-12"
-        >
+        <SlideIn className="mb-12">
           <div className="flex items-center gap-3 mb-6">
             <div className="w-3 h-3 bg-cyan-400 rounded-full animate-pulse"></div>
             <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" style={{animationDelay: '0.5s'}}></div>
@@ -31,15 +27,10 @@ export default function CareersPage() {
           <p className="text-xl text-slate-300">
             Help us democratize healthcare through innovative diagnostic solutions
           </p>
-        </motion.div>
+        </SlideIn>
 
         {/* Mission */}
-        <SlideIn className="div 
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="backdrop-blur-sm bg-slate-800/30 border border-slate-700/30 rounded-2xl p-8 mb-12"
-        >
+        <GlassCard delay={0.2} className="p-8 mb-12">
           <div className="flex items-center gap-3 mb-6">
             <div className="w-3 h-3 bg-emerald-400 rounded-full animate-pulse"></div>
             <h2 className="text-2xl font-semibold text-white">Why Prism Health Lab?</h2>
@@ -72,7 +63,7 @@ export default function CareersPage() {
         </motion.div>
 
         {/* Open Positions */}
-        <SlideIn className="div 
+        <motion.div 
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
@@ -137,7 +128,7 @@ export default function CareersPage() {
         </motion.div>
 
         {/* Benefits */}
-        <SlideIn className="div 
+        <motion.div 
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6 }}
@@ -195,7 +186,7 @@ export default function CareersPage() {
         </motion.div>
 
         {/* Contact */}
-        <SlideIn className="div 
+        <motion.div 
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.8 }}
