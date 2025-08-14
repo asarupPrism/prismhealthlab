@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion } from 'framer-motion';
+// import { motion } from 'framer-motion';
 
 export default function PrivacyPage() {
   return (
@@ -16,9 +16,7 @@ export default function PrivacyPage() {
 
       <div className="relative max-w-4xl mx-auto px-6">
         {/* Header */}
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
+        <div 
           className="mb-12"
         >
           <div className="flex items-center gap-3 mb-6">
@@ -34,13 +32,10 @@ export default function PrivacyPage() {
           <p className="text-slate-400 text-sm mt-4">
             Last updated: January 2025
           </p>
-        </motion.div>
+        </div>
 
         {/* Content */}
-        <motion.div 
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
+        <div 
           className="space-y-8"
         >
           {/* Overview */}
@@ -234,7 +229,7 @@ export default function PrivacyPage() {
               </div>
             </div>
           </div>
-        </motion.div>
+        </div>
       </div>
     </div>
   );
