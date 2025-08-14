@@ -86,19 +86,43 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Load profile function
   const loadProfile = useCallback(async (userId: string) => {
     try {
+      console.log('Loading profile for user:', userId)
+      
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
         .eq('user_id', userId)
         .single()
 
-      if (error && error.code !== 'PGRST116') {
-        console.error('Error loading profile:', error)
+      if (error) {
+        if (error.code === 'PGRST116') {
+          // No profile found - this is expected for new users
+          console.log('No profile found for user:', userId, '- this may be a new user')
+          setProfile(null)
+        } else {
+          // Actual error occurred
+          console.error('Error loading profile:', {
+            message: error.message,
+            code: error.code,
+            details: error.details,
+            hint: error.hint,
+            userId
+          })
+          setProfile(null)
+        }
       } else {
+        console.log('Profile loaded successfully for user:', userId)
         setProfile(data)
       }
     } catch (error) {
-      console.error('Error loading profile:', error)
+      console.error('Error loading profile (catch block):', {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        name: error instanceof Error ? error.name : 'Unknown',
+        stack: error instanceof Error ? error.stack : undefined,
+        error: error,
+        userId
+      })
+      setProfile(null)
     }
   }, [supabase])
 
@@ -125,14 +149,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.log('Admin check API response:', { status: response.status, duration })
 
       if (!response.ok) {
-        throw new Error(`Admin check failed with status: ${response.status}`)
+        const errorText = await response.text()
+        throw new Error(`Admin check failed with status: ${response.status} - ${errorText}`)
       }
 
       const result = await response.json()
       console.log('Admin check result:', result)
 
       if (result.error) {
-        throw new Error(result.error)
+        throw new Error(`Admin check API error: ${result.error}`)
       }
 
       // Success - dispatch with roles (default to ['admin'] for now)
@@ -148,7 +173,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const duration = performance.now() - startTime
       const errorMessage = getErrorMessage(error)
       
-      console.error('Admin check error:', { error: errorMessage, duration })
+      console.error('Admin check error:', {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        name: error instanceof Error ? error.name : 'Unknown',
+        stack: error instanceof Error ? error.stack : undefined,
+        errorMessage,
+        duration,
+        userId: user?.id,
+        error: error
+      })
       
       dispatchAdmin({
         type: 'CHECK_ERROR',
@@ -282,23 +315,55 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Bootstrap effect - only handles initial session loading
   useEffect(() => {
-    const getSession = async () => {
-      const { data: { session }, error } = await supabase.auth.getSession()
-      
-      if (error) {
-        console.error('Error getting session:', error)
-      } else {
-        setSession(session)
-        setUser(session?.user ?? null)
-        
-        // Load profile if user exists
-        if (session?.user) {
-          await loadProfile(session.user.id)
-        }
-      }
-      
-      // Bootstrap is complete - regardless of whether there's a user
+    console.log('🔄 Bootstrap effect starting...')
+    
+    // Failsafe timeout - if bootstrap takes more than 10 seconds, force complete it
+    const bootstrapTimeout = setTimeout(() => {
+      console.warn('⚠️ Bootstrap timeout reached - forcing completion')
       setBootstrapLoading(false)
+    }, 10000)
+    
+    const getSession = async () => {
+      try {
+        console.log('🔍 Getting initial session...')
+        const { data: { session }, error } = await supabase.auth.getSession()
+        
+        if (error) {
+          console.error('❌ Error getting session:', error)
+        } else {
+          console.log('✅ Session retrieved:', session ? 'User found' : 'No user')
+          setSession(session)
+          setUser(session?.user ?? null)
+          
+          // Load profile if user exists (with timeout)
+          if (session?.user) {
+            console.log('👤 Loading profile for user:', session.user.id)
+            try {
+              // Add timeout to profile loading
+              const profilePromise = loadProfile(session.user.id)
+              const timeoutPromise = new Promise((_, reject) => 
+                setTimeout(() => reject(new Error('Profile loading timeout')), 5000)
+              )
+              
+              await Promise.race([profilePromise, timeoutPromise])
+              console.log('✅ Profile loading completed')
+            } catch (profileError) {
+              console.error('❌ Profile loading failed:', profileError)
+              // Continue anyway - don't block bootstrap
+            }
+          }
+        }
+        
+        console.log('✅ Bootstrap complete - setting bootstrapLoading to false')
+        // Bootstrap is complete - regardless of whether there's a user
+        clearTimeout(bootstrapTimeout)
+        setBootstrapLoading(false)
+      } catch (sessionError) {
+        console.error('❌ Session retrieval failed:', sessionError)
+        // Still set bootstrap to false to prevent infinite loading
+        clearTimeout(bootstrapTimeout)
+        setBootstrapLoading(false)
+      }
     }
 
     getSession()
@@ -306,24 +371,31 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        console.log('🔄 Auth state change:', event, session ? 'User present' : 'No user')
         setSession(session)
         setUser(session?.user ?? null)
         
         // Load profile for new sessions
         if (session?.user && event === 'SIGNED_IN') {
-          await loadProfile(session.user.id)
+          console.log('👤 Loading profile for signed-in user:', session.user.id)
+          try {
+            await loadProfile(session.user.id)
+          } catch (profileError) {
+            console.error('❌ Profile loading failed on sign in:', profileError)
+          }
         } else if (event === 'SIGNED_OUT') {
+          console.log('👋 User signed out - clearing profile and admin state')
           setProfile(null)
           // Reset admin state on sign out
           dispatchAdmin({ type: 'RESET' })
         }
-        
-        // Auth state change completed - bootstrap is done
-        setBootstrapLoading(false)
       }
     )
 
-    return () => subscription.unsubscribe()
+    return () => {
+      subscription.unsubscribe()
+      clearTimeout(bootstrapTimeout)
+    }
   }, [supabase, loadProfile])
 
   // Admin check effect - only runs after bootstrap is complete

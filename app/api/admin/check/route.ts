@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 
 // POST /api/admin/check - Check if user is admin (server-side with service role)
 export async function POST(request: NextRequest) {
@@ -15,8 +15,8 @@ export async function POST(request: NextRequest) {
 
     console.log('Server API: Checking admin for user:', userId)
     
-    // Create server-side Supabase client (uses service role, can bypass RLS)
-    const supabase = await createClient()
+    // Create admin Supabase client (uses service role key, bypasses RLS)
+    const supabase = createAdminClient()
     
     // Query staff table using server-side client with service role permissions
     console.log('Server API: Querying staff table...')

@@ -13,6 +13,13 @@ export default async function ResultsPage() {
     redirect('/checkout')
   }
 
+  // Fetch user profile
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('user_id', user.id)
+    .single()
+
   // Fetch user's test results
   const { data: results, error: resultsError } = await supabase
     .from('test_results')
@@ -56,7 +63,7 @@ export default async function ResultsPage() {
         </div>
 
         {/* Results View */}
-        <ResultsView results={results || []} />
+        <ResultsView results={results || []} profile={profile} />
       </div>
     </div>
   )

@@ -1,6 +1,7 @@
 import React from 'react'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { AdminAuthServer } from '@/lib/admin-server'
 import AdminSidebar from '@/components/admin/AdminSidebar'
 import AdminHeader from '@/components/admin/AdminHeader'
@@ -12,7 +13,8 @@ interface AdminLayoutProps {
 
 export default async function AdminLayout({ children }: AdminLayoutProps) {
   const supabase = await createClient()
-  const adminAuth = new AdminAuthServer(supabase)
+  const adminClient = createAdminClient()
+  const adminAuth = new AdminAuthServer()
   
   // Check if user is authenticated
   const { data: { user } } = await supabase.auth.getUser()
@@ -30,7 +32,7 @@ export default async function AdminLayout({ children }: AdminLayoutProps) {
   const adminProfile = await adminAuth.getAdminProfile(user.id)
   
   // Get user profile for display
-  const { data: profile } = await supabase
+  const { data: profile } = await adminClient
     .from('profiles')
     .select('*')
     .eq('user_id', user.id)

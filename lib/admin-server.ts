@@ -1,51 +1,46 @@
 // Server-side admin utilities for Prism Health Lab
 // For use in server components and API routes only
 
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import type { AdminProfile } from './admin-types'
 
 // Server-side admin utilities
 export class AdminAuthServer {
-  private supabase: Awaited<ReturnType<typeof createClient>>
+  private supabase: ReturnType<typeof createAdminClient>
 
-  constructor(supabaseClient: Awaited<ReturnType<typeof createClient>>) {
-    this.supabase = supabaseClient
+  constructor() {
+    this.supabase = createAdminClient()
   }
 
   // Check if current user is admin (server-side)
-  async isAdmin(userId?: string): Promise<boolean> {
+  async isAdmin(userId: string): Promise<boolean> {
     try {
       console.log('=== SERVER ADMIN CHECK START ===')
       
-      const { data: { user }, error: userError } = await this.supabase.auth.getUser()
-      
-      if (userError) {
-        console.error('Server auth error getting user:', userError)
+      if (!userId) {
+        console.log('No user ID provided for server admin check')
         return false
       }
 
-      const targetUserId = userId || user?.id
-      if (!targetUserId) {
-        console.log('No user ID found for server admin check')
-        return false
-      }
-
-      console.log('Server: Checking admin for user:', targetUserId)
-      console.log('Server auth user object:', user)
-
+      console.log('Server: Checking admin for user:', userId)
       // Ultra-simplified query - just check if staff record exists
       console.log('Server Step 1: Querying staff table...')
       const { data: staffData, error: staffError } = await this.supabase
         .from('staff')
         .select('*')
-        .eq('user_id', targetUserId)
+        .eq('user_id', userId)
         .maybeSingle()
 
       console.log('Server staff query completed!')
       console.log('Server staff query result:', { staffData, staffError })
 
       if (staffError) {
-        console.error('Server staff query failed:', staffError)
+        console.error('Server staff query failed:', {
+          message: staffError.message,
+          code: staffError.code,
+          details: staffError.details,
+          hint: staffError.hint
+        })
         return false
       }
 
@@ -77,33 +72,38 @@ export class AdminAuthServer {
       
       return true
     } catch (error) {
-      console.error('Server error in admin check:', error)
+      console.error('Server error in admin check:', {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        error: error
+      })
       console.log('=== SERVER ADMIN CHECK END (ERROR) ===')
       return false
     }
   }
 
   // Get admin profile (server-side)
-  async getAdminProfile(userId?: string): Promise<AdminProfile | null> {
+  async getAdminProfile(userId: string): Promise<AdminProfile | null> {
     try {
-      const targetUserId = userId || (await this.supabase.auth.getUser()).data.user?.id
-      if (!targetUserId) return null
+      if (!userId) return null
 
       const { data: profile } = await this.supabase
         .from('staff')
         .select('*')
-        .eq('user_id', targetUserId)
+        .eq('user_id', userId)
         .single()
 
       return profile
     } catch (error) {
-      console.error('Error fetching admin profile:', error)
+      console.error('Error fetching admin profile:', {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        error: error
+      })
       return null
     }
   }
 
   // Check specific permission (server-side)
-  async hasPermission(permission: string, userId?: string): Promise<boolean> {
+  async hasPermission(permission: string, userId: string): Promise<boolean> {
     try {
       const profile = await this.getAdminProfile(userId)
       if (!profile) return false
@@ -111,7 +111,10 @@ export class AdminAuthServer {
       return profile.permissions.includes(permission) || 
              profile.role === 'superadmin'
     } catch (error) {
-      console.error('Error checking permission:', error)
+      console.error('Error checking permission:', {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        error: error
+      })
       return false
     }
   }

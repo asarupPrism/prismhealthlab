@@ -1,8 +1,48 @@
 # Prism Health Lab - Project Documentation
 
-## Project Overview
+## Business Context & Purpose
 
-Prism Health Lab is a modern, high-end diagnostic testing platform that allows customers to order tests, schedule appointments, and access results through a sleek patient portal. The platform combines e-commerce functionality with healthcare data management.
+**Prism Health Lab** is a direct-to-consumer diagnostic testing e-commerce platform that democratizes healthcare by providing affordable, accessible, and comprehensive health insights through online ordering and secure digital results delivery.
+
+### Core Value Proposition
+- **50-70% cost savings** vs traditional healthcare labs
+- **2-3 day results** vs industry standard 7-14 days
+- **CLIA-certified** laboratory partnerships ensuring medical-grade accuracy
+- **HIPAA-compliant** security and data protection
+- **Medical-grade user experience** with professional dark theme interface
+
+### Target Customers
+**Primary Market**: Health-conscious millennials, fitness enthusiasts, wellness-focused professionals
+- Ages 25-40, tech-savvy, proactive about preventive care
+- Performance optimization, hormone tracking, routine health monitoring
+- Budget-conscious but value quality, prefer direct-pay vs insurance
+- Data-driven health decisions and self-directed monitoring
+
+### Business Model
+**B2C Diagnostic Testing E-commerce**: Direct lab access without insurance requirements, eliminating healthcare middlemen while streamlining digital-first healthcare workflows from order to results.
+
+## Product Catalog
+
+**9 Diagnostic Test Panels** across **4 Health Categories** ($59-$149 price range)
+
+### Performance & Recovery
+- **Muscle & Performance Panel** - $149 (7 tests): Testosterone, DHEA, recovery markers, nutritional status
+
+### Wellness & Longevity  
+- **Routine Self-Care Panel** - $59 (8 tests): Essential health baseline, CMP, CBC, vitamins
+- **Longevity & Wellness Panel** - $99 (8 tests): Disease prevention, inflammation markers, metabolic health
+
+### Hormone Health
+- **General Hormone Panel** - $89 (6 tests): Gender-neutral hormone tracking, core hormones
+- **Male Hormone Optimization** - $99 (6 tests): Testosterone optimization with safety monitoring 
+- **Female Hormone Optimization** - $99 (7 tests): Reproductive health and cycle tracking
+
+### Comprehensive Health
+- **Male Comprehensive Health** - $119 (8 tests): Complete male health evaluation
+- **Female Comprehensive Health** - $119 (10 tests): Complete female health evaluation
+- **Sexual Health Panel** - $99 (6 tests): STI screening with confidential results
+
+*All panels include detailed test breakdowns, preparation instructions, and clinical purposes. CLIA-certified processing with 2-5 day turnaround.*
 
 ## Core Features
 
@@ -262,20 +302,33 @@ The style guide is the single source of truth for:
 - [ ] Marketing integration
 - [ ] Analytics setup
 
-## Future Enhancements
+## Development Constraints & Business Alignment
 
-### Phase 2 Features
-- **Telemedicine Integration**: Consult with healthcare providers
-- **AI Health Insights**: Personalized health recommendations
-- **Wearable Integration**: Sync with fitness trackers
-- **Family Accounts**: Manage multiple family members
-- **Insurance Integration**: Direct billing capabilities
+### Core Business Focus Requirements
+**All development work MUST align with the diagnostic testing e-commerce platform:**
+- ✅ Support direct-to-consumer diagnostic testing business model
+- ✅ Maintain insurance-free, transparent pricing structure  
+- ✅ Focus on self-service health monitoring (no medical consultations)
+- ✅ Digital-first experience from product discovery to results delivery
+- ✅ Target health-conscious millennials, athletes, and wellness enthusiasts
 
-### Advanced Analytics
-- **Predictive Health**: Early warning systems
-- **Population Health**: Aggregate health trends
-- **Personalized Medicine**: Tailored test recommendations
-- **Research Integration**: Contribute to health studies
+### Approved Future Enhancements
+**Phase 2 Features (Business-Aligned)**:
+- **Advanced Health Analytics**: Trend analysis, personalized insights, risk identification
+- **Telemedicine Integration**: Optional physician consultations for results review
+- **Family Account Management**: Multi-user accounts with parental controls
+- **Wearable Integration**: Fitness tracker data correlation with lab results
+- **HSA/FSA Integration**: Health savings account payment compatibility
+
+### Prohibited Developments
+**Features that violate platform purpose:**
+- ❌ Medical diagnosis services or medical advice
+- ❌ Insurance claims processing (maintain direct-pay simplicity)
+- ❌ Physical healthcare services (no clinics or in-person care)
+- ❌ Prescription/medication management
+- ❌ Emergency care or urgent medical services
+- ❌ Multi-tenancy or white-label solutions
+- ❌ Alternative payment models (maintain transparent pricing)
 
 ## Contact & Support
 
@@ -318,7 +371,16 @@ The style guide is the single source of truth for:
 - Status indicators must use established color coding
 - No emoji usage in any interface element
 
+### **📋 Business Alignment Checklist**
+**Before implementing any feature, verify:**
+1. **Business Fit**: Does this support diagnostic testing e-commerce?
+2. **Customer Value**: Does this improve the testing or results experience?
+3. **Compliance**: Is this HIPAA-compliant and medically appropriate?
+4. **Technical Integration**: Does this work with Swell.is/Supabase architecture?
+5. **Design Consistency**: Does this follow medical-grade design system?
+6. **Target Market**: Does this serve health-conscious millennials/athletes?
+
 ---
 
-*Last updated: July 2025*
-*Version: 2.0 - Medical-Grade Dark Theme*
+*Last updated: January 2025*
+*Version: 3.0 - Optimized Single Documentation Source*

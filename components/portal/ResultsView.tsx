@@ -4,16 +4,19 @@ import React, { useState } from 'react'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 import RecentResultsCard from './RecentResultsCard'
+import ResultsExportModal from './ResultsExportModal'
 import { TestResult } from '@/types/shared'
 
 interface ResultsViewProps {
   results: TestResult[]
+  profile?: any
 }
 
-export default function ResultsView({ results }: ResultsViewProps) {
+export default function ResultsView({ results, profile }: ResultsViewProps) {
   const [filterStatus, setFilterStatus] = useState<string>('all')
   const [filterCategory, setFilterCategory] = useState<string>('all')
   const [sortBy, setSortBy] = useState<string>('date')
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false)
 
   // Get unique categories
   const categories = Array.from(new Set(
@@ -182,7 +185,10 @@ export default function ResultsView({ results }: ResultsViewProps) {
           </div>
 
           {/* Export Button */}
-          <button className="px-6 py-3 bg-gradient-to-r from-emerald-500 to-green-600 text-white font-semibold rounded-xl hover:from-emerald-400 hover:to-green-500 transition-all duration-300 shadow-lg shadow-emerald-500/25">
+          <button 
+            onClick={() => setIsExportModalOpen(true)}
+            className="px-6 py-3 bg-gradient-to-r from-emerald-500 to-green-600 text-white font-semibold rounded-xl hover:from-emerald-400 hover:to-green-500 transition-all duration-300 shadow-lg shadow-emerald-500/25"
+          >
             Export Results
           </button>
         </div>
@@ -339,6 +345,14 @@ export default function ResultsView({ results }: ResultsViewProps) {
           </div>
         </div>
       </div>
+
+      {/* Export Modal */}
+      <ResultsExportModal 
+        isOpen={isExportModalOpen}
+        onClose={() => setIsExportModalOpen(false)}
+        results={sortedResults}
+        profile={profile}
+      />
     </div>
   )
 }
