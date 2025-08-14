@@ -28,7 +28,6 @@ export default function PrivacySettings({ preferences, userId }: PrivacySettings
     dataRetentionPeriod: preferences?.data_retention_period || '5years'
   })
   
-  const [_isLoading, setIsLoading] = useState(false)
   const [message, setMessage] = useState<string | null>(null)
 
   const handleToggle = async (setting: string, value: boolean) => {
@@ -44,7 +43,6 @@ export default function PrivacySettings({ preferences, userId }: PrivacySettings
   }
 
   const saveSettings = async (settings: typeof privacySettings) => {
-    setIsLoading(true)
     setMessage(null)
 
     try {
@@ -83,7 +81,6 @@ export default function PrivacySettings({ preferences, userId }: PrivacySettings
     } catch (err) {
       console.error('Error saving privacy settings:', err)
     } finally {
-      setIsLoading(false)
     }
   }
 

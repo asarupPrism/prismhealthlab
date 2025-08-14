@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { createClient } from '@/lib/supabase/client'
 
@@ -31,9 +31,9 @@ export default function EmergencyContacts({ userId }: EmergencyContactsProps) {
 
   useEffect(() => {
     loadContacts()
-  }, [userId])
+  }, [loadContacts])
 
-  const loadContacts = async () => {
+  const loadContacts = useCallback(async () => {
     try {
       const supabase = createClient()
       const { data } = await supabase
@@ -48,7 +48,7 @@ export default function EmergencyContacts({ userId }: EmergencyContactsProps) {
     } catch (err) {
       console.error('Error loading emergency contacts:', err)
     }
-  }
+  }, [userId])
 
   const handleAddContact = async () => {
     if (!newContact.name || !newContact.phone) {

@@ -121,7 +121,21 @@ export default function HealthTrendsView({ groupedResults }: HealthTrendsViewPro
   const refRange = getReferenceRange()
 
   // Custom tooltip for charts
-  const CustomTooltip = ({ active, payload, label }: any) => {
+  interface TooltipProps {
+    active?: boolean
+    payload?: Array<{
+      payload: {
+        date: string
+        value: number
+        status: string
+        normal_range?: { min: number; max: number }
+      }
+      value: number
+    }>
+    label?: string
+  }
+  
+  const CustomTooltip = ({ active, payload, label }: TooltipProps) => {
     if (active && payload && payload.length) {
       const data = payload[0].payload
       return (
@@ -146,7 +160,17 @@ export default function HealthTrendsView({ groupedResults }: HealthTrendsViewPro
   }
 
   // Custom dot for line chart
-  const CustomDot = (props: any) => {
+  interface DotProps {
+    cx?: number
+    cy?: number
+    payload?: {
+      status: string
+      date: string
+      value: number
+    }
+  }
+  
+  const CustomDot = (props: DotProps) => {
     const { cx, cy, payload } = props
     const color = 
       payload.status === 'normal' ? '#10b981' :

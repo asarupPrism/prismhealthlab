@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { createClient } from '@/lib/supabase/client'
 import { Appointment } from '@/types/shared'
@@ -46,9 +46,9 @@ export default function AppointmentActionsModal({
       setSelectedTime(appointment.scheduled_time || '')
       loadAvailableSlots(appointment.scheduled_date)
     }
-  }, [isOpen, action, appointment])
+  }, [isOpen, action, appointment, loadAvailableSlots])
 
-  const loadAvailableSlots = async (date: string) => {
+  const loadAvailableSlots = useCallback(async (date: string) => {
     if (!appointment) return
 
     try {
@@ -92,7 +92,7 @@ export default function AppointmentActionsModal({
     } catch (err) {
       console.error('Error loading available slots:', err)
     }
-  }
+  }, [appointment])
 
   const handleReschedule = async () => {
     if (!appointment || !selectedDate || !selectedTime) {

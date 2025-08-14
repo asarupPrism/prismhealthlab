@@ -28,7 +28,6 @@ export default function SecuritySettings({ profile, sessions, userId }: Security
   const [is2FAEnabled, setIs2FAEnabled] = useState(profile?.two_factor_enabled || false)
   const [isSettingUp2FA, setIsSettingUp2FA] = useState(false)
   const [verificationCode, setVerificationCode] = useState('')
-  const [_qrCode, setQrCode] = useState('')
   const [secret, setSecret] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
@@ -42,7 +41,6 @@ export default function SecuritySettings({ profile, sessions, userId }: Security
       // For now, we'll simulate it
       const mockSecret = 'JBSWY3DPEHPK3PXP' // This would be generated server-side
       setSecret(mockSecret)
-      setQrCode(`https://chart.googleapis.com/chart?chs=200x200&chld=M%7C0&cht=qr&chl=otpauth://totp/PrismHealthLab:${profile?.email}?secret=${mockSecret}&issuer=PrismHealthLab`)
       setIsSettingUp2FA(true)
     } catch {
       setMessage({ type: 'error', text: 'Failed to setup 2FA' })
@@ -81,7 +79,6 @@ export default function SecuritySettings({ profile, sessions, userId }: Security
       setMessage({ type: 'success', text: 'Two-factor authentication enabled successfully!' })
       setVerificationCode('')
       setSecret('')
-      setQrCode('')
     } catch {
       setMessage({ type: 'error', text: 'Invalid verification code' })
     } finally {
@@ -271,8 +268,7 @@ export default function SecuritySettings({ profile, sessions, userId }: Security
                   setIsSettingUp2FA(false)
                   setVerificationCode('')
                   setSecret('')
-                  setQrCode('')
-                }}
+                            }}
                 className="text-slate-400 hover:text-white text-sm"
               >
                 Cancel Setup

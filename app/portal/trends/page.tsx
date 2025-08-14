@@ -32,7 +32,7 @@ export default async function HealthTrendsPage() {
     .order('result_date', { ascending: true })
 
   // Group results by test type for trend analysis
-  const groupedResults = results?.reduce((acc: Record<string, any[]>, result: any) => {
+  const groupedResults = results?.reduce((acc: Record<string, TestResult[]>, result: TestResult) => {
     const testName = result.diagnostic_tests?.name || result.test_name || 'Unknown Test'
     if (!acc[testName]) {
       acc[testName] = []
@@ -58,7 +58,7 @@ export default async function HealthTrendsPage() {
     improvementRate,
     mostRecentDate,
     normalResults,
-    testsWithTrends: Object.entries(groupedResults).filter(([, tests]: [string, any[]]) => tests.length > 1).length
+    testsWithTrends: Object.entries(groupedResults).filter(([, tests]: [string, TestResult[]]) => tests.length > 1).length
   }
 
   return (

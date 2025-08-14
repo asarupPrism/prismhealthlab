@@ -272,7 +272,7 @@ export default function OrderHistoryView({ orders }: OrderHistoryViewProps) {
                             Order Items
                           </h4>
                           <div className="space-y-3">
-                            {order.items.map((item: any, itemIndex: number) => (
+                            {order.items.map((item: OrderItem, itemIndex: number) => (
                               <div key={itemIndex} className="flex items-center justify-between p-4 bg-slate-900/30 rounded-lg">
                                 <div>
                                   <p className="text-white font-medium">{item.name || 'Test Item'}</p>
