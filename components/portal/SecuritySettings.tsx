@@ -12,8 +12,14 @@ interface Session {
   created_at: string
 }
 
+interface Profile {
+  id: string
+  two_factor_enabled?: boolean
+  email?: string
+}
+
 interface SecuritySettingsProps {
-  profile: any
+  profile: Profile
   sessions: Session[]
   userId: string
 }
@@ -22,7 +28,7 @@ export default function SecuritySettings({ profile, sessions, userId }: Security
   const [is2FAEnabled, setIs2FAEnabled] = useState(profile?.two_factor_enabled || false)
   const [isSettingUp2FA, setIsSettingUp2FA] = useState(false)
   const [verificationCode, setVerificationCode] = useState('')
-  const [qrCode, setQrCode] = useState('')
+  const [_qrCode, setQrCode] = useState('')
   const [secret, setSecret] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
@@ -38,7 +44,7 @@ export default function SecuritySettings({ profile, sessions, userId }: Security
       setSecret(mockSecret)
       setQrCode(`https://chart.googleapis.com/chart?chs=200x200&chld=M%7C0&cht=qr&chl=otpauth://totp/PrismHealthLab:${profile?.email}?secret=${mockSecret}&issuer=PrismHealthLab`)
       setIsSettingUp2FA(true)
-    } catch (err) {
+    } catch (_err) {
       setMessage({ type: 'error', text: 'Failed to setup 2FA' })
     } finally {
       setIsLoading(false)
@@ -76,7 +82,7 @@ export default function SecuritySettings({ profile, sessions, userId }: Security
       setVerificationCode('')
       setSecret('')
       setQrCode('')
-    } catch (err) {
+    } catch (_err) {
       setMessage({ type: 'error', text: 'Invalid verification code' })
     } finally {
       setIsLoading(false)
@@ -105,7 +111,7 @@ export default function SecuritySettings({ profile, sessions, userId }: Security
 
       setIs2FAEnabled(false)
       setMessage({ type: 'success', text: 'Two-factor authentication disabled' })
-    } catch (err) {
+    } catch (_err) {
       setMessage({ type: 'error', text: 'Failed to disable 2FA' })
     } finally {
       setIsLoading(false)
@@ -125,7 +131,7 @@ export default function SecuritySettings({ profile, sessions, userId }: Security
 
       // Refresh page to update sessions list
       window.location.reload()
-    } catch (err) {
+    } catch (_err) {
       console.error('Error revoking session:', err)
     }
   }

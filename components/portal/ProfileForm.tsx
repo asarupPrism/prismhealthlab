@@ -4,8 +4,21 @@ import React, { useState } from 'react'
 import { motion } from 'framer-motion'
 import { createClient } from '@/lib/supabase/client'
 
+interface UserProfile {
+  id: string
+  first_name?: string
+  last_name?: string
+  phone?: string
+  date_of_birth?: string
+  address_line_1?: string
+  address_line_2?: string
+  city?: string
+  state?: string
+  zip_code?: string
+}
+
 interface ProfileFormProps {
-  profile: any
+  profile: UserProfile
   userEmail: string
 }
 

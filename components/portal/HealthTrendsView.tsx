@@ -53,13 +53,13 @@ export default function HealthTrendsView({ groupedResults }: HealthTrendsViewPro
   ))
 
   // Filter tests by category
-  const filteredTests = Object.entries(groupedResults).filter(([testName, results]) => {
+  const filteredTests = Object.entries(groupedResults).filter(([_testName, results]) => {
     if (selectedCategory === 'all') return true
     return results[0]?.diagnostic_tests?.category === selectedCategory
   })
 
   // Get tests with trends (more than 1 result)
-  const testsWithTrends = filteredTests.filter(([_, results]) => results.length > 1)
+  const testsWithTrends = filteredTests.filter(([_testName, results]) => results.length > 1)
 
   // Prepare chart data for selected test
   const getChartData = () => {
@@ -408,7 +408,7 @@ export default function HealthTrendsView({ groupedResults }: HealthTrendsViewPro
       )}
 
       {/* Tests Without Trends */}
-      {Object.entries(groupedResults).filter(([_, results]) => results.length === 1).length > 0 && (
+      {Object.entries(groupedResults).filter(([_testName, results]) => results.length === 1).length > 0 && (
         <div className="backdrop-blur-sm bg-slate-800/20 border border-slate-700/30 rounded-xl p-6">
           <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
             <div className="w-2 h-2 bg-indigo-400 rounded-full"></div>
@@ -419,7 +419,7 @@ export default function HealthTrendsView({ groupedResults }: HealthTrendsViewPro
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {Object.entries(groupedResults)
-              .filter(([_, results]) => results.length === 1)
+              .filter(([_testName, results]) => results.length === 1)
               .map(([testName, results]) => (
                 <div key={testName} className="p-4 bg-slate-900/30 rounded-xl">
                   <p className="text-white font-medium mb-1">{testName}</p>

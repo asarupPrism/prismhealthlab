@@ -4,8 +4,17 @@ import React, { useState } from 'react'
 import { motion } from 'framer-motion'
 import { createClient } from '@/lib/supabase/client'
 
+interface PrivacyPreferences {
+  share_data_for_research?: boolean
+  allow_analytics?: boolean
+  show_profile_public?: boolean
+  allow_marketing_emails?: boolean
+  share_with_partners?: boolean
+  data_retention_period?: string
+}
+
 interface PrivacySettingsProps {
-  preferences: any
+  preferences: PrivacyPreferences
   userId: string
 }
 
@@ -19,7 +28,7 @@ export default function PrivacySettings({ preferences, userId }: PrivacySettings
     dataRetentionPeriod: preferences?.data_retention_period || '5years'
   })
   
-  const [isLoading, setIsLoading] = useState(false)
+  const [_isLoading, setIsLoading] = useState(false)
   const [message, setMessage] = useState<string | null>(null)
 
   const handleToggle = async (setting: string, value: boolean) => {

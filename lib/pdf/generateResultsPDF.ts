@@ -194,7 +194,7 @@ export function generateMultipleResultsPDF(results: TestResult[], profile: UserP
   doc.setFont('helvetica', 'normal')
   
   // Summary boxes
-  let summaryY = 120
+  const summaryY = 120
   
   // Normal
   doc.setFillColor(...successColor)
