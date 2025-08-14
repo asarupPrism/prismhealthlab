@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion } from 'framer-motion';
+import { FadeIn, SlideIn, PulseIndicator } from '@/components/ui/motion';
 
 export default function TermsPage() {
   return (
@@ -9,21 +9,17 @@ export default function TermsPage() {
       
       {/* Medical indicators */}
       <div className="absolute top-8 left-8 flex items-center gap-4">
-        <div className="w-3 h-3 bg-cyan-400 rounded-full animate-pulse"></div>
-        <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" style={{animationDelay: '0.5s'}}></div>
-        <div className="w-2 h-2 bg-amber-400 rounded-full animate-pulse" style={{animationDelay: '1s'}}></div>
+        <PulseIndicator color="cyan" size="md" />
+        <PulseIndicator color="emerald" size="sm" delay={0.5} />
+        <PulseIndicator color="amber" size="sm" delay={1} />
       </div>
 
       <div className="relative max-w-4xl mx-auto px-6">
         {/* Header */}
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-12"
-        >
+        <SlideIn className="mb-12">
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-3 h-3 bg-cyan-400 rounded-full animate-pulse"></div>
-            <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" style={{animationDelay: '0.5s'}}></div>
+            <PulseIndicator color="cyan" size="md" />
+            <PulseIndicator color="emerald" size="sm" delay={0.5} />
           </div>
           <h1 className="text-4xl font-bold bg-gradient-to-r from-white via-cyan-100 to-white bg-clip-text text-transparent mb-4">
             Terms of Service
@@ -34,19 +30,14 @@ export default function TermsPage() {
           <p className="text-slate-400 text-sm mt-4">
             Last updated: January 2025
           </p>
-        </motion.div>
+        </SlideIn>
 
         {/* Content */}
-        <motion.div 
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="space-y-8"
-        >
+        <FadeIn delay={0.2} className="space-y-8">
           {/* Acceptance */}
           <div className="backdrop-blur-sm bg-slate-800/30 border border-slate-700/30 rounded-2xl p-8">
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-3 h-3 bg-emerald-400 rounded-full animate-pulse"></div>
+              <PulseIndicator color="emerald" size="md" />
               <h2 className="text-2xl font-semibold text-white">Acceptance of Terms</h2>
             </div>
             <div className="space-y-4 text-slate-300">
@@ -61,7 +52,7 @@ export default function TermsPage() {
           {/* Services */}
           <div className="backdrop-blur-sm bg-slate-800/30 border border-slate-700/30 rounded-2xl p-8">
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-3 h-3 bg-cyan-400 rounded-full animate-pulse"></div>
+              <PulseIndicator color="cyan" size="md" />
               <h2 className="text-2xl font-semibold text-white">Our Services</h2>
             </div>
             <div className="space-y-4 text-slate-300">
@@ -93,7 +84,7 @@ export default function TermsPage() {
           {/* User Responsibilities */}
           <div className="backdrop-blur-sm bg-slate-800/30 border border-slate-700/30 rounded-2xl p-8">
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-3 h-3 bg-amber-400 rounded-full animate-pulse"></div>
+              <PulseIndicator color="amber" size="md" />
               <h2 className="text-2xl font-semibold text-white">User Responsibilities</h2>
             </div>
             <div className="space-y-4 text-slate-300">
@@ -122,7 +113,7 @@ export default function TermsPage() {
           {/* Medical Disclaimer */}
           <div className="backdrop-blur-sm bg-slate-800/30 border border-red-700/30 rounded-2xl p-8">
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-3 h-3 bg-rose-400 rounded-full animate-pulse"></div>
+              <PulseIndicator color="rose" size="md" />
               <h2 className="text-2xl font-semibold text-white">Medical Disclaimer</h2>
             </div>
             <div className="space-y-4 text-slate-300">
@@ -145,7 +136,7 @@ export default function TermsPage() {
           {/* Limitation of Liability */}
           <div className="backdrop-blur-sm bg-slate-800/30 border border-slate-700/30 rounded-2xl p-8">
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-3 h-3 bg-rose-400 rounded-full animate-pulse"></div>
+              <PulseIndicator color="rose" size="md" />
               <h2 className="text-2xl font-semibold text-white">Limitation of Liability</h2>
             </div>
             <div className="space-y-4 text-slate-300">
@@ -160,7 +151,7 @@ export default function TermsPage() {
           {/* Contact */}
           <div className="backdrop-blur-sm bg-slate-800/30 border border-slate-700/30 rounded-2xl p-8">
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-3 h-3 bg-cyan-400 rounded-full animate-pulse"></div>
+              <PulseIndicator color="cyan" size="md" />
               <h2 className="text-2xl font-semibold text-white">Questions</h2>
             </div>
             <div className="space-y-4 text-slate-300">
@@ -170,7 +161,7 @@ export default function TermsPage() {
               </p>
             </div>
           </div>
-        </motion.div>
+        </FadeIn>
       </div>
     </div>
   );

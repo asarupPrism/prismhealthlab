@@ -1,5 +1,5 @@
 import React from 'react';
-// import { motion } from 'framer-motion';
+import { FadeIn, SlideIn, PulseIndicator } from '@/components/ui/motion';
 
 export default function PrivacyPage() {
   return (
@@ -9,19 +9,17 @@ export default function PrivacyPage() {
       
       {/* Medical indicators */}
       <div className="absolute top-8 left-8 flex items-center gap-4">
-        <div className="w-3 h-3 bg-cyan-400 rounded-full animate-pulse"></div>
+        <PulseIndicator color="cyan" size="md" />
         <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" style={{animationDelay: '0.5s'}}></div>
         <div className="w-2 h-2 bg-amber-400 rounded-full animate-pulse" style={{animationDelay: '1s'}}></div>
       </div>
 
       <div className="relative max-w-4xl mx-auto px-6">
         {/* Header */}
-        <div 
-          className="mb-12"
-        >
+        <SlideIn className="mb-12">
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-3 h-3 bg-cyan-400 rounded-full animate-pulse"></div>
-            <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" style={{animationDelay: '0.5s'}}></div>
+            <PulseIndicator color="cyan" size="md" />
+            <PulseIndicator color="emerald" size="sm" delay={0.5} />
           </div>
           <h1 className="text-4xl font-bold bg-gradient-to-r from-white via-cyan-100 to-white bg-clip-text text-transparent mb-4">
             Privacy Policy
@@ -32,16 +30,14 @@ export default function PrivacyPage() {
           <p className="text-slate-400 text-sm mt-4">
             Last updated: January 2025
           </p>
-        </div>
+        </SlideIn>
 
         {/* Content */}
-        <div 
-          className="space-y-8"
-        >
+        <FadeIn delay={0.2} className="space-y-8">
           {/* Overview */}
           <div className="backdrop-blur-sm bg-slate-800/30 border border-slate-700/30 rounded-2xl p-8">
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-3 h-3 bg-emerald-400 rounded-full animate-pulse"></div>
+              <PulseIndicator color="emerald" size="md" />
               <h2 className="text-2xl font-semibold text-white">Privacy Overview</h2>
             </div>
             <div className="space-y-4 text-slate-300">
@@ -65,7 +61,7 @@ export default function PrivacyPage() {
           {/* Information We Collect */}
           <div className="backdrop-blur-sm bg-slate-800/30 border border-slate-700/30 rounded-2xl p-8">
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-3 h-3 bg-cyan-400 rounded-full animate-pulse"></div>
+              <PulseIndicator color="cyan" size="md" />
               <h2 className="text-2xl font-semibold text-white">Information We Collect</h2>
             </div>
             <div className="space-y-6 text-slate-300">
@@ -109,7 +105,7 @@ export default function PrivacyPage() {
           {/* How We Use Your Information */}
           <div className="backdrop-blur-sm bg-slate-800/30 border border-slate-700/30 rounded-2xl p-8">
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-3 h-3 bg-amber-400 rounded-full animate-pulse"></div>
+              <PulseIndicator color="amber" size="md" />
               <h2 className="text-2xl font-semibold text-white">How We Use Your Information</h2>
             </div>
             <div className="space-y-4 text-slate-300">
@@ -138,7 +134,7 @@ export default function PrivacyPage() {
           {/* Data Security */}
           <div className="backdrop-blur-sm bg-slate-800/30 border border-slate-700/30 rounded-2xl p-8">
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-3 h-3 bg-rose-400 rounded-full animate-pulse"></div>
+              <PulseIndicator color="rose" size="md" />
               <h2 className="text-2xl font-semibold text-white">Data Security</h2>
             </div>
             <div className="space-y-4 text-slate-300">
@@ -185,7 +181,7 @@ export default function PrivacyPage() {
           {/* Your Rights */}
           <div className="backdrop-blur-sm bg-slate-800/30 border border-slate-700/30 rounded-2xl p-8">
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-3 h-3 bg-emerald-400 rounded-full animate-pulse"></div>
+              <PulseIndicator color="emerald" size="md" />
               <h2 className="text-2xl font-semibold text-white">Your Privacy Rights</h2>
             </div>
             <div className="space-y-4 text-slate-300">
@@ -214,7 +210,7 @@ export default function PrivacyPage() {
           {/* Contact Information */}
           <div className="backdrop-blur-sm bg-slate-800/30 border border-slate-700/30 rounded-2xl p-8">
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-3 h-3 bg-cyan-400 rounded-full animate-pulse"></div>
+              <PulseIndicator color="cyan" size="md" />
               <h2 className="text-2xl font-semibold text-white">Contact Us</h2>
             </div>
             <div className="space-y-4 text-slate-300">
@@ -229,7 +225,7 @@ export default function PrivacyPage() {
               </div>
             </div>
           </div>
-        </div>
+        </FadeIn>
       </div>
     </div>
   );

@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion } from 'framer-motion';
+import { FadeIn, SlideIn, PulseIndicator, GlassCard } from '@/components/ui/motion';
 
 export default function CareersPage() {
   return (
@@ -16,7 +16,7 @@ export default function CareersPage() {
 
       <div className="relative max-w-4xl mx-auto px-6">
         {/* Header */}
-        <motion.div 
+        <SlideIn className="div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="mb-12"
@@ -34,7 +34,7 @@ export default function CareersPage() {
         </motion.div>
 
         {/* Mission */}
-        <motion.div 
+        <SlideIn className="div 
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
@@ -72,7 +72,7 @@ export default function CareersPage() {
         </motion.div>
 
         {/* Open Positions */}
-        <motion.div 
+        <SlideIn className="div 
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
@@ -137,7 +137,7 @@ export default function CareersPage() {
         </motion.div>
 
         {/* Benefits */}
-        <motion.div 
+        <SlideIn className="div 
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6 }}
@@ -195,7 +195,7 @@ export default function CareersPage() {
         </motion.div>
 
         {/* Contact */}
-        <motion.div 
+        <SlideIn className="div 
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.8 }}

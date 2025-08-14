@@ -89,12 +89,12 @@ function validateEnvironmentConfiguration() {
 validateEnvironmentConfiguration();
 
 const nextConfig: NextConfig = {
-  // Temporarily disable ESLint and TypeScript during build for faster deployment
+  // Re-enable production-grade checking with medical animation system
   eslint: {
-    ignoreDuringBuilds: true,
+    ignoreDuringBuilds: false,
   },
   typescript: {
-    ignoreBuildErrors: true,
+    ignoreBuildErrors: false,
   },
   
   // Enable experimental features for better performance
