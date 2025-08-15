@@ -23,7 +23,7 @@ const LocationSchema = z.object({
   accepts_walk_ins: z.boolean().default(false),
   requires_appointment: z.boolean().default(true),
   is_active: z.boolean().default(true),
-  operating_hours: z.record(z.object({
+  operating_hours: z.record(z.string(), z.object({
     open: z.string(),
     close: z.string(),
     closed: z.boolean()

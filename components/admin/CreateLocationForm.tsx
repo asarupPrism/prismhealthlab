@@ -118,7 +118,7 @@ export default function CreateLocationForm({ staff }: CreateLocationFormProps) {
     try {
       const locationData: LocationFormData = {
         ...formData,
-        operating_hours: operatingHours as Record<string, Record<string, string | boolean>>,
+        operating_hours: operatingHours,
         services_offered: servicesOffered,
         location_manager_id: formData.location_manager_id || undefined
       }

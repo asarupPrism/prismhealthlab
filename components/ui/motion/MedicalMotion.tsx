@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react'
 import dynamic from 'next/dynamic'
+import type { Target, Transition } from 'framer-motion'
 
 // Dynamically import motion with SSR disabled
 const DynamicMotion = dynamic(
@@ -15,9 +16,9 @@ const DynamicMotion = dynamic(
 interface MedicalMotionProps {
   children: React.ReactNode
   className?: string
-  initial?: Record<string, string | number | boolean>
-  animate?: Record<string, string | number | boolean>
-  transition?: Record<string, string | number | boolean>
+  initial?: Target
+  animate?: Target
+  transition?: Transition
   delay?: number
   duration?: number
   type?: 'fade' | 'slide' | 'scale' | 'none'
@@ -58,7 +59,7 @@ const MEDICAL_ANIMATIONS = {
 // Medical-grade timing following design system
 const MEDICAL_TIMING = {
   duration: 0.4, // Professional, not too fast
-  ease: [0.4, 0.0, 0.2, 1], // Material Design easing
+  ease: [0.4, 0.0, 0.2, 1] as const, // Material Design easing
   stiffness: 300,
   damping: 30
 }
@@ -112,13 +113,10 @@ export default function MedicalMotion({
 
   const animationConfig = getAnimationConfig()
   
-  const transitionConfig = transition || {
+  const transitionConfig: Transition = transition || {
     duration,
     delay,
-    ease: MEDICAL_TIMING.ease,
-    type: 'spring',
-    stiffness: MEDICAL_TIMING.stiffness,
-    damping: MEDICAL_TIMING.damping
+    ease: MEDICAL_TIMING.ease
   }
 
   // Server-side render: show content without animation
