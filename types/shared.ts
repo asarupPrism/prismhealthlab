@@ -79,6 +79,7 @@ export interface Appointment {
   order_id: string | null
   location_id: string
   scheduled_date: string
+  scheduled_time: string | null
   appointment_type: string
   status: 'pending' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled' | 'rescheduled'
   staff_name: string | null

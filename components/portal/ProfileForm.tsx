@@ -3,22 +3,10 @@
 import React, { useState } from 'react'
 import { motion } from 'framer-motion'
 import { createClient } from '@/lib/supabase/client'
-
-interface UserProfile {
-  id: string
-  first_name?: string
-  last_name?: string
-  phone?: string
-  date_of_birth?: string
-  address_line_1?: string
-  address_line_2?: string
-  city?: string
-  state?: string
-  zip_code?: string
-}
+import { Profile } from '@/types/shared'
 
 interface ProfileFormProps {
-  profile: UserProfile
+  profile: Profile
   userEmail: string
 }
 
@@ -40,8 +28,8 @@ export default function ProfileForm({ profile, userEmail }: ProfileFormProps) {
     city: profile?.city || '',
     state: profile?.state || '',
     zipCode: profile?.zip_code || '',
-    insuranceProvider: profile?.insurance_provider || '',
-    insuranceMemberId: profile?.insurance_member_id || ''
+    insuranceProvider: '',
+    insuranceMemberId: ''
   })
 
   const handleInputChange = (field: string, value: string) => {
@@ -109,8 +97,8 @@ export default function ProfileForm({ profile, userEmail }: ProfileFormProps) {
       city: profile?.city || '',
       state: profile?.state || '',
       zipCode: profile?.zip_code || '',
-      insuranceProvider: profile?.insurance_provider || '',
-      insuranceMemberId: profile?.insurance_member_id || ''
+      insuranceProvider: '',
+      insuranceMemberId: ''
     })
     setErrorMessage('')
   }

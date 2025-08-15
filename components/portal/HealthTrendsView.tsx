@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react'
 import { motion } from 'framer-motion'
+import { TestResult } from '@/types/shared'
 import {
   LineChart,
   Line,
@@ -17,21 +18,13 @@ import {
   ReferenceLine
 } from 'recharts'
 
-interface TestResult {
-  id: string
-  test_name?: string
-  result_date?: string
-  value?: number
-  unit?: string
-  status?: string
-  reference_range?: string
-  diagnostic_tests?: {
-    name: string
-    category?: string
-    unit?: string
-    reference_range_min?: number
-    reference_range_max?: number
-  }
+interface ChartDataPoint {
+  date: string
+  value: number
+  status: string
+  unit: string
+  refMin: number
+  refMax: number
 }
 
 interface HealthTrendsViewProps {
@@ -90,18 +83,25 @@ export default function HealthTrendsView({ groupedResults }: HealthTrendsViewPro
       })
     }
     
-    return results.map(result => ({
-      date: new Date(result.result_date || result.created_at).toLocaleDateString('en-US', { 
-        month: 'short', 
-        day: 'numeric',
-        year: '2-digit'
-      }),
-      value: result.value || 0,
-      status: result.status,
-      unit: result.unit || result.diagnostic_tests?.unit || '',
-      refMin: result.diagnostic_tests?.reference_range_min,
-      refMax: result.diagnostic_tests?.reference_range_max
-    }))
+    return results.map(result => {
+      // Extract the primary test value from test_values
+      const primaryValue = result.test_values ? Object.values(result.test_values)[0] : null
+      const value = primaryValue ? (typeof primaryValue.value === 'number' ? primaryValue.value : parseFloat(String(primaryValue.value)) || 0) : 0
+      const unit = primaryValue?.unit || ''
+      
+      return {
+        date: new Date(result.result_date || result.created_at).toLocaleDateString('en-US', { 
+          month: 'short', 
+          day: 'numeric',
+          year: '2-digit'
+        }),
+        value,
+        status: result.status,
+        unit,
+        refMin: 0, // Will be set by reference range if available
+        refMax: 0  // Will be set by reference range if available
+      }
+    })
   }
 
   const chartData = getChartData()
@@ -112,10 +112,20 @@ export default function HealthTrendsView({ groupedResults }: HealthTrendsViewPro
       return { min: null, max: null }
     }
     const firstResult = groupedResults[selectedTest][0]
-    return {
-      min: firstResult.diagnostic_tests?.reference_range_min || null,
-      max: firstResult.diagnostic_tests?.reference_range_max || null
+    const normalRanges = firstResult.diagnostic_tests?.normal_ranges
+    
+    if (normalRanges) {
+      // Get the first normal range (assuming there's usually one main range)
+      const firstRange = Object.values(normalRanges)[0]
+      if (firstRange) {
+        return {
+          min: firstRange.min || null,
+          max: firstRange.max || null
+        }
+      }
     }
+    
+    return { min: null, max: null }
   }
 
   const refRange = getReferenceRange()
@@ -142,16 +152,16 @@ export default function HealthTrendsView({ groupedResults }: HealthTrendsViewPro
         <div className="backdrop-blur-sm bg-slate-800/95 border border-slate-700/50 rounded-xl p-3 shadow-xl">
           <p className="text-white font-medium">{label}</p>
           <p className="text-cyan-400">
-            Value: {payload[0].value} {data.unit}
+            Value: {payload[0].value} {(data as ChartDataPoint).unit || ''}
           </p>
           <p className={`text-sm ${
-            data.status === 'normal' ? 'text-emerald-400' :
-            data.status === 'elevated' || data.status === 'high' ? 'text-amber-400' :
-            data.status === 'low' ? 'text-amber-400' :
-            data.status === 'critical' ? 'text-rose-400' :
+            (data as ChartDataPoint).status === 'normal' ? 'text-emerald-400' :
+            (data as ChartDataPoint).status === 'elevated' || (data as ChartDataPoint).status === 'high' ? 'text-amber-400' :
+            (data as ChartDataPoint).status === 'low' ? 'text-amber-400' :
+            (data as ChartDataPoint).status === 'critical' ? 'text-rose-400' :
             'text-slate-400'
           }`}>
-            Status: {data.status || 'N/A'}
+            Status: {(data as ChartDataPoint).status || 'N/A'}
           </p>
         </div>
       )
@@ -172,6 +182,11 @@ export default function HealthTrendsView({ groupedResults }: HealthTrendsViewPro
   
   const CustomDot = (props: DotProps) => {
     const { cx, cy, payload } = props
+    
+    if (!payload) {
+      return <circle cx={cx} cy={cy} r={6} fill="#64748b" stroke="#1e293b" strokeWidth={2} />
+    }
+    
     const color = 
       payload.status === 'normal' ? '#10b981' :
       payload.status === 'elevated' || payload.status === 'high' ? '#f59e0b' :
@@ -444,17 +459,24 @@ export default function HealthTrendsView({ groupedResults }: HealthTrendsViewPro
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {Object.entries(groupedResults)
               .filter(([, results]) => results.length === 1)
-              .map(([testName, results]) => (
-                <div key={testName} className="p-4 bg-slate-900/30 rounded-xl">
-                  <p className="text-white font-medium mb-1">{testName}</p>
-                  <p className="text-slate-400 text-sm">
-                    {results[0].value} {results[0].unit || results[0].diagnostic_tests?.unit}
-                  </p>
-                  <p className="text-slate-500 text-xs mt-1">
-                    {new Date(results[0].result_date || results[0].created_at).toLocaleDateString()}
-                  </p>
-                </div>
-              ))}
+              .map(([testName, results]) => {
+                const result = results[0]
+                const primaryValue = result.test_values ? Object.values(result.test_values)[0] : null
+                const value = primaryValue ? (typeof primaryValue.value === 'number' ? primaryValue.value : parseFloat(String(primaryValue.value)) || 0) : 0
+                const unit = primaryValue?.unit || ''
+                
+                return (
+                  <div key={testName} className="p-4 bg-slate-900/30 rounded-xl">
+                    <p className="text-white font-medium mb-1">{testName}</p>
+                    <p className="text-slate-400 text-sm">
+                      {value} {unit}
+                    </p>
+                    <p className="text-slate-500 text-xs mt-1">
+                      {new Date(result.result_date || result.created_at).toLocaleDateString()}
+                    </p>
+                  </div>
+                )
+              })}
           </div>
         </div>
       )}

@@ -3,21 +3,13 @@
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { generateSingleResultPDF, generateMultipleResultsPDF, downloadPDF, openPDFInNewTab } from '@/lib/pdf/generateResultsPDF'
-import { TestResult } from '@/types/shared'
-
-interface UserProfile {
-  id: string
-  first_name?: string
-  last_name?: string
-  email?: string
-  phone?: string
-}
+import { TestResult, Profile } from '@/types/shared'
 
 interface ResultsExportModalProps {
   isOpen: boolean
   onClose: () => void
   results: TestResult[]
-  profile: UserProfile
+  profile: Profile
 }
 
 export default function ResultsExportModal({ isOpen, onClose, results, profile }: ResultsExportModalProps) {
@@ -95,15 +87,23 @@ export default function ResultsExportModal({ isOpen, onClose, results, profile }
 
   const generateCSV = (resultsToExport: TestResult[]) => {
     const headers = ['Test Name', 'Result', 'Unit', 'Status', 'Reference Range', 'Test Date', 'Category']
-    const rows = resultsToExport.map(result => [
-      result.diagnostic_tests?.name || result.test_name || '',
-      result.value || '',
-      result.unit || '',
-      result.status || '',
-      result.reference_range || '',
-      result.result_date ? new Date(result.result_date).toLocaleDateString() : '',
-      result.diagnostic_tests?.category || ''
-    ])
+    const rows = resultsToExport.map(result => {
+      // Extract primary test value from test_values
+      const primaryValue = result.test_values ? Object.values(result.test_values)[0] : null
+      const value = primaryValue ? String(primaryValue.value) : ''
+      const unit = primaryValue?.unit || ''
+      const refRange = primaryValue?.reference || ''
+      
+      return [
+        result.diagnostic_tests?.name || '',
+        value,
+        unit,
+        result.status || '',
+        refRange,
+        result.result_date ? new Date(result.result_date).toLocaleDateString() : '',
+        result.diagnostic_tests?.category || ''
+      ]
+    })
 
     const csvContent = [
       headers.join(','),
@@ -213,7 +213,7 @@ export default function ResultsExportModal({ isOpen, onClose, results, profile }
                         />
                         <div className="flex-1">
                           <p className="text-white text-sm font-medium">
-                            {result.diagnostic_tests?.name || result.test_name || 'Test Result'}
+                            {result.diagnostic_tests?.name || 'Test Result'}
                           </p>
                           <p className="text-slate-400 text-xs">
                             {result.result_date ? new Date(result.result_date).toLocaleDateString() : 'Date not available'}

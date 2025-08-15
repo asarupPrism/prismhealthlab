@@ -4,14 +4,7 @@ import React, { useState } from 'react'
 import { motion } from 'framer-motion'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
-
-interface Profile {
-  id: string
-  first_name?: string
-  last_name?: string
-  email?: string
-  phone?: string
-}
+import { Profile } from '@/types/shared'
 
 interface User {
   id: string
@@ -166,7 +159,9 @@ export default function AccountSettings({ profile, user }: AccountSettingsProps)
                   <p className="text-white">
                     {profile?.created_at 
                       ? new Date(profile.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long' })
-                      : 'Unknown'
+                      : user?.created_at 
+                        ? new Date(user.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long' })
+                        : 'Unknown'
                     }
                   </p>
                 </div>

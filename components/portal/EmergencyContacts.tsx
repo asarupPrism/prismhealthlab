@@ -29,10 +29,6 @@ export default function EmergencyContacts({ userId }: EmergencyContactsProps) {
     email: ''
   })
 
-  useEffect(() => {
-    loadContacts()
-  }, [loadContacts])
-
   const loadContacts = useCallback(async () => {
     try {
       const supabase = createClient()
@@ -49,6 +45,10 @@ export default function EmergencyContacts({ userId }: EmergencyContactsProps) {
       console.error('Error loading emergency contacts:', err)
     }
   }, [userId])
+
+  useEffect(() => {
+    loadContacts()
+  }, [loadContacts])
 
   const handleAddContact = async () => {
     if (!newContact.name || !newContact.phone) {

@@ -1,6 +1,7 @@
 import React from 'react'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
+import { TestResult } from '@/types/shared'
 import HealthTrendsView from '@/components/portal/HealthTrendsView'
 import TrendsStatistics from '@/components/portal/TrendsStatistics'
 
@@ -33,7 +34,7 @@ export default async function HealthTrendsPage() {
 
   // Group results by test type for trend analysis
   const groupedResults = results?.reduce((acc: Record<string, TestResult[]>, result: TestResult) => {
-    const testName = result.diagnostic_tests?.name || result.test_name || 'Unknown Test'
+    const testName = result.diagnostic_tests?.name || 'Unknown Test'
     if (!acc[testName]) {
       acc[testName] = []
     }
@@ -58,7 +59,7 @@ export default async function HealthTrendsPage() {
     improvementRate,
     mostRecentDate,
     normalResults,
-    testsWithTrends: Object.entries(groupedResults).filter(([, tests]: [string, TestResult[]]) => tests.length > 1).length
+    testsWithTrends: Object.entries(groupedResults).filter(([, tests]) => (tests as TestResult[]).length > 1).length
   }
 
   return (

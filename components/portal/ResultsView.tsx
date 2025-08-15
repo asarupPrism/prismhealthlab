@@ -5,18 +5,11 @@ import { motion } from 'framer-motion'
 import Link from 'next/link'
 import RecentResultsCard from './RecentResultsCard'
 import ResultsExportModal from './ResultsExportModal'
-import { TestResult } from '@/types/shared'
-
-interface UserProfile {
-  id: string
-  first_name?: string
-  last_name?: string
-  email?: string
-}
+import { TestResult, Profile } from '@/types/shared'
 
 interface ResultsViewProps {
   results: TestResult[]
-  profile?: UserProfile
+  profile?: Profile
 }
 
 export default function ResultsView({ results, profile }: ResultsViewProps) {
@@ -354,12 +347,14 @@ export default function ResultsView({ results, profile }: ResultsViewProps) {
       </div>
 
       {/* Export Modal */}
-      <ResultsExportModal 
-        isOpen={isExportModalOpen}
-        onClose={() => setIsExportModalOpen(false)}
-        results={sortedResults}
-        profile={profile}
-      />
+      {profile && (
+        <ResultsExportModal 
+          isOpen={isExportModalOpen}
+          onClose={() => setIsExportModalOpen(false)}
+          results={sortedResults}
+          profile={profile}
+        />
+      )}
     </div>
   )
 }

@@ -1,28 +1,8 @@
 import jsPDF from 'jspdf'
+import { TestResult, Profile } from '@/types/shared'
 
-interface TestResult {
-  id: string
-  test_name?: string
-  result_date?: string
-  status?: string
-  value?: number
-  unit?: string
-  reference_range?: string
-  notes?: string
-  diagnostic_tests?: {
-    name: string
-    category?: string
-    description?: string
-  }
-}
-
-interface UserProfile {
-  first_name?: string
-  last_name?: string
-  date_of_birth?: string
-  email?: string
-  phone?: string
-}
+// Type alias for backward compatibility
+type UserProfile = Profile
 
 export function generateSingleResultPDF(result: TestResult, profile: UserProfile) {
   const doc = new jsPDF()
@@ -77,7 +57,7 @@ export function generateSingleResultPDF(result: TestResult, profile: UserProfile
   // Test Name
   doc.setFontSize(14)
   doc.setTextColor(...primaryColor)
-  doc.text(result.diagnostic_tests?.name || result.test_name || 'Test Result', 20, 105)
+  doc.text(result.diagnostic_tests?.name || 'Test Result', 20, 105)
   
   // Category
   doc.setFontSize(10)
@@ -105,7 +85,9 @@ export function generateSingleResultPDF(result: TestResult, profile: UserProfile
     doc.setTextColor(0, 0, 0)
   }
   
-  const resultText = result.value ? `${result.value} ${result.unit || ''}` : result.status || 'Pending'
+  // Extract primary test value from test_values
+  const primaryValue = result.test_values ? Object.values(result.test_values)[0] : null
+  const resultText = primaryValue ? `${primaryValue.value} ${primaryValue.unit || ''}` : result.status || 'Pending'
   doc.text(resultText, 35, resultY + 20)
   
   // Status Badge
@@ -116,17 +98,20 @@ export function generateSingleResultPDF(result: TestResult, profile: UserProfile
   
   // Reference Range
   doc.setTextColor(0, 0, 0)
-  doc.text(`Reference Range: ${result.reference_range || 'N/A'}`, 120, resultY + 20)
+  // Get reference range from diagnostic test or primary value
+  const refRange = primaryValue?.reference || 'N/A'
+  doc.text(`Reference Range: ${refRange}`, 120, resultY + 20)
   
-  // Notes Section
-  if (result.notes) {
+  // Notes Section (using interpretation or summary instead)
+  const notes = result.interpretation || result.summary
+  if (notes) {
     doc.setFontSize(12)
     doc.setFont('helvetica', 'bold')
     doc.text('Clinical Notes', 20, 180)
     
     doc.setFontSize(10)
     doc.setFont('helvetica', 'normal')
-    const lines = doc.splitTextToSize(result.notes, 170)
+    const lines = doc.splitTextToSize(notes, 170)
     doc.text(lines, 20, 190)
   }
   
@@ -273,11 +258,12 @@ export function generateMultipleResultsPDF(results: TestResult[], profile: UserP
     
     // Test name
     doc.setFontSize(8)
-    const testName = result.diagnostic_tests?.name || result.test_name || 'Test'
+    const testName = result.diagnostic_tests?.name || 'Test'
     doc.text(testName.substring(0, 30), 22, tableY)
     
-    // Result value
-    const resultText = result.value ? `${result.value} ${result.unit || ''}` : '-'
+    // Result value - extract from test_values
+    const primaryValue = result.test_values ? Object.values(result.test_values)[0] : null
+    const resultText = primaryValue ? `${primaryValue.value} ${primaryValue.unit || ''}` : '-'
     doc.text(resultText, 90, tableY)
     
     // Status with color

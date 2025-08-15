@@ -39,15 +39,6 @@ export default function AppointmentActionsModal({
   const [cancellationReason, setCancellationReason] = useState('')
   const [cancellationDetails, setCancellationDetails] = useState('')
 
-  useEffect(() => {
-    if (isOpen && action === 'reschedule' && appointment) {
-      // Set initial date to current appointment date
-      setSelectedDate(appointment.scheduled_date)
-      setSelectedTime(appointment.scheduled_time || '')
-      loadAvailableSlots(appointment.scheduled_date)
-    }
-  }, [isOpen, action, appointment, loadAvailableSlots])
-
   const loadAvailableSlots = useCallback(async (date: string) => {
     if (!appointment) return
 
@@ -93,6 +84,15 @@ export default function AppointmentActionsModal({
       console.error('Error loading available slots:', err)
     }
   }, [appointment])
+
+  useEffect(() => {
+    if (isOpen && action === 'reschedule' && appointment) {
+      // Set initial date to current appointment date
+      setSelectedDate(appointment.scheduled_date)
+      setSelectedTime(appointment.scheduled_time || '')
+      loadAvailableSlots(appointment.scheduled_date)
+    }
+  }, [isOpen, action, appointment, loadAvailableSlots])
 
   const handleReschedule = async () => {
     if (!appointment || !selectedDate || !selectedTime) {

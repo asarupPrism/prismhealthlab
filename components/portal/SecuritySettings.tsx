@@ -128,7 +128,7 @@ export default function SecuritySettings({ profile, sessions, userId }: Security
 
       // Refresh page to update sessions list
       window.location.reload()
-    } catch {
+    } catch (err) {
       console.error('Error revoking session:', err)
     }
   }

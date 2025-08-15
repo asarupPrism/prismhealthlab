@@ -19,14 +19,14 @@ export default function NotificationPreferences({ preferences, userId }: Notific
   const [successMessage, setSuccessMessage] = useState('')
   
   const [notificationSettings, setNotificationSettings] = useState({
-    emailNotifications: preferences?.email_notifications ?? true,
-    smsNotifications: preferences?.sms_notifications ?? false,
+    emailNotifications: preferences?.email_results ?? true,
+    smsNotifications: preferences?.sms_reminders ?? false,
     pushNotifications: preferences?.push_notifications ?? true,
-    appointmentReminders: preferences?.appointment_reminders ?? true,
-    resultAlerts: preferences?.result_alerts ?? true,
-    promotionalEmails: preferences?.promotional_emails ?? false,
-    newsletterSubscription: preferences?.newsletter_subscription ?? false,
-    reminderTiming: preferences?.reminder_timing || '24h'
+    appointmentReminders: true,
+    resultAlerts: preferences?.email_results ?? true,
+    promotionalEmails: false,
+    newsletterSubscription: false,
+    reminderTiming: '24h'
   })
 
   const handleToggle = async (setting: string, value: boolean) => {
@@ -42,7 +42,6 @@ export default function NotificationPreferences({ preferences, userId }: Notific
   }
 
   const savePreferences = async (settings: typeof notificationSettings) => {
-    setIsLoading(true)
     setSuccessMessage('')
 
     try {
@@ -83,8 +82,6 @@ export default function NotificationPreferences({ preferences, userId }: Notific
       
     } catch (err) {
       console.error('Error saving preferences:', err)
-    } finally {
-      setIsLoading(false)
     }
   }
 
