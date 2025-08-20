@@ -4,17 +4,22 @@
 import 'server-only'
 
 // Use eval to hide the import from bundler analysis
-function createSwellClient() {
+type SwellClient = {
+  get: (path: string, params?: Record<string, unknown>) => Promise<unknown>
+  put: (path: string, body?: Record<string, unknown>) => Promise<unknown>
+}
+
+function createSwellClient(): SwellClient {
   const { Client } = eval('require("swell-node")')
-  return new Client(
+  return (new Client(
     process.env.SWELL_STORE_ID || process.env.NEXT_PUBLIC_SWELL_STORE_ID || '',
     process.env.SWELL_SECRET_KEY || ''
-  )
+  )) as unknown as SwellClient
 }
 
 // Lazy, memoized client to avoid build-time side effects
-let _swellClient: any | null = null
-function getSwellClient() {
+let _swellClient: SwellClient | null = null
+function getSwellClient(): SwellClient {
   if (!_swellClient) {
     _swellClient = createSwellClient()
   }
