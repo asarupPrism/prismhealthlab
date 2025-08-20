@@ -1,4 +1,5 @@
 import React from 'react'
+export const dynamic = 'force-dynamic'
 import { getAdminClient } from '@/lib/supabase/admin'
 import CreateStaffForm from '@/components/admin/CreateStaffForm'
 import StaffList from '@/components/admin/StaffList'
