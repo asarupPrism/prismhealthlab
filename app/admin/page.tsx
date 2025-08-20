@@ -1,4 +1,5 @@
 import React from 'react'
+export const dynamic = 'force-dynamic'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminServerAPI } from '@/lib/admin-server-api'
 import { getSwellAnalytics } from '@/lib/server-only-swell'

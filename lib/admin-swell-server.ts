@@ -12,8 +12,14 @@ function createSwellClient() {
   )
 }
 
-// Instantiate once at module load - no race conditions, always ready
-const swellClient = createSwellClient()
+// Lazy, memoized client to avoid build-time side effects
+let _swellClient: any | null = null
+function getSwellClient() {
+  if (!_swellClient) {
+    _swellClient = createSwellClient()
+  }
+  return _swellClient
+}
 
 interface SwellAnalytics {
   revenue: {
@@ -77,22 +83,24 @@ export async function getSwellAnalytics(): Promise<SwellAnalytics> {
     const yearStart = new Date(new Date().getFullYear(), 0, 1).toISOString()
 
     // Fetch data using the ready client
+    const client = getSwellClient()
+
     const [allOrders, todayOrders, weekOrders, monthOrders, allProducts, allCustomers] = await Promise.all([
-      swellClient.get('/orders', { limit: 1000 }),
-      swellClient.get('/orders', { 
+      client.get('/orders', { limit: 1000 }),
+      client.get('/orders', { 
         limit: 1000, 
         where: { date_created: { $gte: today } }
       }),
-      swellClient.get('/orders', { 
+      client.get('/orders', { 
         limit: 1000, 
         where: { date_created: { $gte: weekStart } }
       }),
-      swellClient.get('/orders', { 
+      client.get('/orders', { 
         limit: 1000, 
         where: { date_created: { $gte: monthStart } }
       }),
-      swellClient.get('/products', { limit: 1000 }),
-      swellClient.get('/accounts', { limit: 1000 })
+      client.get('/products', { limit: 1000 }),
+      client.get('/accounts', { limit: 1000 })
     ])
 
     // Process data (same logic as before)
@@ -185,7 +193,8 @@ export async function getSwellAnalytics(): Promise<SwellAnalytics> {
 
 export async function getSwellOrders(limit = 10): Promise<SwellOrder[]> {
   try {
-    const response = await swellClient.get('/orders', { 
+    const client = getSwellClient()
+    const response = await client.get('/orders', { 
       limit, 
       sort: '-date_created' 
     })
@@ -198,7 +207,8 @@ export async function getSwellOrders(limit = 10): Promise<SwellOrder[]> {
 
 export async function getSwellProducts(limit = 50): Promise<SwellProduct[]> {
   try {
-    const response = await swellClient.get('/products', { 
+    const client = getSwellClient()
+    const response = await client.get('/products', { 
       limit, 
       sort: '-date_created' 
     })
@@ -211,7 +221,8 @@ export async function getSwellProducts(limit = 50): Promise<SwellProduct[]> {
 
 export async function getSwellOrder(orderId: string): Promise<SwellOrder | null> {
   try {
-    const order = await swellClient.get(`/orders/${orderId}`)
+    const client = getSwellClient()
+    const order = await client.get(`/orders/${orderId}`)
     return order as SwellOrder
   } catch (error) {
     console.error(`Error fetching order ${orderId}:`, error)
@@ -221,7 +232,8 @@ export async function getSwellOrder(orderId: string): Promise<SwellOrder | null>
 
 export async function updateSwellOrderStatus(orderId: string, status: string): Promise<boolean> {
   try {
-    await swellClient.put(`/orders/${orderId}`, { status })
+    const client = getSwellClient()
+    await client.put(`/orders/${orderId}`, { status })
     return true
   } catch (error) {
     console.error(`Error updating order ${orderId}:`, error)
@@ -231,7 +243,8 @@ export async function updateSwellOrderStatus(orderId: string, status: string): P
 
 export async function searchSwellOrdersByEmail(email: string): Promise<SwellOrder[]> {
   try {
-    const response = await swellClient.get('/orders', {
+    const client = getSwellClient()
+    const response = await client.get('/orders', {
       where: { 'account.email': email }
     })
     return (response as { results?: SwellOrder[] }).results || []
@@ -243,7 +256,8 @@ export async function searchSwellOrdersByEmail(email: string): Promise<SwellOrde
 
 export async function getSwellInventoryAlerts(threshold = 10): Promise<SwellProduct[]> {
   try {
-    const response = await swellClient.get('/products', {
+    const client = getSwellClient()
+    const response = await client.get('/products', {
       where: { 
         stock_level: { $lt: threshold },
         active: true 

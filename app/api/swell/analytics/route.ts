@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server'
 import { AdminSwellServerAPI } from '@/lib/admin-swell-server'
 
+export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
+
 // GET /api/swell/analytics - Fetch analytics data from Swell with error safety
 export async function GET() {
   try {
