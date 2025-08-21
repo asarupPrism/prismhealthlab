@@ -1,4 +1,6 @@
-# Swell.is E-commerce Integration
+# DEPRECATED: See INTEGRATIONS.md for current Swell integration details
+
+# Swell.is E-commerce Integration (legacy)
 
 ## Overview
 

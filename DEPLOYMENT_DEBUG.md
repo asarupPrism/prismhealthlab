@@ -1,4 +1,6 @@
-# Deployment Debug Info
+# DEPRECATED: Consolidated into DEPLOYMENT.md and docs/DEPLOYMENT_TODO.md
+
+# Deployment Debug Info (legacy)
 
 ## Current Status
 - Navigation enhancements: ✅ Committed (75dc35f)

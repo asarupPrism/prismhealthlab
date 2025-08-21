@@ -1,4 +1,6 @@
-# Swell.js Error Fix - Debug Guide
+# DEPRECATED: See INTEGRATIONS.md for current Swell notes
+
+# Swell.js Error Fix - Debug Guide (legacy)
 
 ## Issue Fixed
 The "Internal server error" when adding items to cart has been resolved by fixing several key issues:

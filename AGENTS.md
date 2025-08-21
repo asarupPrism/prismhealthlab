@@ -1,41 +1,58 @@
-# Repository Guidelines
+Prism Health Lab – Agent Guide
+==============================
 
-## Project Structure & Modules
-- `app/`: Next.js App Router pages, layouts, API routes.
-- `components/`: Reusable UI (auth, portal, layout, pwa, seo).
-- `lib/`: Application logic (auth, supabase, monitoring, cache, pdf, email, server utilities) and `lib/actions/` for server actions.
-- `context/` and `hooks/`: React context providers and custom hooks.
-- `database/`: SQL schemas, migrations, admin setup, and docs.
-- `scripts/`: Node utilities (populate Swell, setup admin tables, connectivity tests).
-- `public/` and `styles/`: Static assets, service worker, Tailwind styles.
-- `types/` and `docs/`: Shared TypeScript types and project documentation.
+Purpose
+- How automation/AI agents should safely make high‑quality changes that ship.
 
-## Build, Test, and Development
-- `npm run dev`: Start local dev server at `http://localhost:3000` (Turbopack).
-- `npm run build`: Compile production build.
-- `npm run start`: Serve production build.
-- `npm run lint`: Run ESLint (Next.js core-web-vitals + TypeScript).
-- Connectivity/util scripts: `node scripts/test-swell-connection.js`, `node scripts/test-module-resolution.js`.
-- Data/setup scripts: `node scripts/populate-swell-products.js`, `node scripts/setup-admin-tables.js`.
+Ground Rules
+- Be surgical: change only what’s required; preserve style/structure.
+- Prefer minimal, high‑value patches; avoid unrelated refactors.
+- Never commit secrets; validate env via `lib/env-validation.ts`.
+- Keep server‑only deps (e.g., `swell-node`, `web-push`) out of client bundles.
 
-## Coding Style & Naming
-- Language: TypeScript, strict mode; path alias `@/*` (see `tsconfig.json`).
-- Components: PascalCase filenames in `components/` and `app/**/page.tsx` for routes.
-- Indentation: 2 spaces; prefer named exports; avoid default unless required.
-- Client vs Server: Mark client components with `'use client'`; keep server-only logic in `lib/**`.
-- Linting/format: ESLint enforced via `npm run lint`; follow auto-fix suggestions.
+Project Structure (essentials)
+- `app/`: App Router routes, layouts, API routes (use Node runtime for server‑only deps)
+- `components/`: UI building blocks (auth, admin, portal, pwa, seo)
+- `lib/`: Supabase, Swell, cache, monitoring, email, actions
+- `database/`: SQL migrations and admin setup
+- `scripts/`: Utilities (populate Swell, setup admin tables)
+- `public/`: PWA assets (manifest, sw.js)
 
-## Testing Guidelines
-- No unit test runner is configured yet. For new critical logic, add lightweight tests (e.g., Jest/Vitest) with files named `*.test.ts(x)` colocated with sources.
-- Use scripts for integration checks (Swell, module resolution). Validate key flows manually: auth, checkout, portal, admin.
-- Aim for high-value coverage on pure utilities in `lib/**`.
+Commands
+- `npm run dev` – local dev (http://localhost:3000)
+- `npm run build` – production build; must pass
+- `npm run start` – serve production build
+- `npm run lint` – ESLint (core-web-vitals + TS)
 
-## Commit & Pull Requests
-- Commits: Imperative, concise subjects (e.g., "Fix TypeScript build error"). Optional scope: `feat(admin): …` is welcome but not required.
-- PRs must include: purpose, linked issues, screenshots for UI, migration notes for any `database/**` changes, and clear rollback steps.
-- Checks: Ensure `npm run lint` and `npm run build` pass; include script outputs if relevant.
+Coding Standards
+- TypeScript strict; path alias `@/*` (tsconfig.json)
+- Client vs Server: use `'use client'` for client components; keep server logic in `lib/**`
+- Named exports preferred; 2‑space indentation
+- Respect RLS and PHI boundaries; avoid logging sensitive data
 
-## Security & Configuration
-- Secrets in `.env.local` (never commit). Validate with `lib/env-validation.ts`.
-- Review HIPAA logging and monitoring settings in `lib/audit/**` and `lib/monitoring/**` before enabling.
-- Database changes go through `database/migrations/supabase/**` with documented steps in PR.
+Runtime/Deployment
+- Vercel: Admin subtree is dynamic (no prerender of server secrets)
+- Swell API routes: `export const runtime='nodejs'` and `export const dynamic='force-dynamic'`
+- Lazy‑init server SDKs (e.g., `swell-node`) to avoid build‑time side effects
+- PWA: ensure `public/manifest.json` assets exist; service worker at `public/sw.js`
+
+Planning and Patching
+- Create a short plan (steps) before large changes
+- Group related edits; keep commit messages concise and imperative
+- Update docs when behavior changes (README.md, DEPLOYMENT.md, SECURITY.md)
+
+Testing Philosophy
+- Run `npm run build` and `npm run lint` locally when possible
+- Add focused tests for pure utilities in `lib/**` when logic changes are non‑trivial
+- Don’t add new frameworks unless requested
+
+Security & Compliance
+- RLS must be enabled for public tables; see SECURITY.md and database migrations
+- Sentry must scrub PHI; push/email payloads must avoid sensitive data
+- Use service role only server‑side; never expose in client code
+
+Hand‑off Expectations
+- Summarize changes (files, rationale, risk)
+- Call out migrations, env var changes, and any manual steps
+- Link to relevant docs (DEPLOYMENT.md, ARCHITECTURE.md, SECURITY.md)
+

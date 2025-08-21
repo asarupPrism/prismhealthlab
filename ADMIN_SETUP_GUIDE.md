@@ -1,4 +1,6 @@
-# Admin Setup Guide
+# DEPRECATED: Admin setup details are integrated into README.md and database/admin docs
+
+# Admin Setup Guide (legacy)
 
 ## Issue Fixed
 

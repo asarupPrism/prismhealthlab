@@ -1,4 +1,6 @@
-# Admin Login Loading Issue - Fix Summary
+# DEPRECATED: Historical note; current auth flow covered in README.md and SECURITY.md
+
+# Admin Login Loading Issue - Fix Summary (legacy)
 
 ## Issue Description
 The admin login page was stuck at "Loading session..." with `bootstrapLoading: true` never resolving, preventing users from accessing the admin interface.

@@ -1,4 +1,6 @@
-# Environment Setup Guide - Prism Health Lab
+# DEPRECATED: See DEPLOYMENT.md for current guidance
+
+# Environment Setup Guide - Prism Health Lab (legacy)
 
 This guide provides comprehensive instructions for configuring environment variables for different deployment environments, with emphasis on **immediate Vercel deployment fix**.
 

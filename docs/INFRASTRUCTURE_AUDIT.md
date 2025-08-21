@@ -1,4 +1,6 @@
-# Prism Health Lab - Infrastructure Audit Report
+# NOTE: This audit predates the current setup. See README.md, DEPLOYMENT.md, ARCHITECTURE.md, SECURITY.md for authoritative guidance.
+
+# Prism Health Lab - Infrastructure Audit Report (2025-07)
 
 ## Audit Date: July 2025
 
