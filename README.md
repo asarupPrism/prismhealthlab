@@ -64,6 +64,7 @@ Development Notes
 - RLS: All public tables must have RLS enabled; see SECURITY.md and database/migrations
 - Commerce: client uses swell-js; server uses swell-node with lazy init (Vercel safe)
 - PWA: service worker at public/sw.js; ensure referenced icons/screenshots exist
+- Visual style: see in-app style guide at route `/styleguide` for colors, typography, spacing, and motion primitives.
 
 Deployment (Vercel)
 - Required env vars set in Vercel: see DEPLOYMENT.md

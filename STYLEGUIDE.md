@@ -20,6 +20,13 @@ Security & Compliance
 - Dependencies: avoid client bundling of native/server deps (`swell-node`, `web-push`, etc.).
 - Auditing: log sensitive access via `lib/audit/hipaa-logger.ts`; set encryption keys in prod.
 
+UI Design System (Visual)
+- Route: `/styleguide` (App Router) showcases the canonical design system.
+- Palette: Primary Cyan `#06b6d4`, Medical Blue `#3b82f6`, Health Green `#10b981`, Warning Amber `#f59e0b`, Critical Rose `#f43f5e`, Dark neutrals (Slate 50–950).
+- Typography: Headline scale (6xl, 4xl, 2xl, xl, lg) with clinical clarity; body text (lg/base/sm) with high contrast; respect reduced-motion.
+- Components: Glass-morphism cards, soft borders, subtle shadows; accessible focus styles; responsive grid spacing from `/styleguide` examples.
+- Motion: Professional easing ([0.4, 0.0, 0.2, 1]); minimal motion defaults; support reduced-motion.
+
 Performance & Reliability
 - Budgets: aim for Core Web Vitals passing thresholds (LCP <2.5s, CLS <0.1, INP <200ms).
 - Caching: use Redis for hot paths when configured; set sensible TTLs; invalidate on writes.
@@ -44,6 +51,7 @@ Observability
 Accessibility & UX
 - Adhere to WCAG AA for color contrast; provide keyboard access and focus states.
 - Respect reduced-motion; prefer system fonts and performant animations.
+- Follow patterns demonstrated in `/styleguide` for color usage, spacing, and content hierarchy.
 
 Documentation & Reviews
 - Keep README current; update DEPLOYMENT.md, ARCHITECTURE.md, SECURITY.md on relevant changes.
@@ -53,4 +61,3 @@ Documentation & Reviews
 Release Management
 - Use feature flags where feasible; default safe in preview.
 - Document migrations with rollback steps; verify RLS after DB changes.
-
