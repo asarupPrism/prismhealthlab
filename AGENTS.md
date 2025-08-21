@@ -39,7 +39,7 @@ Runtime/Deployment
 Planning and Patching
 - Create a short plan (steps) before large changes
 - Group related edits; keep commit messages concise and imperative
-- Update docs when behavior changes (README.md, DEPLOYMENT.md, SECURITY.md)
+- Update docs when behavior changes (README.md, DEPLOYMENT.md, SECURITY.md, STYLEGUIDE.md)
 
 Testing Philosophy
 - Run `npm run build` and `npm run lint` locally when possible
@@ -51,8 +51,10 @@ Security & Compliance
 - Sentry must scrub PHI; push/email payloads must avoid sensitive data
 - Use service role only server‑side; never expose in client code
 
+Follow the Style Guide
+- All changes must adhere to STYLEGUIDE.md (coding, security, performance, testing, docs).
+
 Hand‑off Expectations
 - Summarize changes (files, rationale, risk)
 - Call out migrations, env var changes, and any manual steps
 - Link to relevant docs (DEPLOYMENT.md, ARCHITECTURE.md, SECURITY.md)
-

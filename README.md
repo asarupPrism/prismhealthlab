@@ -7,6 +7,7 @@ Quick Links
 - Deployment: DEPLOYMENT.md
 - Architecture: ARCHITECTURE.md
 - Security: SECURITY.md
+- Style Guide: STYLEGUIDE.md
 - Database: database/README.md
 - Agents (AI/automation): AGENTS.md
 - Open TODOs: docs/DEPLOYMENT_TODO.md
